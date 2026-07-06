@@ -1,6 +1,8 @@
 import { View, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { AppText } from './AppText';
 import { Card } from './Card';
+import { IconChip } from './IconChip';
 import { Skeleton } from './Skeleton';
 import { colors, spacing } from '../theme';
 import type { Topic } from '../domain';
@@ -43,16 +45,36 @@ function flattenTopicTree(topics: Topic[]): TopicNode[] {
   return result;
 }
 
+// Presentational-only name match against the known EKYS subject set
+// (PROJECT_CHARTER.md §4) — chooses an icon, never a claim about
+// progress/content. Falls back to a generic icon for anything else
+// (sub-topics, future subjects) rather than guessing.
+function topicIcon(name: string): keyof typeof Ionicons.glyphMap {
+  const normalized = name.toLocaleLowerCase('tr-TR');
+  if (normalized.includes('genel kültür')) return 'earth-outline';
+  if (normalized.includes('inkılap') || normalized.includes('atatürk')) return 'flag-outline';
+  if (normalized.includes('değerler')) return 'heart-outline';
+  if (normalized.includes('eğitim yönetimi') || normalized.includes('girişimcilik')) return 'briefcase-outline';
+  if (normalized.includes('mevzuat')) return 'hammer-outline';
+  return 'bookmark-outline';
+}
+
 // Extracted from Exam Detail — same loading/empty/loaded branching,
 // unchanged, just moved into its own file.
 export function TopicList({ isLoading, topics }: TopicListProps) {
   const nodes = topics ? flattenTopicTree(topics) : [];
+  const topLevelCount = nodes.filter((n) => n.depth === 0).length;
 
   return (
     <View style={styles.section}>
-      <AppText variant="title3" style={styles.sectionTitle}>
-        Konular
-      </AppText>
+      <View style={styles.sectionHeader}>
+        <AppText variant="title3">Konular</AppText>
+        {!isLoading && topLevelCount > 0 ? (
+          <AppText variant="footnote" color="tertiary">
+            {topLevelCount} Kategori
+          </AppText>
+        ) : null}
+      </View>
       {isLoading ? (
         <Card>
           <Skeleton width="80%" height={16} style={styles.skeletonRow} />
@@ -78,6 +100,7 @@ export function TopicList({ isLoading, topics }: TopicListProps) {
 
 function TopicRow({ node, isLast }: { node: TopicNode; isLast: boolean }) {
   const { topic, depth } = node;
+
   return (
     <View
       style={[
@@ -86,7 +109,17 @@ function TopicRow({ node, isLast }: { node: TopicNode; isLast: boolean }) {
         depth > 0 && { paddingLeft: spacing.md * depth },
       ]}
     >
-      <AppText variant={depth === 0 ? 'headline' : 'body'} color={depth === 0 ? 'primary' : 'secondary'}>
+      {depth === 0 ? (
+        <IconChip
+          icon={<Ionicons name={topicIcon(topic.name)} size={18} color={colors.accent} />}
+          size={32}
+        />
+      ) : null}
+      <AppText
+        variant={depth === 0 ? 'headline' : 'body'}
+        color={depth === 0 ? 'primary' : 'secondary'}
+        style={depth === 0 ? styles.topLevelText : undefined}
+      >
         {topic.name}
       </AppText>
     </View>
@@ -95,8 +128,19 @@ function TopicRow({ node, isLast }: { node: TopicNode; isLast: boolean }) {
 
 const styles = StyleSheet.create({
   section: { marginBottom: spacing.xl },
-  sectionTitle: { marginBottom: spacing.md },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    marginBottom: spacing.md,
+  },
   skeletonRow: { marginBottom: spacing.sm },
-  topicRow: { paddingVertical: spacing.sm },
+  topicRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+  },
   topicRowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+  topLevelText: { flex: 1 },
 });

@@ -15,14 +15,15 @@ import { ScreenContainer, AppText, EmptyState, TopicList, PackageList, TopAppBar
 import { spacing } from '../../src/theme';
 
 // "Dersler" tab (Phase 2A, extended Phase 2B.4C.2): topic/lesson
-// browsing using existing Exam/Topic/Package data — no new use case or
-// repository was introduced for either list, both reuse what Exam
-// Detail already built. TopicList is driven by GetTopicsByExamUseCase;
-// PackageList is driven by GetPackagesByExamUseCase (with
-// packageRepository/entitlementRepository/trialAccessRepository),
-// filtered to exclude ZORLAYICI_DENEME so Deneme packages stay
-// exclusively in the Denemeler tab, matching that tab's own
-// complementary filter (packages.tsx keeps only ZORLAYICI_DENEME).
+// browsing, both lists reusing use cases already built for Exam Detail:
+// - TopicList is driven by GetTopicsByExamUseCase.
+// - PackageList is driven by GetPackagesByExamUseCase, with
+//   packageRepository, entitlementRepository, and trialAccessRepository
+//   as its dependencies.
+// PackageList's result is filtered here to exclude ZORLAYICI_DENEME, so
+// Deneme packages are removed from Dersler and stay exclusively in the
+// Denemeler tab (packages.tsx applies the complementary filter, keeping
+// only ZORLAYICI_DENEME).
 // Single-exam MVP: both scoped to the first published exam, matching
 // the same simplification already used on Home/Statistics/Repeat Pool.
 // Topics remain informational only (non-interactive), the same
@@ -69,6 +70,9 @@ export default function LessonsScreen() {
     <ScreenContainer scroll topBar={<TopAppBar />}>
       <View style={styles.header}>
         <AppText variant="largeTitle">Dersler</AppText>
+        <AppText variant="subhead" color="secondary" style={styles.subtitle}>
+          Konularına göz at, çalışmaya başla.
+        </AppText>
       </View>
 
       {examsQuery.error ? (
@@ -101,6 +105,7 @@ export default function LessonsScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: { paddingTop: spacing.lg, paddingBottom: spacing.lg },
+  header: { paddingTop: spacing.lg, paddingBottom: spacing.xl },
+  subtitle: { marginTop: spacing.xs },
   centerFill: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: spacing.xxl },
 });

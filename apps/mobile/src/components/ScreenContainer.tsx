@@ -1,6 +1,18 @@
 import type { ReactNode } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, screenPadding } from '../theme';
+
+// react-native's own built-in SafeAreaView only computes real insets on
+// iOS — on Android it is effectively a no-op, which is why the TopAppBar
+// brand bar overlapped the status bar there. react-native-safe-area-context
+// (already a dependency) computes insets correctly on both platforms, via
+// the SafeAreaProvider mounted once at the app root (see app/_layout.tsx).
+// Restricted to the top edge only: bottom is deliberately left alone —
+// tab screens already have their bottom space reserved by the tab bar
+// itself (React Navigation's bottom-tabs already factors the bottom
+// inset into the tab bar's own height), so adding a bottom inset here
+// too would pad the content away from the tab bar unnecessarily.
 
 export interface ScreenContainerProps {
   children: ReactNode;
@@ -25,7 +37,7 @@ export function ScreenContainer({
 }: ScreenContainerProps) {
   if (scroll) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
         {topBar}
         <ScrollView
           contentContainerStyle={[styles.content, centered && styles.centered]}
@@ -37,7 +49,7 @@ export function ScreenContainer({
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       {topBar}
       <View style={[styles.content, styles.flex, centered && styles.centered]}>{children}</View>
     </SafeAreaView>

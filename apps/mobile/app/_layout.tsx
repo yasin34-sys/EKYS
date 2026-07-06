@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -137,79 +138,89 @@ export default function RootLayout() {
 
   if (!fontsLoaded || bootstrap.status === 'loading') {
     return (
-      <ScreenContainer centered>
-        <LoadingState label="Yükleniyor…" />
-        <StatusBar style="dark" />
-      </ScreenContainer>
+      <SafeAreaProvider>
+        <ScreenContainer centered>
+          <LoadingState label="Yükleniyor…" />
+          <StatusBar style="dark" />
+        </ScreenContainer>
+      </SafeAreaProvider>
     );
   }
 
   if (bootstrap.status === 'auth-not-configured') {
     return (
-      <ScreenContainer centered>
-        <InfoState
-          icon="key-outline"
-          tone="info"
-          title="Kimlik doğrulama yapılandırılmadı"
-          message="Supabase ortam değişkenleri henüz tanımlanmadı. Gerçek kimlik bilgileri sağlanana kadar bu beklenen bir durumdur."
-        />
-        <StatusBar style="dark" />
-      </ScreenContainer>
+      <SafeAreaProvider>
+        <ScreenContainer centered>
+          <InfoState
+            icon="key-outline"
+            tone="info"
+            title="Kimlik doğrulama yapılandırılmadı"
+            message="Supabase ortam değişkenleri henüz tanımlanmadı. Gerçek kimlik bilgileri sağlanana kadar bu beklenen bir durumdur."
+          />
+          <StatusBar style="dark" />
+        </ScreenContainer>
+      </SafeAreaProvider>
     );
   }
 
   if (bootstrap.status === 'database-integrity-error') {
     return (
-      <ScreenContainer centered>
-        <InfoState
-          icon="warning-outline"
-          tone="danger"
-          title="Veritabanı bütünlük hatası"
-          message="Yerel veritabanı bütünlük denetimini geçemedi."
-        />
-        <StatusBar style="dark" />
-      </ScreenContainer>
+      <SafeAreaProvider>
+        <ScreenContainer centered>
+          <InfoState
+            icon="warning-outline"
+            tone="danger"
+            title="Veritabanı bütünlük hatası"
+            message="Yerel veritabanı bütünlük denetimini geçemedi."
+          />
+          <StatusBar style="dark" />
+        </ScreenContainer>
+      </SafeAreaProvider>
     );
   }
 
   if (bootstrap.status === 'error') {
     return (
-      <ScreenContainer centered>
-        <InfoState
-          icon="alert-circle-outline"
-          tone="danger"
-          title="Bir şeyler ters gitti"
-          message={bootstrap.message}
-        />
-        <StatusBar style="dark" />
-      </ScreenContainer>
+      <SafeAreaProvider>
+        <ScreenContainer centered>
+          <InfoState
+            icon="alert-circle-outline"
+            tone="danger"
+            title="Bir şeyler ters gitti"
+            message={bootstrap.message}
+          />
+          <StatusBar style="dark" />
+        </ScreenContainer>
+      </SafeAreaProvider>
     );
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ServiceProvider services={bootstrap.services}>
-        {/* headerShown: false — headers are custom, in-content
-            components (Design System §17), not React Navigation's
-            native header bar. Detail screens push over the tab bar,
-            which is the correct behavior for a genuine drill-down.
-            Screens declared explicitly rather than relying on
-            implicit file-based registration alone. */}
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="exam/[id]" />
-          <Stack.Screen name="package/[id]" />
-          <Stack.Screen name="question/[packageId]" />
-          <Stack.Screen name="exam-session/[sessionId]" />
-          <Stack.Screen name="session-result/[sessionId]" />
-          <Stack.Screen name="repeat-pool" />
-          <Stack.Screen name="statistics" />
-          <Stack.Screen name="learning-progress" />
-          <Stack.Screen name="settings" />
-          <Stack.Screen name="about" />
-        </Stack>
-        <StatusBar style="dark" />
-      </ServiceProvider>
-    </QueryClientProvider>
+    <SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
+        <ServiceProvider services={bootstrap.services}>
+          {/* headerShown: false — headers are custom, in-content
+              components (Design System §17), not React Navigation's
+              native header bar. Detail screens push over the tab bar,
+              which is the correct behavior for a genuine drill-down.
+              Screens declared explicitly rather than relying on
+              implicit file-based registration alone. */}
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="exam/[id]" />
+            <Stack.Screen name="package/[id]" />
+            <Stack.Screen name="question/[packageId]" />
+            <Stack.Screen name="exam-session/[sessionId]" />
+            <Stack.Screen name="session-result/[sessionId]" />
+            <Stack.Screen name="repeat-pool" />
+            <Stack.Screen name="statistics" />
+            <Stack.Screen name="learning-progress" />
+            <Stack.Screen name="settings" />
+            <Stack.Screen name="about" />
+          </Stack>
+          <StatusBar style="dark" />
+        </ServiceProvider>
+      </QueryClientProvider>
+    </SafeAreaProvider>
   );
 }
