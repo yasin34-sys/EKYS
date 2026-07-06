@@ -11,7 +11,7 @@ import {
 import { GetPublishedExamsUseCase } from '../src/application/GetPublishedExamsUseCase';
 import { GetTopicsByExamUseCase } from '../src/application/GetTopicsByExamUseCase';
 import { GetDashboardMetricsUseCase } from '../src/application/GetDashboardMetricsUseCase';
-import { ScreenContainer, AppText, Card, Skeleton, BackButton, TopicMasteryChip } from '../src/components';
+import { ScreenContainer, AppText, Card, Skeleton, BackButton, TopicMasteryChip, ProgressBar } from '../src/components';
 import { colors, spacing } from '../src/theme';
 import type { Topic } from '../src/domain';
 
@@ -95,22 +95,30 @@ export default function LearningProgressScreen() {
         </Card>
       ) : (
         <Card>
-          {leafTopics.map((topic, index) => (
-            <View
-              key={topic.id}
-              style={[styles.row, index !== leafTopics.length - 1 && styles.rowDivider]}
-            >
-              <View style={styles.rowText}>
-                <AppText variant="body">{topic.name}</AppText>
-                {parentName(topic) ? (
-                  <AppText variant="caption" color="tertiary">
-                    {parentName(topic)}
-                  </AppText>
-                ) : null}
+          {leafTopics.map((topic, index) => {
+            const accuracy = accuracyByTopicId.get(topic.id) ?? 0;
+            return (
+              <View
+                key={topic.id}
+                style={[styles.row, index !== leafTopics.length - 1 && styles.rowDivider]}
+              >
+                <View style={styles.rowTop}>
+                  <View style={styles.rowText}>
+                    <AppText variant="body">{topic.name}</AppText>
+                    {parentName(topic) ? (
+                      <AppText variant="caption" color="tertiary">
+                        {parentName(topic)}
+                      </AppText>
+                    ) : null}
+                  </View>
+                  <TopicMasteryChip accuracy={accuracy} />
+                </View>
+                <View style={styles.rowProgressWrap}>
+                  <ProgressBar progress={accuracy} height={4} />
+                </View>
               </View>
-              <TopicMasteryChip accuracy={accuracyByTopicId.get(topic.id) ?? 0} />
-            </View>
-          ))}
+            );
+          })}
         </Card>
       )}
     </ScreenContainer>
@@ -121,12 +129,9 @@ const styles = StyleSheet.create({
   headerRow: { paddingTop: spacing.sm, paddingBottom: spacing.md },
   title: { marginBottom: spacing.lg },
   skeletonRow: { marginBottom: spacing.sm },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.sm,
-  },
+  row: { paddingVertical: spacing.sm },
+  rowTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   rowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
   rowText: { flex: 1, paddingRight: spacing.sm },
+  rowProgressWrap: { marginTop: spacing.sm },
 });

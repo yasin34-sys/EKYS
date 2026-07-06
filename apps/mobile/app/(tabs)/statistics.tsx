@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import {
   useExamRepository,
   useTopicRepository,
@@ -11,8 +12,16 @@ import {
 import { GetPublishedExamsUseCase } from '../../src/application/GetPublishedExamsUseCase';
 import { GetTopicsByExamUseCase } from '../../src/application/GetTopicsByExamUseCase';
 import { GetDashboardMetricsUseCase } from '../../src/application/GetDashboardMetricsUseCase';
-import { ScreenContainer, AppText, Card, Skeleton, TopicMasteryChip, TopAppBar } from '../../src/components';
-import { spacing } from '../../src/theme';
+import {
+  ScreenContainer,
+  AppText,
+  Card,
+  Skeleton,
+  TopicMasteryChip,
+  ProgressBar,
+  TopAppBar,
+} from '../../src/components';
+import { colors, spacing } from '../../src/theme';
 
 const MAX_VISIBLE_STAT_CARDS = 6;
 
@@ -87,6 +96,9 @@ export default function StatisticsTabScreen() {
   return (
     <ScreenContainer scroll topBar={<TopAppBar />}>
       <View style={styles.header}>
+        <AppText variant="footnote" color="tertiary" style={styles.eyebrow}>
+          ÖZET RAPOR
+        </AppText>
         <AppText variant="largeTitle">İstatistikler</AppText>
       </View>
 
@@ -115,7 +127,12 @@ export default function StatisticsTabScreen() {
       ) : (
         <>
           <Card variant="hero" style={styles.heroCard}>
-            <AppText variant="headline">Genel olarak iyi gidiyorsun</AppText>
+            <View style={styles.heroHeaderRow}>
+              <Ionicons name="analytics-outline" size={18} color={colors.accent} />
+              <AppText variant="headline" style={styles.heroHeadlineText}>
+                Genel olarak iyi gidiyorsun
+              </AppText>
+            </View>
             <AppText variant="largeTitle" color="primary" style={[styles.heroValue, { fontVariant: ['tabular-nums'] }]}>
               %{Math.round((overallReadiness ?? 0) * 100)}
             </AppText>
@@ -141,6 +158,9 @@ export default function StatisticsTabScreen() {
                     %{Math.round(metric.value * 100)}
                   </AppText>
                   <TopicMasteryChip accuracy={metric.value} />
+                  <View style={styles.statProgressWrap}>
+                    <ProgressBar progress={metric.value} height={4} />
+                  </View>
                 </Card>
               );
             })}
@@ -159,12 +179,16 @@ export default function StatisticsTabScreen() {
 
 const styles = StyleSheet.create({
   header: { paddingTop: spacing.lg, paddingBottom: spacing.lg },
+  eyebrow: { letterSpacing: 0.5, marginBottom: spacing.xs / 2 },
   heroCard: { marginBottom: spacing.lg, alignItems: 'flex-start' },
+  heroHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  heroHeadlineText: { flex: 1 },
   heroSkeleton: { marginBottom: spacing.lg, gap: spacing.sm },
   heroValue: { marginTop: spacing.sm },
   emptyMessage: { marginTop: spacing.xs },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, marginBottom: spacing.lg },
   statCard: { width: '47%', gap: spacing.xs },
+  statProgressWrap: { marginTop: spacing.xs / 2 },
   statCardSkeleton: { width: '47%', gap: spacing.sm },
   statValue: { marginTop: spacing.xs / 2 },
   skeletonLine: { marginBottom: spacing.sm },
