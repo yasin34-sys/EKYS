@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Alert, Animated, AccessibilityInfo } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import {
   useExamSessionRepository,
   useEntitlementRepository,
@@ -18,7 +19,7 @@ import {
   SecondaryButton,
   FadeInUp,
 } from '../../src/components';
-import { spacing, confidentEase } from '../../src/theme';
+import { colors, spacing, confidentEase } from '../../src/theme';
 
 // Score counts up on entry rather than appearing instantly (Screen Spec
 // §11) — the one place in the product where an animating number is
@@ -83,6 +84,11 @@ export default function SessionResultScreen() {
   const correctCount = Number(params.correctCount);
   const wrongCount = Number(params.wrongCount);
   const timeUsedSeconds = Number(params.timeUsedSeconds);
+  const totalQuestions = Number(params.totalQuestions);
+  // Derived from params already passed to this screen — not a new
+  // metric, not fetched, just totalQuestions minus the two counts
+  // already shown.
+  const blankCount = Math.max(0, totalQuestions - correctCount - wrongCount);
 
   const timeUsedMinutes = Math.floor(timeUsedSeconds / 60);
   const timeUsedRemainderSeconds = timeUsedSeconds % 60;
@@ -136,6 +142,9 @@ export default function SessionResultScreen() {
     <ScreenContainer scroll>
       <FadeInUp>
       <Card variant="hero" style={styles.resultCard}>
+        <AppText variant="footnote" color="tertiary" style={styles.eyebrow}>
+          SINAV SONUCU
+        </AppText>
         {/* Deliberately the same visual register regardless of pass/fail —
             Design System §2/§21: a failed deneme reads as information, not
             a verdict, so it is never styled as the opposite extreme of a
@@ -153,16 +162,12 @@ export default function SessionResultScreen() {
         </AppText>
       </Card>
 
-      <Card style={styles.statsCard}>
-        <View style={styles.statsRow}>
-          <StatItem label="Doğru" value={String(correctCount)} color="success" />
-          <StatItem label="Yanlış" value={String(wrongCount)} color="danger" />
-        </View>
-        <View style={styles.statsRow}>
-          <StatItem label="Doğruluk" value={`%${score}`} color="primary" />
-          <StatItem label="Süre" value={timeUsedLabel} color="primary" />
-        </View>
-      </Card>
+      <View style={styles.statsGrid}>
+        <StatCard icon="checkmark-circle" tone="success" label="Doğru" value={String(correctCount)} />
+        <StatCard icon="close-circle" tone="danger" label="Yanlış" value={String(wrongCount)} />
+        <StatCard icon="ellipse-outline" tone="neutral" label="Boş" value={String(blankCount)} />
+        <StatCard icon="time-outline" tone="info" label="Süre" value={timeUsedLabel} />
+      </View>
 
       <PrimaryButton label="Tekrar Dene" onPress={handleRetry} disabled={isRetrying} />
       <View style={styles.secondaryButtonWrap}>
@@ -173,33 +178,61 @@ export default function SessionResultScreen() {
   );
 }
 
-function StatItem({
+const statTones = {
+  success: { background: colors.successMuted, icon: colors.success },
+  danger: { background: colors.dangerMuted, icon: colors.danger },
+  neutral: { background: colors.surfaceSecondary, icon: colors.textTertiary },
+  info: { background: colors.infoMuted, icon: colors.info },
+} as const;
+
+function StatCard({
+  icon,
+  tone,
   label,
   value,
-  color,
 }: {
+  icon: keyof typeof Ionicons.glyphMap;
+  tone: keyof typeof statTones;
   label: string;
   value: string;
-  color: 'success' | 'danger' | 'primary';
 }) {
+  const toneColors = statTones[tone];
   return (
-    <View style={styles.statItem}>
-      <AppText variant="title3" color={color === 'primary' ? 'primary' : color}>
-        {value}
-      </AppText>
-      <AppText variant="caption" color="tertiary">
-        {label}
-      </AppText>
-    </View>
+    <Card style={styles.statCard}>
+      <View style={[styles.statIconCircle, { backgroundColor: toneColors.background }]}>
+        <Ionicons name={icon} size={20} color={toneColors.icon} />
+      </View>
+      <View style={styles.statTextWrap}>
+        <AppText variant="footnote" color="secondary">
+          {label}
+        </AppText>
+        <AppText variant="title3" style={{ fontVariant: ['tabular-nums'] }}>
+          {value}
+        </AppText>
+      </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
   resultCard: { marginTop: spacing.lg, marginBottom: spacing.lg, alignItems: 'center' },
+  eyebrow: { letterSpacing: 0.5, marginBottom: spacing.xs },
   scoreValue: { marginTop: spacing.sm },
   narrative: { marginTop: spacing.xs, textAlign: 'center' },
-  statsCard: { marginBottom: spacing.lg, gap: spacing.md },
-  statsRow: { flexDirection: 'row', justifyContent: 'space-around' },
-  statItem: { alignItems: 'center', gap: spacing.xs / 2 },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  statCard: { width: '47%', flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  statIconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statTextWrap: { flexShrink: 1 },
   secondaryButtonWrap: { marginTop: spacing.sm },
 });
