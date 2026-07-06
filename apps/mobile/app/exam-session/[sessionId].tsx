@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Alert, Pressable } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import {
   useQuestionRepository,
   useAttemptRepository,
@@ -30,7 +31,7 @@ import {
   PrimaryButton,
   Timer,
 } from '../../src/components';
-import { radii, spacing } from '../../src/theme';
+import { colors, radii, spacing } from '../../src/theme';
 
 // Mock Exam mode: no per-question reveal, ever — options only ever
 // show 'default'/'selected'. Attempts carry examSessionId + sequence,
@@ -223,15 +224,21 @@ export default function ExamSessionScreen() {
     <ScreenContainer>
       <View style={styles.headerRow}>
         <BackButton />
-        {timeRemainingSeconds !== null ? <Timer remainingSeconds={timeRemainingSeconds} /> : null}
+        {timeRemainingSeconds !== null ? (
+          <View style={styles.timerWrap}>
+            <Ionicons name="time-outline" size={16} color={colors.textSecondary} />
+            <Timer remainingSeconds={timeRemainingSeconds} />
+          </View>
+        ) : null}
         <Pressable
           onPress={handleManualFinishPress}
           disabled={isFinishing}
           accessibilityRole="button"
           accessibilityLabel="Sınavı bitir"
           hitSlop={8}
+          style={styles.finishPill}
         >
-          <AppText variant="subhead" color="danger">
+          <AppText variant="footnote" color="danger">
             Bitir
           </AppText>
         </Pressable>
@@ -240,12 +247,14 @@ export default function ExamSessionScreen() {
       {questions && questions.length > 0 ? (
         <>
           <View style={styles.counterRow}>
-            <AppText variant="footnote" color="secondary">
-              {currentIndex + 1} / {totalQuestions}
-            </AppText>
+            <View style={styles.progressPill} accessibilityLabel={`Soru ${currentIndex + 1} / ${totalQuestions}`}>
+              <AppText variant="footnote" color="secondary" style={styles.progressPillText}>
+                {currentIndex + 1} / {totalQuestions}
+              </AppText>
+            </View>
           </View>
           <View style={styles.progressWrap}>
-            <ProgressBar progress={(currentIndex + 1) / totalQuestions} />
+            <ProgressBar progress={(currentIndex + 1) / totalQuestions} height={4} />
           </View>
         </>
       ) : null}
@@ -320,7 +329,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  timerWrap: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs / 2 },
+  finishPill: {
+    backgroundColor: colors.dangerMuted,
+    borderRadius: radii.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+  },
   counterRow: { alignItems: 'flex-end', marginBottom: spacing.xs },
+  progressPill: {
+    backgroundColor: colors.surfaceSecondary,
+    borderRadius: radii.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+  },
+  progressPillText: { fontVariant: ['tabular-nums'] },
   progressWrap: { marginBottom: spacing.lg },
   options: { marginTop: spacing.lg },
   footer: { marginTop: spacing.lg },
