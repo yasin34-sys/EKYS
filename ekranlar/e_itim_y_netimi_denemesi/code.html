@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>EKYS Sınav Modu</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Design System Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-highest": "#dce2f7",
+                      "on-tertiary-fixed-variant": "#3b35a7",
+                      "on-primary-fixed": "#0f0069",
+                      "on-tertiary-fixed": "#0f0069",
+                      "tertiary-fixed": "#e2dfff",
+                      "surface-container-lowest": "#ffffff",
+                      "inverse-primary": "#c3c0ff",
+                      "tertiary-container": "#5551c2",
+                      "surface-dim": "#d3daef",
+                      "outline-variant": "#c7c4d8",
+                      "on-secondary-fixed-variant": "#574500",
+                      "primary": "#3525cd",
+                      "on-surface-variant": "#464555",
+                      "on-background": "#141b2b",
+                      "error": "#ba1a1a",
+                      "surface-container-low": "#f1f3ff",
+                      "primary-fixed": "#e2dfff",
+                      "tertiary": "#3d37a9",
+                      "outline": "#777587",
+                      "on-primary-fixed-variant": "#3323cc",
+                      "inverse-on-surface": "#edf0ff",
+                      "primary-fixed-dim": "#c3c0ff",
+                      "on-secondary-container": "#745c00",
+                      "tertiary-fixed-dim": "#c3c0ff",
+                      "surface-container": "#e9edff",
+                      "secondary-fixed-dim": "#e9c349",
+                      "surface-bright": "#f9f9ff",
+                      "secondary-container": "#fed65b",
+                      "surface": "#f9f9ff",
+                      "on-secondary": "#ffffff",
+                      "surface-tint": "#4d44e3",
+                      "secondary-fixed": "#ffe088",
+                      "on-primary-container": "#dad7ff",
+                      "primary-container": "#4f46e5",
+                      "on-error-container": "#93000a",
+                      "error-container": "#ffdad6",
+                      "background": "#f9f9ff",
+                      "on-error": "#ffffff",
+                      "surface-variant": "#dce2f7",
+                      "on-surface": "#141b2b",
+                      "surface-container-high": "#e1e8fd",
+                      "on-primary": "#ffffff",
+                      "inverse-surface": "#293040",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-fixed": "#241a00",
+                      "secondary": "#735c00",
+                      "on-tertiary-container": "#dbd7ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "unit": "8px",
+                      "gutter": "16px",
+                      "margin-desktop": "40px",
+                      "xs": "4px",
+                      "sm": "8px",
+                      "xxl": "48px",
+                      "xl": "32px",
+                      "lg": "24px",
+                      "margin-mobile": "20px"
+              },
+              "fontFamily": {
+                      "label-sm": ["Inter"],
+                      "label-md": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "body-md": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "title-lg": ["Inter"],
+                      "display-lg-mobile": ["Inter"]
+              },
+              "fontSize": {
+                      "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "600"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                      "body-lg": ["16px", {"lineHeight": "26px", "fontWeight": "400"}],
+                      "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                      "display-lg-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        /* Base styles to prevent scrolling on body when full height */
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            background-color: #f9f9ff; /* theme('colors.background') */
+        }
+        
+        /* Hide scrollbar for clean aesthetic */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex flex-col h-full bg-background text-on-background font-body-md antialiased">
+<!-- Exam Top App Bar (Task-Focused, Nav Shell Suppressed) -->
+<header class="flex-none bg-surface border-b border-outline-variant h-16 flex items-center justify-between px-margin-mobile z-50 relative">
+<!-- Progress Bar Background (Absolute) -->
+<div class="absolute bottom-0 left-0 h-1 w-full bg-surface-container-high">
+<!-- Progress Fill -->
+<div class="h-full bg-primary transition-all duration-300" style="width: 25%;"></div>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-[24px]">close</span>
+</button>
+<div class="flex flex-col items-center justify-center">
+<h1 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Eğitim Yönetimi Denemesi</h1>
+<!-- Timer Display -->
+<div class="flex items-center gap-1 mt-0.5 text-primary">
+<span class="material-symbols-outlined text-[16px]">timer</span>
+<span class="font-title-lg text-title-lg" id="timer-display">44:59</span>
+</div>
+</div>
+<div class="w-10 h-10 flex items-center justify-center">
+<span class="font-label-md text-label-md text-on-surface-variant bg-surface-container-low px-2 py-1 rounded-full">15/60</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 overflow-y-auto no-scrollbar px-margin-mobile py-lg pb-xxl">
+<div class="max-w-3xl mx-auto w-full">
+<!-- Question Card Context -->
+<div class="flex items-center gap-2 mb-md">
+<span class="material-symbols-outlined text-outline text-[20px]">account_tree</span>
+<span class="font-label-md text-label-md text-outline tracking-wider uppercase">Okul Yönetimi ve Liderlik</span>
+</div>
+<!-- Question Body -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] mb-xl">
+<p class="font-body-lg text-body-lg text-on-surface leading-relaxed">
+                    Okul müdürü Ayşe Hanım, okulun vizyonunu belirlerken sadece öğretmenleri değil, velileri ve öğrencileri de sürece dahil etmiş, kararların ortak alınmasını sağlamıştır. Ancak kriz anlarında inisiyatif alarak hızlı kararlar vermekten de çekinmemektedir.
+                    <br/><br/>
+<strong>Yukarıdaki senaryoya göre Ayşe Hanım'ın sergilediği liderlik yaklaşımları sırasıyla hangisinde doğru verilmiştir?</strong>
+</p>
+</div>
+<!-- Options List (Exam Mode: No immediate feedback) -->
+<div class="space-y-sm" id="options-container">
+<!-- Option A -->
+<button class="w-full text-left flex items-start gap-md p-md bg-surface-container-lowest border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors group option-btn" data-value="A">
+<div class="flex-none w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center font-title-lg text-title-lg text-on-surface-variant group-[.selected]:bg-primary group-[.selected]:border-primary group-[.selected]:text-on-primary transition-all">
+                        A
+                    </div>
+<div class="font-body-md text-body-md text-on-surface mt-1">
+                        Demokratik Liderlik - Otokratik Liderlik
+                    </div>
+</button>
+<!-- Option B -->
+<button class="w-full text-left flex items-start gap-md p-md bg-surface-container-lowest border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors group option-btn" data-value="B">
+<div class="flex-none w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center font-title-lg text-title-lg text-on-surface-variant group-[.selected]:bg-primary group-[.selected]:border-primary group-[.selected]:text-on-primary transition-all">
+                        B
+                    </div>
+<div class="font-body-md text-body-md text-on-surface mt-1">
+                        Dönüşümcü Liderlik - Laissez-Faire (Tam Serbesti) Liderlik
+                    </div>
+</button>
+<!-- Option C (Selected State Simulation) -->
+<button class="w-full text-left flex items-start gap-md p-md bg-primary/5 border border-primary rounded-xl hover:bg-primary/10 transition-colors group option-btn selected" data-value="C">
+<div class="flex-none w-8 h-8 rounded-full border border-primary bg-primary flex items-center justify-center font-title-lg text-title-lg text-on-primary transition-all">
+                        C
+                    </div>
+<div class="font-body-md text-body-md text-on-surface mt-1">
+                        Dağıtımcı Liderlik - Durumsallık Kuramı
+                    </div>
+</button>
+<!-- Option D -->
+<button class="w-full text-left flex items-start gap-md p-md bg-surface-container-lowest border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors group option-btn" data-value="D">
+<div class="flex-none w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center font-title-lg text-title-lg text-on-surface-variant group-[.selected]:bg-primary group-[.selected]:border-primary group-[.selected]:text-on-primary transition-all">
+                        D
+                    </div>
+<div class="font-body-md text-body-md text-on-surface mt-1">
+                        Kültürel Liderlik - İşlemci Liderlik
+                    </div>
+</button>
+<!-- Option E -->
+<button class="w-full text-left flex items-start gap-md p-md bg-surface-container-lowest border border-outline-variant rounded-xl hover:bg-surface-container-low transition-colors group option-btn" data-value="E">
+<div class="flex-none w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center font-title-lg text-title-lg text-on-surface-variant group-[.selected]:bg-primary group-[.selected]:border-primary group-[.selected]:text-on-primary transition-all">
+                        E
+                    </div>
+<div class="font-body-md text-body-md text-on-surface mt-1">
+                        Etik Liderlik - Vizyoner Liderlik
+                    </div>
+</button>
+</div>
+</div>
+</main>
+<!-- Bottom Action Bar (Exam Controls) -->
+<footer class="flex-none bg-surface/90 backdrop-blur-md border-t border-outline-variant h-20 px-margin-mobile flex items-center justify-between z-50">
+<div class="max-w-3xl mx-auto w-full flex items-center justify-between gap-sm">
+<!-- Previous Button -->
+<button class="flex items-center justify-center gap-xs px-md py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+                Önceki
+            </button>
+<!-- Question Grid Trigger -->
+<button class="w-12 h-12 flex items-center justify-center rounded-full bg-surface-container-high text-primary hover:bg-primary-container hover:text-on-primary transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+</button>
+<!-- Next Button (Primary Action) -->
+<button class="flex items-center justify-center gap-xs px-lg py-3 rounded-lg bg-primary text-on-primary hover:bg-primary-container transition-colors font-label-md text-label-md shadow-sm">
+                Sonraki
+                <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</footer>
+<!-- Simple Interaction Script -->
+<script>
+        // Option selection logic
+        const buttons = document.querySelectorAll('.option-btn');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove selection from all
+                buttons.forEach(b => {
+                    b.classList.remove('selected', 'bg-primary/5', 'border-primary');
+                    b.classList.add('bg-surface-container-lowest', 'border-outline-variant');
+                });
+                
+                // Add selection to clicked
+                btn.classList.add('selected', 'bg-primary/5', 'border-primary');
+                btn.classList.remove('bg-surface-container-lowest', 'border-outline-variant');
+            });
+        });
+
+        // Simple timer logic for demonstration
+        let time = 44 * 60 + 59; // 44:59
+        const timerDisplay = document.getElementById('timer-display');
+        
+        setInterval(() => {
+            if(time <= 0) return;
+            time--;
+            let minutes = Math.floor(time / 60);
+            let seconds = time % 60;
+            timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }, 1000);
+    </script>
+</body></html>

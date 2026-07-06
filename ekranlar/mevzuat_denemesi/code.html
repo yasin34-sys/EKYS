@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EKYS Cepte - Mevzuat Denemesi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-highest": "#dce2f7",
+                      "on-tertiary-fixed-variant": "#3b35a7",
+                      "on-primary-fixed": "#0f0069",
+                      "on-tertiary-fixed": "#0f0069",
+                      "tertiary-fixed": "#e2dfff",
+                      "surface-container-lowest": "#ffffff",
+                      "inverse-primary": "#c3c0ff",
+                      "tertiary-container": "#5551c2",
+                      "surface-dim": "#d3daef",
+                      "outline-variant": "#c7c4d8",
+                      "on-secondary-fixed-variant": "#574500",
+                      "primary": "#3525cd",
+                      "on-surface-variant": "#464555",
+                      "on-background": "#141b2b",
+                      "error": "#ba1a1a",
+                      "surface-container-low": "#f1f3ff",
+                      "primary-fixed": "#e2dfff",
+                      "tertiary": "#3d37a9",
+                      "outline": "#777587",
+                      "on-primary-fixed-variant": "#3323cc",
+                      "inverse-on-surface": "#edf0ff",
+                      "primary-fixed-dim": "#c3c0ff",
+                      "on-secondary-container": "#745c00",
+                      "tertiary-fixed-dim": "#c3c0ff",
+                      "surface-container": "#e9edff",
+                      "secondary-fixed-dim": "#e9c349",
+                      "surface-bright": "#f9f9ff",
+                      "secondary-container": "#fed65b",
+                      "surface": "#f9f9ff",
+                      "on-secondary": "#ffffff",
+                      "surface-tint": "#4d44e3",
+                      "secondary-fixed": "#ffe088",
+                      "on-primary-container": "#dad7ff",
+                      "primary-container": "#4f46e5",
+                      "on-error-container": "#93000a",
+                      "error-container": "#ffdad6",
+                      "background": "#f9f9ff",
+                      "on-error": "#ffffff",
+                      "surface-variant": "#dce2f7",
+                      "on-surface": "#141b2b",
+                      "surface-container-high": "#e1e8fd",
+                      "on-primary": "#ffffff",
+                      "inverse-surface": "#293040",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-fixed": "#241a00",
+                      "secondary": "#735c00",
+                      "on-tertiary-container": "#dbd7ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "unit": "8px",
+                      "gutter": "16px",
+                      "margin-desktop": "40px",
+                      "xs": "4px",
+                      "sm": "8px",
+                      "xxl": "48px",
+                      "xl": "32px",
+                      "lg": "24px",
+                      "margin-mobile": "20px"
+              },
+              "fontFamily": {
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "title-lg": [
+                              "Inter"
+                      ],
+                      "display-lg-mobile": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "label-sm": [
+                              "11px",
+                              {
+                                      "lineHeight": "14px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "22px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "26px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "title-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#FAFAF8] text-on-background min-h-screen flex flex-col pt-16 pb-20 md:pb-0">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline flat no shadows text-primary dark:text-primary-fixed-dim font-display-lg-mobile text-display-lg-mobile">
+<button class="p-2 hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-all duration-200 active:opacity-70 rounded-full">
+<span class="material-symbols-outlined text-on-surface-variant">arrow_back</span>
+</button>
+<div class="flex flex-col items-center">
+<h1 class="font-headline-sm text-headline-sm text-on-surface">Mevzuat Denemesi</h1>
+<div class="flex items-center gap-1 text-primary-container">
+<span class="material-symbols-outlined text-[16px]">timer</span>
+<span class="font-label-md text-label-md font-semibold">120:00</span>
+</div>
+</div>
+<button class="p-2 hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-all duration-200 active:opacity-70 rounded-full">
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</button>
+</header>
+<main class="flex-grow flex flex-col md:max-w-2xl mx-auto w-full">
+<!-- Progress Bar -->
+<div class="w-full bg-surface-variant h-1">
+<div class="bg-primary-container h-1 w-1/5"></div>
+</div>
+<div class="px-margin-mobile py-lg flex-grow flex flex-col">
+<!-- Question Header -->
+<div class="flex justify-between items-start mb-md">
+<span class="font-label-md text-label-md text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-full">Soru 1 / 50</span>
+<span class="font-label-md text-label-md text-on-surface-variant">657 Sayılı DMK</span>
+</div>
+<!-- Question Card -->
+<div class="bg-white rounded-xl border border-[#E5E7EB] p-md mb-lg shadow-sm flex-grow flex flex-col">
+<p class="font-body-lg text-body-lg text-on-surface mb-lg">
+                    657 sayılı Devlet Memurları Kanunu'na göre, aşağıdakilerden hangisi "Ödevler ve Sorumluluklar" kısmında yer alan konulardan biri <strong>değildir</strong>?
+                </p>
+<!-- Options -->
+<div class="flex flex-col gap-unit">
+<!-- Option A -->
+<button class="w-full text-left p-md border border-[#E5E7EB] rounded-lg hover:bg-surface-container-low transition-colors flex items-start gap-md group">
+<span class="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center flex-shrink-0 font-label-md text-label-md group-hover:border-primary-container group-hover:text-primary-container">A</span>
+<span class="font-body-md text-body-md pt-1">Sadakat</span>
+</button>
+<!-- Option B (Selected) -->
+<button class="w-full text-left p-md border border-primary-container bg-surface-container-low rounded-lg transition-colors flex items-start gap-md">
+<span class="w-8 h-8 rounded-full border border-primary-container bg-primary-container text-white flex items-center justify-center flex-shrink-0 font-label-md text-label-md">B</span>
+<span class="font-body-md text-body-md pt-1">Toplu eylem ve hareketlerde bulunma yasağı</span>
+</button>
+<!-- Option C -->
+<button class="w-full text-left p-md border border-[#E5E7EB] rounded-lg hover:bg-surface-container-low transition-colors flex items-start gap-md group">
+<span class="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center flex-shrink-0 font-label-md text-label-md group-hover:border-primary-container group-hover:text-primary-container">C</span>
+<span class="font-body-md text-body-md pt-1">İzin hakkı</span>
+</button>
+<!-- Option D -->
+<button class="w-full text-left p-md border border-[#E5E7EB] rounded-lg hover:bg-surface-container-low transition-colors flex items-start gap-md group">
+<span class="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center flex-shrink-0 font-label-md text-label-md group-hover:border-primary-container group-hover:text-primary-container">D</span>
+<span class="font-body-md text-body-md pt-1">Davranış ve işbirliği</span>
+</button>
+<!-- Option E -->
+<button class="w-full text-left p-md border border-[#E5E7EB] rounded-lg hover:bg-surface-container-low transition-colors flex items-start gap-md group">
+<span class="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center flex-shrink-0 font-label-md text-label-md group-hover:border-primary-container group-hover:text-primary-container">E</span>
+<span class="font-body-md text-body-md pt-1">Amir durumda olan devlet memurlarının görev ve sorumlulukları</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Exam Controls (Bottom Fixed) -->
+<div class="fixed bottom-0 left-0 w-full bg-white border-t border-[#E5E7EB] p-md flex justify-between items-center z-40 pb-safe md:static md:border-none md:bg-transparent">
+<button class="px-md py-sm rounded-lg text-primary-container font-label-md text-label-md flex items-center gap-xs hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+                Önceki
+            </button>
+<button class="px-md py-sm rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-xs hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[18px]">apps</span>
+                Soru Listesi
+            </button>
+<button class="px-md py-sm rounded-lg bg-primary-container text-white font-label-md text-label-md flex items-center gap-xs hover:bg-primary transition-colors">
+                Sonraki
+                <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</main>
+</body></html>

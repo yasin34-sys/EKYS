@@ -1,0 +1,397 @@
+<!DOCTYPE html><html class="light" lang="tr" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<title>EKYS CEPTE - Çalışma Alanı</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed-dim": "#c3c0ff",
+                    "on-error-container": "#93000a",
+                    "tertiary-container": "#5551c2",
+                    "surface-container-highest": "#dce2f7",
+                    "secondary": "#735c00",
+                    "error-container": "#ffdad6",
+                    "inverse-surface": "#293040",
+                    "surface-variant": "#dce2f7",
+                    "on-surface-variant": "#464555",
+                    "inverse-primary": "#c3c0ff",
+                    "inverse-on-surface": "#edf0ff",
+                    "on-tertiary-fixed-variant": "#3b35a7",
+                    "on-primary-fixed": "#0f0069",
+                    "on-tertiary-fixed": "#0f0069",
+                    "surface-container-lowest": "#ffffff",
+                    "outline": "#777587",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "secondary-fixed-dim": "#e9c349",
+                    "on-primary-container": "#dad7ff",
+                    "tertiary": "#3d37a9",
+                    "surface": "#f9f9ff",
+                    "surface-bright": "#f9f9ff",
+                    "surface-tint": "#4d44e3",
+                    "on-surface": "#141b2b",
+                    "primary": "#3525cd",
+                    "on-secondary-fixed": "#241a00",
+                    "on-secondary-container": "#745c00",
+                    "surface-container": "#e9edff",
+                    "on-secondary-fixed-variant": "#574500",
+                    "on-background": "#141b2b",
+                    "on-error": "#ffffff",
+                    "surface-container-low": "#f1f3ff",
+                    "on-tertiary-container": "#dbd7ff",
+                    "primary-fixed": "#e2dfff",
+                    "background": "#f9f9ff",
+                    "on-primary": "#ffffff",
+                    "surface-container-high": "#e1e8fd",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "surface-dim": "#d3daef",
+                    "secondary-fixed": "#ffe088",
+                    "primary-container": "#4f46e5",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#e2dfff",
+                    "secondary-container": "#fed65b",
+                    "error": "#ba1a1a",
+                    "outline-variant": "#c7c4d8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "24px",
+                    "margin-mobile": "20px",
+                    "md": "16px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "xl": "32px",
+                    "unit": "8px",
+                    "margin-desktop": "40px",
+                    "gutter": "16px",
+                    "xxl": "48px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"],
+                    "title-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "label-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-lg-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                    "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "26px", "fontWeight": "400"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      body {
+        font-family: 'Inter', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        background-color: #f9f9ff;
+      }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        border: 1px solid #E5E7EB;
+      }
+      .scroll-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .active-pill {
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+      }
+    </style>
+</head>
+<body class="text-on-surface pb-32">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline">
+<button class="transition-all duration-200 active:opacity-70 p-2">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">menu</span>
+</button>
+<h1 class="font-display-lg-mobile text-display-lg-mobile font-bold text-primary dark:text-primary-fixed-dim">EKYS CEPTE</h1>
+<button class="transition-all duration-200 active:opacity-70 p-2">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">notifications</span>
+</button>
+</header>
+<main class="mt-20 px-margin-mobile">
+<!-- Segmented Control for Screen Toggle -->
+<div class="flex p-1 bg-surface-container-low rounded-xl mb-lg overflow-hidden border border-outline-variant/30">
+<button class="flex-1 py-2 text-center rounded-lg transition-all font-label-md text-label-md bg-white shadow-sm text-primary font-semibold" id="btn-subjects" onclick="switchTab('subjects')">Konular</button>
+<button class="flex-1 py-2 text-center rounded-lg transition-all font-label-md text-label-md text-on-surface-variant" id="btn-exams" onclick="switchTab('exams')">Denemeler</button>
+</div>
+<!-- SUBJECTS VIEW -->
+<section class="space-y-md block" id="view-subjects">
+<div class="flex items-baseline justify-between mb-2">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Müfredat</h2>
+<span class="text-label-md font-label-md text-on-surface-variant">5 Kategori</span>
+</div>
+<!-- Bento-ish Grid for Subjects -->
+<div class="grid grid-cols-1 gap-md">
+<!-- Card 1: Genel Kültür (Wide) -->
+<div class="glass-card p-md rounded-xl flex items-center justify-between group active:scale-[0.98] transition-transform cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-primary-container/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">public</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-lg text-title-lg text-on-surface leading-tight">Genel Kültür</span>
+<div class="flex items-center gap-2 mt-1">
+<div class="w-32 h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[65%]"></div>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant">%65</span>
+</div>
+<div class="flex flex-wrap gap-1 mt-2"><span class="px-2 py-0.5 bg-surface-container rounded text-[10px] text-on-surface-variant border border-outline-variant/30">Coğrafya</span><span class="px-2 py-0.5 bg-surface-container rounded text-[10px] text-on-surface-variant border border-outline-variant/30">Güncel Bilgiler</span><span class="px-2 py-0.5 bg-surface-container rounded text-[10px] text-on-surface-variant border border-outline-variant/30">Vatandaşlık</span></div></div>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+<!-- Card 2: Atatürk İlkeleri -->
+<div class="glass-card p-md rounded-xl flex items-center justify-between group active:scale-[0.98] transition-transform cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-lg text-title-lg text-on-surface leading-tight">Atatürk İlkeleri ve İnkılap Tarihi</span>
+<div class="flex items-center gap-2 mt-1">
+<div class="w-32 h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[42%]"></div>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant">%42</span>
+</div>
+<div class="flex flex-wrap gap-1 mt-2"><span class="px-2 py-0.5 bg-surface-container rounded text-[10px] text-on-surface-variant border border-outline-variant/30">Kurtuluş Savaşı</span><span class="px-2 py-0.5 bg-surface-container rounded text-[10px] text-on-surface-variant border border-outline-variant/30">İnkılaplar</span><span class="px-2 py-0.5 bg-surface-container rounded text-[10px] text-on-surface-variant border border-outline-variant/30">İlkeler</span></div></div>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+<!-- Card 3: Değerler Eğitimi -->
+<div class="glass-card p-md rounded-xl flex items-center justify-between group active:scale-[0.98] transition-transform cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-tertiary-container/10 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">balance</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-lg text-title-lg text-on-surface leading-tight">Değerler Eğitimi</span>
+<div class="flex items-center gap-2 mt-1">
+<div class="w-32 h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[88%]"></div>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant">%88</span>
+</div>
+<div class="flex flex-wrap gap-1 mt-2"><span class="px-2 py-0.5 bg-surface-container rounded text-[10px] text-on-surface-variant border border-outline-variant/30">Etik İlkeler</span><span class="px-2 py-0.5 bg-surface-container rounded text-[10px] text-on-surface-variant border border-outline-variant/30">Milli Değerler</span><span class="px-2 py-0.5 bg-surface-container rounded text-[10px] text-on-surface-variant border border-outline-variant/30">Evrensel Değerler</span></div></div>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+<!-- Card 4: Eğitim Yönetimi -->
+<div class="glass-card p-md rounded-xl flex items-center justify-between group active:scale-[0.98] transition-transform cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-primary-container/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">corporate_fare</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-lg text-title-lg text-on-surface leading-tight">Eğitim Yönetimi ve Girişimcilik</span>
+<div class="flex items-center gap-2 mt-1">
+<div class="w-32 h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[20%]"></div>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant">%20</span>
+</div>
+<div class="flex flex-wrap gap-1 mt-2"><span class="px-2 py-0.5 bg-surface-container rounded text-[10px] text-on-surface-variant border border-outline-variant/30">Yönetim Kuramları</span><span class="px-2 py-0.5 bg-surface-container rounded text-[10px] text-on-surface-variant border border-outline-variant/30">Okul Yönetimi</span><span class="px-2 py-0.5 bg-surface-container rounded text-[10px] text-on-surface-variant border border-outline-variant/30">Girişimcilik</span></div></div>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+<!-- Card 5: Mevzuat -->
+<div class="glass-card p-md rounded-xl flex items-center justify-between group active:scale-[0.98] transition-transform cursor-pointer border-l-4 border-l-secondary-container"><div class="flex items-center gap-md"><div class="w-12 h-12 rounded-full bg-secondary-container/10 flex items-center justify-center text-secondary"><span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">gavel</span></div><div class="flex flex-col"><span class="font-title-lg text-title-lg text-on-surface leading-tight">Mevzuat</span><div class="flex flex-wrap gap-1 mt-2"><span class="px-2 py-0.5 bg-surface-container rounded text-[10px] text-on-surface-variant border border-outline-variant/30">657 Sayılı Kanun</span><span class="px-2 py-0.5 bg-surface-container rounded text-[10px] text-on-surface-variant border border-outline-variant/30">1739 Sayılı Kanun</span><span class="px-2 py-0.5 bg-surface-container rounded text-[10px] text-on-surface-variant border border-outline-variant/30">4483 Sayılı Kanun</span></div><div class="flex items-center gap-2 mt-2"><div class="w-32 h-1.5 bg-surface-container-high rounded-full overflow-hidden"><div class="bg-primary h-full w-[0%]"></div></div><span class="text-label-sm font-label-sm text-on-surface-variant">%0</span></div></div></div><span class="material-symbols-outlined text-outline-variant">chevron_right</span></div>
+</div>
+<!-- Promotion / Premium Banner -->
+<div class="relative w-full overflow-hidden rounded-xl h-32 mt-xl">
+<div class="absolute inset-0 bg-gradient-to-r from-primary to-tertiary-container"></div>
+<div class="absolute inset-0 opacity-20">
+
+</div>
+<div class="relative z-10 p-md h-full flex flex-col justify-center">
+<span class="text-white font-headline-sm text-headline-sm">Tüm Soruları Aç</span>
+<p class="text-white/80 font-label-md text-label-md mb-2">10,000+ Özgün Soru ve Çözüm</p>
+<button class="bg-secondary-container text-on-secondary-container px-4 py-1.5 rounded-full w-fit font-label-sm text-label-sm font-bold active-pill">Premium'a Geç</button>
+</div>
+</div>
+</section>
+<!-- EXAMS VIEW (Initially Hidden) -->
+<section class="space-y-md hidden" id="view-exams">
+<div class="flex items-center justify-between mb-4 overflow-x-auto scroll-hide pb-2 gap-3">
+<button class="px-6 py-2 rounded-full bg-primary text-white font-label-md text-label-md whitespace-nowrap active-pill" id="filter-all" onclick="filterExams('all')">Tümü</button>
+<button class="px-6 py-2 rounded-full bg-white border border-outline-variant text-on-surface-variant font-label-md text-label-md whitespace-nowrap" id="filter-unsolved" onclick="filterExams('unsolved')">Çözülmemiş</button>
+<button class="px-6 py-2 rounded-full bg-white border border-outline-variant text-on-surface-variant font-label-md text-label-md whitespace-nowrap" id="filter-completed" onclick="filterExams('completed')">Tamamlanan</button>
+</div>
+<div class="space-y-md">
+<!-- Exam Card 1 -->
+<div class="glass-card overflow-hidden rounded-xl border border-outline-variant/30 flex flex-col">
+<div class="p-md flex justify-between items-start">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-primary mb-1">Deneme #24</span>
+<h3 class="font-title-lg text-title-lg text-on-surface">Genel Deneme Sınavı</h3>
+<div class="flex items-center gap-3 mt-2 text-on-surface-variant">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span class="font-label-md text-label-md">135 Dakika</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">help</span>
+<span class="font-label-md text-label-md">80 Soru</span>
+</div>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-outline">
+<span class="material-symbols-outlined">assignment</span>
+</div>
+</div>
+<div class="px-md pb-md flex gap-2">
+<button class="flex-1 bg-primary text-white py-2.5 rounded-lg font-label-md text-label-md font-semibold active:scale-[0.98] transition-transform">Sınavı Başlat</button>
+</div>
+</div>
+<!-- Exam Card 2 (Completed) -->
+<div class="glass-card overflow-hidden rounded-xl border border-outline-variant/30 flex flex-col bg-surface-container-low/50">
+<div class="p-md flex justify-between items-start opacity-70">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary mb-1">Tamamlandı</span>
+<h3 class="font-title-lg text-title-lg text-on-surface">Atatürk İlkeleri Özel Sınavı</h3>
+<div class="flex items-center gap-3 mt-2 text-on-surface-variant">
+<div class="flex items-center gap-1 text-green-600">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-md text-label-md">Net: 34.25</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">timer</span>
+<span class="font-label-md text-label-md">42 Dakika</span>
+</div>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-green-700">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+</div>
+<div class="px-md pb-md flex gap-2">
+<button class="flex-1 bg-white border border-outline-variant text-on-surface py-2.5 rounded-lg font-label-md text-label-md font-semibold active:scale-[0.98] transition-transform">Analizi Gör</button>
+</div>
+</div>
+<!-- Exam Card 3 -->
+<div class="glass-card overflow-hidden rounded-xl border border-outline-variant/30 flex flex-col">
+<div class="p-md flex justify-between items-start">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-primary mb-1">Deneme #23</span>
+<h3 class="font-title-lg text-title-lg text-on-surface">Eğitim Bilimleri Karma</h3>
+<div class="flex items-center gap-3 mt-2 text-on-surface-variant">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span class="font-label-md text-label-md">60 Dakika</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">help</span>
+<span class="font-label-md text-label-md">40 Soru</span>
+</div>
+</div>
+</div>
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-outline">
+<span class="material-symbols-outlined">assignment</span>
+</div>
+</div>
+<div class="px-md pb-md flex gap-2">
+<button class="flex-1 bg-primary text-white py-2.5 rounded-lg font-label-md text-label-md font-semibold active:scale-[0.98] transition-transform">Sınavı Başlat</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-safe bg-surface/80 backdrop-blur-md h-20 border-t border-outline-variant dark:border-outline shadow-sm rounded-t-xl">
+<button class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim font-semibold transition-transform duration-200 active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-md text-label-md">Ana Sayfa</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant transition-transform duration-200 active:scale-95">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-md text-label-md">Dersler</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant transition-transform duration-200 active:scale-95">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-label-md text-label-md">Denemeler</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant transition-transform duration-200 active:scale-95">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-label-md text-label-md">İstatistik</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant transition-transform duration-200 active:scale-95">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profil</span>
+</button>
+</nav>
+<script>
+        function switchTab(view) {
+            const subjectView = document.getElementById('view-subjects');
+            const examView = document.getElementById('view-exams');
+            const btnSubjects = document.getElementById('btn-subjects');
+            const btnExams = document.getElementById('btn-exams');
+
+            if (view === 'subjects') {
+                subjectView.classList.remove('hidden');
+                subjectView.classList.add('block');
+                examView.classList.remove('block');
+                examView.classList.add('hidden');
+                
+                btnSubjects.classList.add('bg-white', 'shadow-sm', 'text-primary', 'font-semibold');
+                btnSubjects.classList.remove('text-on-surface-variant');
+                btnExams.classList.remove('bg-white', 'shadow-sm', 'text-primary', 'font-semibold');
+                btnExams.classList.add('text-on-surface-variant');
+            } else {
+                examView.classList.remove('hidden');
+                examView.classList.add('block');
+                subjectView.classList.remove('block');
+                subjectView.classList.add('hidden');
+
+                btnExams.classList.add('bg-white', 'shadow-sm', 'text-primary', 'font-semibold');
+                btnExams.classList.remove('text-on-surface-variant');
+                btnSubjects.classList.remove('bg-white', 'shadow-sm', 'text-primary', 'font-semibold');
+                btnSubjects.classList.add('text-on-surface-variant');
+            }
+        }
+
+        function filterExams(type) {
+            const filters = ['all', 'unsolved', 'completed'];
+            filters.forEach(f => {
+                const btn = document.getElementById(`filter-${f}`);
+                if (f === type) {
+                    btn.classList.add('bg-primary', 'text-white', 'active-pill');
+                    btn.classList.remove('bg-white', 'border', 'border-outline-variant', 'text-on-surface-variant');
+                } else {
+                    btn.classList.remove('bg-primary', 'text-white', 'active-pill');
+                    btn.classList.add('bg-white', 'border', 'border-outline-variant', 'text-on-surface-variant');
+                }
+            });
+        }
+    </script>
+
+
+</body></html>

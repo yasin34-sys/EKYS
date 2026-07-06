@@ -1,0 +1,215 @@
+import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { IntegrityCheckResult } from '../src/database/sqlite';
+import { createServices } from '../src/services/createServices';
+import { ServiceProvider } from '../src/services/ServiceProvider';
+import type { Services } from '../src/services/types';
+import { BootstrapAppUseCase } from '../src/application/BootstrapAppUseCase';
+import { AuthNotConfiguredError } from '../src/auth/errors';
+import { ScreenContainer, LoadingState, InfoState } from '../src/components';
+import { useAppFonts } from '../src/theme';
+
+type BootstrapState =
+  | { status: 'loading' }
+  | { status: 'auth-not-configured' }
+  | { status: 'database-integrity-error'; result: IntegrityCheckResult }
+  | { status: 'ready'; services: Services }
+  | { status: 'error'; message: string };
+
+// Created once, module-level — not per render, per mount cycle.
+const queryClient = new QueryClient();
+
+export default function RootLayout() {
+  const fontsLoaded = useAppFonts();
+  const [bootstrap, setBootstrap] = useState<BootstrapState>({ status: 'loading' });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function bootstrapApp() {
+      try {
+        let services: Services;
+
+        if (Platform.OS === 'web') {
+          // @op-engineering/op-sqlite is a native-only TurboModule with no
+          // usable browser bundle in this project's Metro configuration.
+          // Web is not a target platform per ADR-001 (iOS/Android only) —
+          // this branch exists solely so screens can be visually inspected
+          // with Playwright in environments without a device/simulator.
+          // See src/services/webPreview/ for details. Native platforms
+          // never execute this branch.
+          const { createWebPreviewServices } = await import(
+            '../src/services/webPreview/createWebPreviewServices'
+          );
+          services = createWebPreviewServices();
+        } else {
+          // Dynamically imported so its top-level `open` import from
+          // @op-engineering/op-sqlite is never evaluated on web.
+          const { initializeDatabase, verifyIntegrity } = await import(
+            '../src/database/sqlite'
+          );
+          const { supabase } = await import('../src/database/supabaseClient');
+
+          // Bootstrap sequence, per the approved Mobile Architecture Plan:
+          // 1. Run local SQLite migrations.
+          // 2. Run local integrity verification — a distinct, named
+          //    failure state, not lumped into a generic error, since the
+          //    app must never silently trust a database it hasn't
+          //    verified.
+          const db = await initializeDatabase();
+
+          const integrity = await verifyIntegrity();
+          if (!integrity.ok) {
+            if (!cancelled) {
+              setBootstrap({ status: 'database-integrity-error', result: integrity });
+            }
+            return;
+          }
+
+          services = createServices(db, supabase);
+        }
+
+        // Fails gracefully rather than crashing: without real Supabase
+        // credentials, AuthService throws AuthNotConfiguredError, which
+        // is caught below and shown as its own distinct, calm,
+        // currently-expected state — not a generic error.
+        await new BootstrapAppUseCase(services).execute();
+
+        // Fire-and-forget, deliberately not awaited: reaching 'ready'
+        // must never wait on network access. Provisions the server-side
+        // user_profiles row (signInAnonymously() alone doesn't create
+        // one) before the first pull, then pulls server-authoritative
+        // content down. Any failure here (offline, auth not configured,
+        // etc.) is swallowed — it must not surface as a bootstrap error,
+        // since the app is otherwise fully usable offline.
+        //
+        // On success, every active query is invalidated/refetched —
+        // broad on purpose, not narrowed to specific query keys. This
+        // fires exactly once per app launch (a single post-bootstrap
+        // sync event, not polling), so the cost of a blanket
+        // invalidation is one extra refetch round for whatever screens
+        // happen to be mounted, not a recurring one. Narrowing this to
+        // a hand-maintained list of query keys (exams/topics/packages/
+        // package/questions/userProfile/dashboardMetrics/repeatPool/
+        // examSession...) would need updating every time a screen adds
+        // a new query, and a missed key would silently leave a screen
+        // showing stale pre-sync data with no error to signal it —
+        // exactly the bug this fix exists to close. `cancelled` guards
+        // against invalidating after this effect has already torn down
+        // (e.g. fast remount in development).
+        services.authService
+          .ensureServerUserProfile()
+          .then(() => services.syncService.pull())
+          .then(() => {
+            if (cancelled) return;
+            queryClient.invalidateQueries();
+          })
+          .catch((error) => {
+            console.warn('Initial post-bootstrap sync failed', error);
+          });
+
+        if (!cancelled) {
+          setBootstrap({ status: 'ready', services });
+        }
+      } catch (error) {
+        if (cancelled) return;
+
+        if (error instanceof AuthNotConfiguredError) {
+          setBootstrap({ status: 'auth-not-configured' });
+        } else {
+          setBootstrap({
+            status: 'error',
+            message: error instanceof Error ? error.message : String(error),
+          });
+        }
+      }
+    }
+
+    bootstrapApp();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!fontsLoaded || bootstrap.status === 'loading') {
+    return (
+      <ScreenContainer centered>
+        <LoadingState label="Yükleniyor…" />
+        <StatusBar style="dark" />
+      </ScreenContainer>
+    );
+  }
+
+  if (bootstrap.status === 'auth-not-configured') {
+    return (
+      <ScreenContainer centered>
+        <InfoState
+          icon="key-outline"
+          tone="info"
+          title="Kimlik doğrulama yapılandırılmadı"
+          message="Supabase ortam değişkenleri henüz tanımlanmadı. Gerçek kimlik bilgileri sağlanana kadar bu beklenen bir durumdur."
+        />
+        <StatusBar style="dark" />
+      </ScreenContainer>
+    );
+  }
+
+  if (bootstrap.status === 'database-integrity-error') {
+    return (
+      <ScreenContainer centered>
+        <InfoState
+          icon="warning-outline"
+          tone="danger"
+          title="Veritabanı bütünlük hatası"
+          message="Yerel veritabanı bütünlük denetimini geçemedi."
+        />
+        <StatusBar style="dark" />
+      </ScreenContainer>
+    );
+  }
+
+  if (bootstrap.status === 'error') {
+    return (
+      <ScreenContainer centered>
+        <InfoState
+          icon="alert-circle-outline"
+          tone="danger"
+          title="Bir şeyler ters gitti"
+          message={bootstrap.message}
+        />
+        <StatusBar style="dark" />
+      </ScreenContainer>
+    );
+  }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ServiceProvider services={bootstrap.services}>
+        {/* headerShown: false — headers are custom, in-content
+            components (Design System §17), not React Navigation's
+            native header bar. Detail screens push over the tab bar,
+            which is the correct behavior for a genuine drill-down.
+            Screens declared explicitly rather than relying on
+            implicit file-based registration alone. */}
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="exam/[id]" />
+          <Stack.Screen name="package/[id]" />
+          <Stack.Screen name="question/[packageId]" />
+          <Stack.Screen name="exam-session/[sessionId]" />
+          <Stack.Screen name="session-result/[sessionId]" />
+          <Stack.Screen name="repeat-pool" />
+          <Stack.Screen name="statistics" />
+          <Stack.Screen name="learning-progress" />
+          <Stack.Screen name="settings" />
+          <Stack.Screen name="about" />
+        </Stack>
+        <StatusBar style="dark" />
+      </ServiceProvider>
+    </QueryClientProvider>
+  );
+}

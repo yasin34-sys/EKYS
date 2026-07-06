@@ -1,0 +1,381 @@
+<!DOCTYPE html><html class="light" lang="tr"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<title>İstatistikler - EKYS CEPTE</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FAFAF8;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid #E5E7EB;
+        }
+        .chart-bar-hover:hover {
+            filter: brightness(1.1);
+            transform: scaleY(1.05);
+        }
+        .premium-gradient {
+            background: linear-gradient(135deg, #4F46E5 0%, #3525cd 100%);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#c3c0ff",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#5551c2",
+                        "surface-container-highest": "#dce2f7",
+                        "secondary": "#735c00",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#293040",
+                        "surface-variant": "#dce2f7",
+                        "on-surface-variant": "#464555",
+                        "inverse-primary": "#c3c0ff",
+                        "inverse-on-surface": "#edf0ff",
+                        "on-tertiary-fixed-variant": "#3b35a7",
+                        "on-primary-fixed": "#0f0069",
+                        "on-tertiary-fixed": "#0f0069",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#777587",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "secondary-fixed-dim": "#e9c349",
+                        "on-primary-container": "#dad7ff",
+                        "tertiary": "#3d37a9",
+                        "surface": "#f9f9ff",
+                        "surface-bright": "#f9f9ff",
+                        "surface-tint": "#4d44e3",
+                        "on-surface": "#141b2b",
+                        "primary": "#3525cd",
+                        "on-secondary-fixed": "#241a00",
+                        "on-secondary-container": "#745c00",
+                        "surface-container": "#e9edff",
+                        "on-secondary-fixed-variant": "#574500",
+                        "on-background": "#141b2b",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#f1f3ff",
+                        "on-tertiary-container": "#dbd7ff",
+                        "primary-fixed": "#e2dfff",
+                        "background": "#f9f9ff",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#e1e8fd",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "surface-dim": "#d3daef",
+                        "secondary-fixed": "#ffe088",
+                        "primary-container": "#4f46e5",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#e2dfff",
+                        "secondary-container": "#fed65b",
+                        "error": "#ba1a1a",
+                        "outline-variant": "#c7c4d8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "margin-mobile": "20px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "xl": "32px",
+                        "unit": "8px",
+                        "margin-desktop": "40px",
+                        "gutter": "16px",
+                        "xxl": "48px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "display-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "display-lg-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                        "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "26px", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface pb-24">
+<!-- Top AppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-surface border-b border-outline-variant">
+<div class="flex items-center gap-4">
+<button class="p-2 transition-all duration-200 active:opacity-70 text-on-surface-variant">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-display-lg-mobile text-display-lg-mobile font-bold text-primary">EKYS CEPTE</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 transition-all duration-200 active:opacity-70 text-on-surface-variant">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<main class="mt-20 px-margin-mobile space-y-lg max-w-3xl mx-auto">
+<!-- Welcome & Date Header -->
+<section class="py-sm">
+<div class="flex justify-between items-end">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Özet Rapor</p>
+<h2 class="font-headline-md text-headline-md text-on-surface mt-xs">İstatistiklerin</h2>
+</div>
+<div class="bg-surface-container-low px-sm py-xs rounded-lg border border-outline-variant">
+<span class="font-label-md text-label-md text-primary">Bu Hafta</span>
+</div>
+</div>
+</section>
+<!-- Key Metrics Grid -->
+<section class="grid grid-cols-2 gap-md">
+<div class="bg-white p-md rounded-xl border border-outline-variant shadow-sm flex flex-col gap-xs">
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-lg">fact_check</span>
+<span class="font-label-md text-label-md">Toplam Soru</span>
+</div>
+<span class="font-headline-md text-headline-md text-primary">1,240</span>
+<span class="font-label-sm text-label-sm text-green-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_up</span> %12 artış
+                </span>
+</div>
+<div class="bg-white p-md rounded-xl border border-outline-variant shadow-sm flex flex-col gap-sm">
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-lg">analytics</span>
+<span class="font-label-md text-label-md">Soru Dağılımı</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Doğru</span>
+<span class="font-title-lg text-title-lg text-green-600">980</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Yanlış</span>
+<span class="font-title-lg text-title-lg text-error">160</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Boş</span>
+<span class="font-title-lg text-title-lg text-on-surface-variant">100</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Net</span>
+<span class="font-title-lg text-title-lg text-primary">940</span>
+</div>
+</div>
+</div>
+<div class="bg-white p-md rounded-xl border border-outline-variant shadow-sm flex flex-col gap-xs col-span-2">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-lg">timer</span>
+<span class="font-label-md text-label-md">Soru Başına Ortalama Süre</span>
+</div>
+<span class="font-title-lg text-title-lg text-on-surface">42 sn</span>
+</div>
+<div class="w-full bg-surface-container h-1 rounded-full overflow-hidden mt-sm">
+<div class="bg-primary h-full rounded-full" style="width: 65%;"></div>
+</div>
+</div>
+</section>
+<!-- Weekly Study Time Chart -->
+<section class="bg-white p-md rounded-xl border border-outline-variant shadow-sm">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="font-title-lg text-title-lg text-on-surface">Haftalık Çalışma Süresi</h3>
+<span class="font-label-md text-label-md text-primary font-semibold">14.5 sa</span>
+</div>
+<div class="flex items-end justify-between h-40 px-xs mb-sm">
+<!-- Chart Bars -->
+<div class="flex flex-col items-center gap-sm w-8">
+<div class="bg-surface-container-highest w-6 rounded-t-sm h-[40%] chart-bar-hover transition-all duration-300"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Pzt</span>
+</div>
+<div class="flex flex-col items-center gap-sm w-8">
+<div class="bg-surface-container-highest w-6 rounded-t-sm h-[65%] chart-bar-hover transition-all duration-300"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Sal</span>
+</div>
+<div class="flex flex-col items-center gap-sm w-8">
+<div class="bg-primary-container w-6 rounded-t-sm h-[85%] chart-bar-hover transition-all duration-300"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Çar</span>
+</div>
+<div class="flex flex-col items-center gap-sm w-8">
+<div class="bg-surface-container-highest w-6 rounded-t-sm h-[50%] chart-bar-hover transition-all duration-300"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Per</span>
+</div>
+<div class="flex flex-col items-center gap-sm w-8">
+<div class="bg-primary w-6 rounded-t-sm h-[95%] chart-bar-hover transition-all duration-300"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-bold">Cum</span>
+</div>
+<div class="flex flex-col items-center gap-sm w-8">
+<div class="bg-surface-container-highest w-6 rounded-t-sm h-[30%] chart-bar-hover transition-all duration-300"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Cmt</span>
+</div>
+<div class="flex flex-col items-center gap-sm w-8">
+<div class="bg-surface-container-highest w-6 rounded-t-sm h-[20%] chart-bar-hover transition-all duration-300"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Paz</span>
+</div>
+</div>
+</section>
+<!-- Accuracy Rate Trend Line (Stylized SVG) -->
+<section class="bg-white p-md rounded-xl border border-outline-variant shadow-sm relative overflow-hidden">
+<div class="z-10 relative">
+<h3 class="font-title-lg text-title-lg text-on-surface mb-xs">Doğruluk Oranı Trendi</h3>
+<p class="font-label-md text-label-md text-on-surface-variant">Son 7 günlük başarı grafiği</p>
+<div class="mt-lg flex items-center gap-sm">
+<span class="font-display-lg text-display-lg text-primary">%82</span>
+<span class="font-label-sm text-label-sm bg-green-100 text-green-700 px-sm py-1 rounded-full">+4%</span>
+</div>
+</div>
+<!-- Simplified Line Chart as Background Element -->
+<div class="absolute bottom-0 left-0 w-full h-24 opacity-20 pointer-events-none">
+<svg class="w-full h-full preserve-3d" preserveAspectRatio="none" viewBox="0 0 400 100">
+<path d="M0,80 Q50,60 100,75 T200,40 T300,55 T400,20" fill="none" stroke="#4F46E5" stroke-linecap="round" stroke-width="4"></path>
+<path d="M0,80 Q50,60 100,75 T200,40 T300,55 T400,20 V100 H0 Z" fill="url(#grad)"></path>
+<defs>
+<linearGradient id="grad" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" style="stop-color:#4F46E5;stop-opacity:0.3"></stop>
+<stop offset="100%" style="stop-color:#4F46E5;stop-opacity:0"></stop>
+</linearGradient>
+</defs>
+</svg>
+</div>
+</section>
+<!-- Subject Mastery Section -->
+<section class="space-y-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Konu Hakimiyeti</h3>
+<div class="bg-white rounded-xl border border-outline-variant overflow-hidden divide-y divide-outline-variant/30">
+<!-- Category 1 -->
+<div class="p-md hover:bg-surface-container-low transition-colors duration-200">
+<div class="flex justify-between items-center mb-sm">
+<span class="font-body-md text-body-md font-semibold text-on-surface">Genel Kültür</span>
+<span class="font-label-md text-label-md text-on-surface-variant">%92</span>
+</div>
+<div class="w-full bg-surface-container h-1.5 rounded-full">
+<div class="bg-primary h-full rounded-full transition-all duration-1000 ease-out" style="width: 92%;"></div>
+</div>
+</div>
+<!-- Category 2 -->
+<div class="p-md hover:bg-surface-container-low transition-colors duration-200">
+<div class="flex justify-between items-center mb-sm">
+<span class="font-body-md text-body-md font-semibold text-on-surface">Atatürk İlkeleri ve İnkılap Tarihi</span>
+<span class="font-label-md text-label-md text-on-surface-variant">%78</span>
+</div>
+<div class="w-full bg-surface-container h-1.5 rounded-full">
+<div class="bg-primary h-full rounded-full transition-all duration-1000 ease-out" style="width: 78%;"></div>
+</div>
+</div>
+<!-- Category 3 -->
+<div class="p-md hover:bg-surface-container-low transition-colors duration-200">
+<div class="flex justify-between items-center mb-sm">
+<span class="font-body-md text-body-md font-semibold text-on-surface">Eğitim Yönetimi ve Girişimcilik</span>
+<span class="font-label-md text-label-md text-on-surface-variant">%64</span>
+</div>
+<div class="w-full bg-surface-container h-1.5 rounded-full">
+<div class="bg-primary h-full rounded-full transition-all duration-1000 ease-out" style="width: 64%;"></div>
+</div>
+</div>
+<!-- Category 4 -->
+<div class="p-md hover:bg-surface-container-low transition-colors duration-200">
+<div class="flex justify-between items-center mb-sm">
+<span class="font-body-md text-body-md font-semibold text-on-surface">Mevzuat (657 Sayılı Kanun)</span>
+<span class="font-label-md text-label-md text-on-surface-variant">%45</span>
+</div>
+<div class="w-full bg-surface-container h-1.5 rounded-full">
+<div class="bg-primary h-full rounded-full transition-all duration-1000 ease-out" style="width: 45%;"></div>
+</div>
+</div>
+<!-- Category 5 -->
+<div class="p-md hover:bg-surface-container-low transition-colors duration-200">
+<div class="flex justify-between items-center mb-sm">
+<span class="font-body-md text-body-md font-semibold text-on-surface">Değerler Eğitimi</span>
+<span class="font-label-md text-label-md text-on-surface-variant">%85</span>
+</div>
+<div class="w-full bg-surface-container h-1.5 rounded-full">
+<div class="bg-primary h-full rounded-full transition-all duration-1000 ease-out" style="width: 85%;"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Premium Upsell -->
+<section class="premium-gradient p-lg rounded-2xl text-white shadow-xl flex items-center justify-between">
+<div class="max-w-[70%]">
+<h4 class="font-headline-sm text-headline-sm mb-xs">Detaylı Analiz Alın</h4>
+<p class="font-label-md text-label-md opacity-90 leading-relaxed">Yapay zeka destekli eksik konu analizi ile çalışma planınızı kişiselleştirin.</p>
+</div>
+<button class="bg-white text-primary px-md py-sm rounded-lg font-label-md text-label-md font-bold shadow-sm active:scale-95 transition-transform">
+                YÜKSELT
+            </button>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-safe bg-surface/80 backdrop-blur-md h-20 border-t border-outline-variant shadow-sm rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-md text-label-md">Ana Sayfa</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined mb-1">menu_book</span>
+<span class="font-label-md text-label-md">Dersler</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined mb-1">assignment</span>
+<span class="font-label-md text-label-md">Denemeler</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary font-semibold transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">leaderboard</span>
+<span class="font-label-md text-label-md">İstatistik</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-md text-label-md">Profil</span>
+</a>
+</nav>
+<script>
+        // Simple entry animation for progress bars
+        document.addEventListener('DOMContentLoaded', () => {
+            const bars = document.querySelectorAll('.bg-primary.h-full');
+            bars.forEach(bar => {
+                const targetWidth = bar.style.width;
+                bar.style.width = '0';
+                setTimeout(() => {
+                    bar.style.width = targetWidth;
+                }, 100);
+            });
+        });
+    </script>
+
+
+</body></html>

@@ -1,0 +1,214 @@
+import { useState } from 'react';
+import { View, StyleSheet, Alert } from 'react-native';
+import { useLocalSearchParams, router } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
+import {
+  usePackageRepository,
+  useEntitlementRepository,
+  useTrialAccessRepository,
+  useCurrentUserProfile,
+  useExamSessionRepository,
+} from '../../src/services/hooks';
+import { GetPackageByIdUseCase } from '../../src/application/GetPackageByIdUseCase';
+import { GetPackagesByExamUseCase } from '../../src/application/GetPackagesByExamUseCase';
+import { StartExamSessionUseCase } from '../../src/application/StartExamSessionUseCase';
+import { expoIdGenerator } from '../../src/application/shared/expoIdGenerator';
+import { systemClock } from '../../src/application/shared/systemClock';
+import {
+  ScreenContainer,
+  AppText,
+  Card,
+  Skeleton,
+  EmptyState,
+  PrimaryButton,
+  BackButton,
+} from '../../src/components';
+import { radii, spacing } from '../../src/theme';
+
+const packageTypeLabel: Record<string, string> = {
+  TEMEL_CALISMA: 'Temel Çalışma',
+  YOGUN_TEKRAR: 'Yoğun Tekrar',
+  ZORLAYICI_DENEME: 'Zorlayıcı Deneme',
+};
+
+const difficultyLabel: Record<string, string> = {
+  KOLAY: 'Kolay',
+  ORTA: 'Orta',
+  ZOR: 'Zor',
+};
+
+// Package has no stored description (see PHYSICAL_DATABASE_SCHEMA.md) —
+// package_type + difficulty_level already fully determine a short, honest
+// one-line framing, generated client-side the same way Exam Detail's stats
+// card narrative is generated rather than stored.
+const packageTypeNarrative: Record<string, string> = {
+  TEMEL_CALISMA: 'Temel kavramları düzenli ve sakin bir tempoda çalışman için hazırlandı.',
+  YOGUN_TEKRAR: 'Bildiklerini pekiştirmek ve zayıf noktalarını tekrar etmek için yoğun bir set.',
+  ZORLAYICI_DENEME: 'Gerçek sınav formatına yakın, zamanlı bir deneme sınavı.',
+};
+
+// accessStatus is derived by reusing GetPackagesByExamUseCase (already
+// approved) rather than introducing a new "package with access" use
+// case — fetches the exam's full package list and finds this one's
+// entry. Slightly more than strictly needed for one package, but it
+// keeps data access to only pre-approved use cases.
+export default function PackageDetailScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+
+  const packageRepository = usePackageRepository();
+  const entitlementRepository = useEntitlementRepository();
+  const trialAccessRepository = useTrialAccessRepository();
+  const examSessionRepository = useExamSessionRepository();
+
+  const [isStarting, setIsStarting] = useState(false);
+
+  const { data: userProfile } = useCurrentUserProfile();
+
+  const packageQuery = useQuery({
+    queryKey: ['package', id],
+    queryFn: () => new GetPackageByIdUseCase({ packageRepository }).execute(id as string),
+    enabled: Boolean(id),
+  });
+
+  const accessQuery = useQuery({
+    queryKey: ['packages', 'byExam', packageQuery.data?.examId, userProfile?.id],
+    queryFn: () =>
+      new GetPackagesByExamUseCase({
+        packageRepository,
+        entitlementRepository,
+        trialAccessRepository,
+      }).execute(userProfile!.id, packageQuery.data!.examId),
+    enabled: Boolean(packageQuery.data) && Boolean(userProfile),
+  });
+
+  const accessEntry = accessQuery.data?.find((entry) => entry.package.id === id);
+  const accessStatus = accessEntry?.accessStatus ?? null;
+
+  // package_type is the existing mode signal — ZORLAYICI_DENEME is
+  // already named as the mock-exam study mode, distinct from
+  // TEMEL_CALISMA/YOGUN_TEKRAR (Practice). Not a new field, not
+  // overloading package_type's original study-mode purpose.
+  async function handleStart() {
+    if (!packageQuery.data || !userProfile) return;
+    const pkg = packageQuery.data;
+
+    if (pkg.packageType !== 'ZORLAYICI_DENEME') {
+      router.push(`/question/${pkg.id}`);
+      return;
+    }
+
+    setIsStarting(true);
+    try {
+      const session = await new StartExamSessionUseCase({
+        examSessionRepository,
+        entitlementRepository,
+        packageRepository,
+        generateId: expoIdGenerator,
+        now: systemClock,
+      }).execute({ userId: userProfile.id, examId: pkg.examId, packageId: pkg.id });
+
+      router.push({
+        pathname: '/exam-session/[sessionId]',
+        params: { sessionId: session.id, packageId: pkg.id, examId: pkg.examId },
+      });
+    } catch {
+      setIsStarting(false);
+      Alert.alert('Hata', 'Sınav başlatılamadı. Lütfen tekrar dene.');
+    }
+  }
+
+  // TRIAL is only ever reached for TEMEL_CALISMA/YOGUN_TEKRAR (Deneme
+  // packages are always FULL or LOCKED — see resolvePackageAccessStatus)
+  // so this always routes into the lazy Question Screen flow, never the
+  // Deneme session flow above. accessMode='trial' is what makes
+  // QuestionScreen use GetTrialQuestionByIndexUseCase instead of the
+  // eager GetQuestionsByPackageUseCase fetch.
+  function handleStartTrial() {
+    if (!packageQuery.data) return;
+    const pkg = packageQuery.data;
+    router.push({
+      pathname: '/question/[packageId]',
+      params: { packageId: pkg.id, examId: pkg.examId, accessMode: 'trial' },
+    });
+  }
+
+  return (
+    <ScreenContainer scroll>
+      <View style={styles.headerRow}>
+        <BackButton />
+      </View>
+
+      {packageQuery.isLoading ? (
+        <Card variant="hero">
+          <Skeleton width="60%" height={22} style={styles.skeletonLine} />
+          <Skeleton width="40%" height={16} style={styles.skeletonLine} />
+          <Skeleton width="100%" height={50} borderRadius={radii.sm} />
+        </Card>
+      ) : packageQuery.error || !packageQuery.data ? (
+        <View style={styles.centerFill}>
+          <EmptyState
+            icon="alert-circle-outline"
+            title="Paket bulunamadı"
+            message="Bu paket artık mevcut olmayabilir."
+          />
+        </View>
+      ) : (
+        <Card variant="hero">
+          <AppText variant="title2">
+            {packageTypeLabel[packageQuery.data.packageType] ?? packageQuery.data.packageType}
+          </AppText>
+          <AppText variant="subhead" color="secondary" style={styles.metaLine}>
+            {difficultyLabel[packageQuery.data.difficultyLevel] ?? packageQuery.data.difficultyLevel}
+          </AppText>
+          <AppText variant="body" color="secondary" style={styles.narrative}>
+            {packageTypeNarrative[packageQuery.data.packageType] ?? ''}
+          </AppText>
+
+          {accessStatus === null ? (
+            <Skeleton
+              width="100%"
+              height={50}
+              borderRadius={radii.sm}
+              style={styles.ctaSkeleton}
+            />
+          ) : accessStatus === 'FULL' ? (
+            <>
+              <AppText variant="subhead" color="success" style={styles.accessNote}>
+                Bu pakete erişimin var
+              </AppText>
+              <PrimaryButton label="Başla" onPress={handleStart} disabled={isStarting} />
+            </>
+          ) : accessStatus === 'TRIAL' ? (
+            <>
+              <AppText variant="subhead" color="secondary" style={styles.accessNote}>
+                Bu paketten ücretsiz birkaç soru deneyebilirsin
+              </AppText>
+              <PrimaryButton label="Ücretsiz Dene" onPress={handleStartTrial} />
+            </>
+          ) : (
+            <>
+              <AppText variant="subhead" color="secondary" style={styles.accessNote}>
+                Bu paketin kilidini açman gerekiyor
+              </AppText>
+              <PrimaryButton label="Kilidi Aç" disabled />
+              <AppText variant="footnote" color="tertiary" style={styles.comingSoonNote}>
+                Premium özellikler yakında eklenecek.
+              </AppText>
+            </>
+          )}
+        </Card>
+      )}
+    </ScreenContainer>
+  );
+}
+
+const styles = StyleSheet.create({
+  headerRow: { paddingTop: spacing.sm, paddingBottom: spacing.md },
+  metaLine: { marginTop: spacing.xs },
+  narrative: { marginTop: spacing.md, marginBottom: spacing.lg },
+  accessNote: { marginBottom: spacing.md },
+  comingSoonNote: { marginTop: spacing.sm, textAlign: 'center' },
+  skeletonLine: { marginBottom: spacing.sm },
+  ctaSkeleton: { marginTop: spacing.md },
+  centerFill: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: spacing.xxl },
+});

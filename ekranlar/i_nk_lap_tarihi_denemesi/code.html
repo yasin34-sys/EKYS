@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html class="light" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EKYS - İnkılap Tarihi Denemesi</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<!-- Tailwind CSS with Custom Theme -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#dce2f7",
+                        "on-tertiary-fixed-variant": "#3b35a7",
+                        "on-primary-fixed": "#0f0069",
+                        "on-tertiary-fixed": "#0f0069",
+                        "tertiary-fixed": "#e2dfff",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#c3c0ff",
+                        "tertiary-container": "#5551c2",
+                        "surface-dim": "#d3daef",
+                        "outline-variant": "#c7c4d8",
+                        "on-secondary-fixed-variant": "#574500",
+                        "primary": "#3525cd",
+                        "on-surface-variant": "#464555",
+                        "on-background": "#141b2b",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#f1f3ff",
+                        "primary-fixed": "#e2dfff",
+                        "tertiary": "#3d37a9",
+                        "outline": "#777587",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "inverse-on-surface": "#edf0ff",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "on-secondary-container": "#745c00",
+                        "tertiary-fixed-dim": "#c3c0ff",
+                        "surface-container": "#e9edff",
+                        "secondary-fixed-dim": "#e9c349",
+                        "surface-bright": "#f9f9ff",
+                        "secondary-container": "#fed65b",
+                        "surface": "#f9f9ff",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#4d44e3",
+                        "secondary-fixed": "#ffe088",
+                        "on-primary-container": "#dad7ff",
+                        "primary-container": "#4f46e5",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "background": "#f9f9ff",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#dce2f7",
+                        "on-surface": "#141b2b",
+                        "surface-container-high": "#e1e8fd",
+                        "on-primary": "#ffffff",
+                        "inverse-surface": "#293040",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#241a00",
+                        "secondary": "#735c00",
+                        "on-tertiary-container": "#dbd7ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "unit": "8px",
+                        "gutter": "16px",
+                        "margin-desktop": "40px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "xxl": "48px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "margin-mobile": "20px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter", "sans-serif"],
+                        "label-md": ["Inter", "sans-serif"],
+                        "headline-md": ["Inter", "sans-serif"],
+                        "display-lg": ["Inter", "sans-serif"],
+                        "headline-sm": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "title-lg": ["Inter", "sans-serif"],
+                        "display-lg-mobile": ["Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }],
+                        "title-lg": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "display-lg-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-sans antialiased min-h-screen flex flex-col selection:bg-primary-container selection:text-white">
+<!-- Exam Top App Bar -->
+<!-- Suppressing global navigation shell due to task-focused transactional intent (Exam Mode) -->
+<header class="flex justify-between items-center px-margin-mobile h-16 bg-surface border-b border-outline-variant sticky top-0 z-50">
+<button aria-label="Sınavdan Çık" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors text-on-surface">
+<span class="material-symbols-outlined">close</span>
+</button>
+<h1 class="font-title-lg text-title-lg text-on-surface truncate px-2">
+            İnkılap Tarihi Denemesi
+        </h1>
+<!-- Timer Component -->
+<div class="flex items-center gap-xs bg-surface-container py-1 px-3 rounded-full text-on-surface font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]">timer</span>
+<span class="w-[42px] text-center font-mono tracking-tight" id="countdown-timer">44:59</span>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 overflow-y-auto pb-24">
+<div class="max-w-3xl mx-auto w-full px-margin-mobile pt-lg">
+<!-- Progress Indicator -->
+<div class="mb-lg">
+<div class="flex justify-between items-end mb-sm">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Soru 1</span>
+<span class="font-label-sm text-label-sm text-outline">1 / 20</span>
+</div>
+<div class="h-1 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[5%] transition-all duration-300"></div>
+</div>
+</div>
+<!-- Question Card -->
+<article class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm mb-lg">
+<div class="p-md md:p-lg border-b border-outline-variant/50">
+<p class="font-body-lg text-body-lg text-on-surface leading-relaxed">
+                        Mondros Ateşkes Antlaşması'ndan sonra başlayan işgallere karşı Türk halkının <strong>ilk teşkilatlı tepkisi</strong> aşağıdakilerden hangisi olmuştur?
+                    </p>
+</div>
+<!-- Options (Exam Mode: No immediate right/wrong feedback) -->
+<div class="p-md md:p-lg flex flex-col gap-sm" id="options-container">
+<!-- Option A -->
+<button class="w-full text-left flex items-start gap-md p-md rounded-lg border border-outline-variant hover:bg-surface-container-low transition-colors group option-btn">
+<div class="w-8 h-8 shrink-0 rounded-full border border-outline-variant flex items-center justify-center font-label-md text-label-md text-on-surface-variant group-hover:border-primary group-hover:text-primary transition-colors option-circle">
+                            A
+                        </div>
+<span class="font-body-md text-body-md text-on-surface mt-[5px]">Düzenli orduyu kurma çalışmalarına başlamak</span>
+</button>
+<!-- Option B -->
+<button class="w-full text-left flex items-start gap-md p-md rounded-lg border border-outline-variant hover:bg-surface-container-low transition-colors group option-btn">
+<div class="w-8 h-8 shrink-0 rounded-full border border-outline-variant flex items-center justify-center font-label-md text-label-md text-on-surface-variant group-hover:border-primary group-hover:text-primary transition-colors option-circle">
+                            B
+                        </div>
+<span class="font-body-md text-body-md text-on-surface mt-[5px]">Bölgesel direniş cemiyetleri (Müdafaa-i Hukuk) kurmak</span>
+</button>
+<!-- Option C -->
+<button class="w-full text-left flex items-start gap-md p-md rounded-lg border border-outline-variant hover:bg-surface-container-low transition-colors group option-btn">
+<div class="w-8 h-8 shrink-0 rounded-full border border-outline-variant flex items-center justify-center font-label-md text-label-md text-on-surface-variant group-hover:border-primary group-hover:text-primary transition-colors option-circle">
+                            C
+                        </div>
+<span class="font-body-md text-body-md text-on-surface mt-[5px]">Türkiye Büyük Millet Meclisi'ni açmak</span>
+</button>
+<!-- Option D -->
+<button class="w-full text-left flex items-start gap-md p-md rounded-lg border border-outline-variant hover:bg-surface-container-low transition-colors group option-btn">
+<div class="w-8 h-8 shrink-0 rounded-full border border-outline-variant flex items-center justify-center font-label-md text-label-md text-on-surface-variant group-hover:border-primary group-hover:text-primary transition-colors option-circle">
+                            D
+                        </div>
+<span class="font-body-md text-body-md text-on-surface mt-[5px]">İstanbul Hükümeti ile uzlaşma yolları aramak</span>
+</button>
+<!-- Option E -->
+<button class="w-full text-left flex items-start gap-md p-md rounded-lg border border-outline-variant hover:bg-surface-container-low transition-colors group option-btn">
+<div class="w-8 h-8 shrink-0 rounded-full border border-outline-variant flex items-center justify-center font-label-md text-label-md text-on-surface-variant group-hover:border-primary group-hover:text-primary transition-colors option-circle">
+                            E
+                        </div>
+<span class="font-body-md text-body-md text-on-surface mt-[5px]">Kuvay-ı İnzibatiye birliklerine katılmak</span>
+</button>
+</div>
+</article>
+</div>
+</main>
+<!-- Task-Focused Bottom Action Bar -->
+<footer class="fixed bottom-0 left-0 w-full z-50 bg-surface/90 backdrop-blur-md border-t border-outline-variant pb-safe">
+<div class="max-w-3xl mx-auto w-full h-20 px-margin-mobile flex justify-between items-center">
+<!-- Previous Button (Disabled state for Q1) -->
+<button class="flex items-center gap-xs px-2 py-2 text-on-surface-variant font-label-md text-label-md opacity-40 cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+<span>Önceki</span>
+</button>
+<!-- Question List Grid Icon -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-label-sm text-label-sm mt-1">Soru Listesi</span>
+</button>
+<!-- Next Button -->
+<button class="flex items-center gap-xs px-4 py-3 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm">
+<span>Sonraki</span>
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</footer>
+<!-- Interactive Logic for Exam Mode -->
+<script>
+        // Option Selection Logic
+        const options = document.querySelectorAll('.option-btn');
+        options.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove selected state from all
+                options.forEach(opt => {
+                    opt.classList.remove('border-primary', 'bg-surface-container-low');
+                    opt.classList.add('border-outline-variant');
+                    const circle = opt.querySelector('.option-circle');
+                    circle.classList.remove('bg-primary', 'text-on-primary', 'border-primary');
+                    circle.classList.add('border-outline-variant', 'text-on-surface-variant');
+                });
+
+                // Add selected state to clicked
+                this.classList.remove('border-outline-variant');
+                this.classList.add('border-primary', 'bg-surface-container-low');
+                const activeCircle = this.querySelector('.option-circle');
+                activeCircle.classList.remove('border-outline-variant', 'text-on-surface-variant');
+                activeCircle.classList.add('bg-primary', 'text-on-primary', 'border-primary');
+            });
+        });
+
+        // Simple Timer Logic
+        let timeInSeconds = 44 * 60 + 59;
+        const timerElement = document.getElementById('countdown-timer');
+
+        setInterval(() => {
+            if(timeInSeconds > 0) {
+                timeInSeconds--;
+                const minutes = Math.floor(timeInSeconds / 60);
+                const seconds = timeInSeconds % 60;
+                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }, 1000);
+    </script>
+</body></html>

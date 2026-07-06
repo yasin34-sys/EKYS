@@ -1,0 +1,272 @@
+<!DOCTYPE html><html class="light" lang="tr"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .safe-pb { padding-bottom: env(safe-area-inset-bottom); }
+        .ios-list-item:last-child { border-bottom: none; }
+        .premium-glow {
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#c3c0ff",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#5551c2",
+                        "surface-container-highest": "#dce2f7",
+                        "secondary": "#735c00",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#293040",
+                        "surface-variant": "#dce2f7",
+                        "on-surface-variant": "#464555",
+                        "inverse-primary": "#c3c0ff",
+                        "inverse-on-surface": "#edf0ff",
+                        "on-tertiary-fixed-variant": "#3b35a7",
+                        "on-primary-fixed": "#0f0069",
+                        "on-tertiary-fixed": "#0f0069",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#777587",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "secondary-fixed-dim": "#e9c349",
+                        "on-primary-container": "#dad7ff",
+                        "tertiary": "#3d37a9",
+                        "surface": "#f9f9ff",
+                        "surface-bright": "#f9f9ff",
+                        "surface-tint": "#4d44e3",
+                        "on-surface": "#141b2b",
+                        "primary": "#3525cd",
+                        "on-secondary-fixed": "#241a00",
+                        "on-secondary-container": "#745c00",
+                        "surface-container": "#e9edff",
+                        "on-secondary-fixed-variant": "#574500",
+                        "on-background": "#141b2b",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#f1f3ff",
+                        "on-tertiary-container": "#dbd7ff",
+                        "primary-fixed": "#e2dfff",
+                        "background": "#f9f9ff",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#e1e8fd",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "surface-dim": "#d3daef",
+                        "secondary-fixed": "#ffe088",
+                        "primary-container": "#4f46e5",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#e2dfff",
+                        "secondary-container": "#fed65b",
+                        "error": "#ba1a1a",
+                        "outline-variant": "#c7c4d8",
+                        "premium-gold": "#D4AF37"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "margin-mobile": "20px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "xl": "32px",
+                        "unit": "8px",
+                        "margin-desktop": "40px",
+                        "gutter": "16px",
+                        "xxl": "48px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "display-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "display-lg-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                        "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "26px", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-[#FAFAF8] text-on-surface font-body-md text-body-md antialiased min-h-screen pb-32">
+<!-- Top App Bar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline">
+<button class="transition-all duration-200 active:opacity-70 p-2 -ml-2">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">menu</span>
+</button>
+<h1 class="font-display-lg-mobile text-display-lg-mobile font-bold text-primary dark:text-primary-fixed-dim">EKYS CEPTE</h1>
+<button class="transition-all duration-200 active:opacity-70 p-2 -mr-2">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">notifications</span>
+</button>
+</header>
+<main class="pt-24 px-margin-mobile max-w-2xl mx-auto">
+<!-- Profile Header Section -->
+<section class="flex flex-col items-center mb-xl">
+<div class="relative mb-md">
+<div class="w-24 h-24 rounded-full overflow-hidden border-2 border-white shadow-md premium-glow">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of an educator in their early 40s with a warm, confident smile. The lighting is soft and academic, set against a blurred background of a modern, clean library. The image has a premium, high-quality feel with natural colors and a slight warm tint to match the gold branding accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAi_sCnjRMdIgm1v7ZOkbTzSm2JdqjG-NNLMZ4aCb7tNxjGvJaiJs-2AfDNJ2v0jy1AhBcZsabY6PZg5nK-OuTuOxzcwWoXlIhEQwZU3_0md2-fRKH8Q7u_xBf7fJ9S_1OOAdGCdds9I8ux22QuYSp_y8p8MvG0knLzoMb-5T9lFOakx5lI-2G-YCLsS9VwjTL-53Um3EoYv0uYnMWjDRBw6XUeU0pGqW_g5q5ok3E1cuhAVAANzQNJ5w">
+</div>
+<div class="absolute -bottom-1 -right-1 bg-premium-gold text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                    PRO
+                </div>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-xs">Dr. Ahmet Yılmaz</h2>
+<div class="flex items-center gap-1.5 bg-[#FEF9E7] border border-[#FDE68A] px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-premium-gold text-[16px]" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<span class="text-premium-gold font-label-sm uppercase tracking-wider">Premium Üye</span>
+</div>
+</section>
+<!-- Stats Bento Grid -->
+<section class="grid grid-cols-3 gap-sm mb-xl">
+<div class="bg-white border border-outline-variant rounded-xl p-md flex flex-col items-center justify-center text-center transition-transform active:scale-95 duration-200">
+<span class="material-symbols-outlined text-orange-500 mb-xs" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="font-headline-sm text-headline-sm block">12</span>
+<span class="text-label-md font-label-md text-on-surface-variant">Günlük Seri</span>
+</div>
+<div class="bg-white border border-outline-variant rounded-xl p-md flex flex-col items-center justify-center text-center transition-transform active:scale-95 duration-200">
+<span class="material-symbols-outlined text-primary mb-xs" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-headline-sm text-headline-sm block">842</span>
+<span class="text-label-md font-label-md text-on-surface-variant">Doğru Soru</span>
+</div>
+<div class="bg-white border border-outline-variant rounded-xl p-md flex flex-col items-center justify-center text-center transition-transform active:scale-95 duration-200">
+<span class="material-symbols-outlined text-secondary mb-xs" style="font-variation-settings: 'FILL' 1;">event</span>
+<span class="font-headline-sm text-headline-sm block">45</span>
+<span class="text-label-md font-label-md text-on-surface-variant">Sınava Kalan</span>
+</div>
+</section>
+<!-- Menu List (iOS Style) -->
+<section class="space-y-lg">
+<div>
+<h3 class="text-label-md font-label-md text-on-surface-variant uppercase tracking-widest mb-sm ml-sm">Gelişim ve Başarı</h3>
+<div class="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<button class="w-full flex items-center justify-between px-md py-4 transition-colors hover:bg-surface-container-low ios-list-item border-b border-[#F3F4F6]">
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl">military_tech</span>
+</div>
+<span class="font-title-lg text-on-surface">Rozetler &amp; Başarılar</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between px-md py-4 transition-colors hover:bg-surface-container-low ios-list-item border-b border-[#F3F4F6]">
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl">inventory_2</span>
+</div>
+<span class="font-title-lg text-on-surface">Paket Bilgileri</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</button>
+</div>
+</div>
+<div>
+<h3 class="text-label-md font-label-md text-on-surface-variant uppercase tracking-widest mb-sm ml-sm">Ayarlar</h3>
+<div class="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<button class="w-full flex items-center justify-between px-md py-4 transition-colors hover:bg-surface-container-low ios-list-item border-b border-[#F3F4F6]">
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl">notifications_active</span>
+</div>
+<span class="font-title-lg text-on-surface">Bildirim Ayarları</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between px-md py-4 transition-colors hover:bg-surface-container-low ios-list-item border-b border-[#F3F4F6]">
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl">manage_accounts</span>
+</div>
+<span class="font-title-lg text-on-surface">Hesap Ayarları</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</button>
+</div>
+</div>
+<div>
+<h3 class="text-label-md font-label-md text-on-surface-variant uppercase tracking-widest mb-sm ml-sm">Destek</h3>
+<div class="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<button class="w-full flex items-center justify-between px-md py-4 transition-colors hover:bg-surface-container-low ios-list-item border-b border-[#F3F4F6]">
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl">contact_support</span>
+</div>
+<span class="font-title-lg text-on-surface">Destek &amp; Yardım</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between px-md py-4 transition-colors hover:bg-surface-container-low group">
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded-lg bg-error-container flex items-center justify-center">
+<span class="material-symbols-outlined text-error text-xl">logout</span>
+</div>
+<span class="font-title-lg text-error group-active:opacity-60">Çıkış Yap</span>
+</div>
+</button>
+</div>
+</div>
+</section>
+<div class="mt-xl text-center">
+<p class="text-on-surface-variant font-label-md opacity-50">EKYS CEPTE v4.2.0 (Build 2024)</p>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-safe bg-surface/80 backdrop-blur-md h-20 border-t border-outline-variant dark:border-outline rounded-t-xl shadow-sm">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Ana Sayfa</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-md text-label-md">Dersler</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-label-md text-label-md">Denemeler</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-label-md text-label-md">İstatistik</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim font-semibold transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-md text-label-md">Profil</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for feedback
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('click', function(e) {
+                // Haptic feedback simulation or navigation logic could go here
+            });
+        });
+    </script>
+
+
+</body></html>

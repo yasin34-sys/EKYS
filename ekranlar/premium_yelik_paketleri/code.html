@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+
+<html class="light" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EKYS CEPTE | Premium'a Geç</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed-dim": "#c3c0ff",
+                    "on-error-container": "#93000a",
+                    "tertiary-container": "#5551c2",
+                    "surface-container-highest": "#dce2f7",
+                    "secondary": "#735c00",
+                    "error-container": "#ffdad6",
+                    "inverse-surface": "#293040",
+                    "surface-variant": "#dce2f7",
+                    "on-surface-variant": "#464555",
+                    "inverse-primary": "#c3c0ff",
+                    "inverse-on-surface": "#edf0ff",
+                    "on-tertiary-fixed-variant": "#3b35a7",
+                    "on-primary-fixed": "#0f0069",
+                    "on-tertiary-fixed": "#0f0069",
+                    "surface-container-lowest": "#ffffff",
+                    "outline": "#777587",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "secondary-fixed-dim": "#e9c349",
+                    "on-primary-container": "#dad7ff",
+                    "tertiary": "#3d37a9",
+                    "surface": "#f9f9ff",
+                    "surface-bright": "#f9f9ff",
+                    "surface-tint": "#4d44e3",
+                    "on-surface": "#141b2b",
+                    "primary": "#3525cd",
+                    "on-secondary-fixed": "#241a00",
+                    "on-secondary-container": "#745c00",
+                    "surface-container": "#e9edff",
+                    "on-secondary-fixed-variant": "#574500",
+                    "on-background": "#141b2b",
+                    "on-error": "#ffffff",
+                    "surface-container-low": "#f1f3ff",
+                    "on-tertiary-container": "#dbd7ff",
+                    "primary-fixed": "#e2dfff",
+                    "background": "#f9f9ff",
+                    "on-primary": "#ffffff",
+                    "surface-container-high": "#e1e8fd",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "surface-dim": "#d3daef",
+                    "secondary-fixed": "#ffe088",
+                    "primary-container": "#4f46e5",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#e2dfff",
+                    "secondary-container": "#fed65b",
+                    "error": "#ba1a1a",
+                    "outline-variant": "#c7c4d8",
+                    "gold": "#D4AF37",
+                    "premium-surface": "#FFFAF0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "24px",
+                    "margin-mobile": "20px",
+                    "md": "16px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "xl": "32px",
+                    "unit": "8px",
+                    "margin-desktop": "40px",
+                    "gutter": "16px",
+                    "xxl": "48px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"],
+                    "title-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "label-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-lg-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                    "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "26px", "fontWeight": "400"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        .premium-gradient {
+            background: linear-gradient(135deg, #141b2b 0%, #3525cd 100%);
+        }
+        .gold-shimmer {
+            background: linear-gradient(90deg, rgba(212,175,55,0) 0%, rgba(212,175,55,0.2) 50%, rgba(212,175,55,0) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(229, 231, 235, 1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface mb-20">
+<!-- Top Navigation Placeholder (Small Center Aligned Style) -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-surface/80 backdrop-blur-md border-b border-outline-variant">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined text-on-surface-variant">arrow_back</span>
+</button>
+<h1 class="font-display-lg-mobile text-display-lg-mobile font-bold text-primary">EKYS CEPTE</h1>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined text-on-surface-variant">help_outline</span>
+</button>
+</header>
+<main class="pt-16">
+<!-- Hero Section -->
+<section class="relative overflow-hidden premium-gradient pt-12 pb-20 px-margin-mobile text-white">
+<div class="absolute inset-0 opacity-20 pointer-events-none">
+<div class="absolute top-[-50px] right-[-50px] w-64 h-64 bg-secondary-container rounded-full blur-[100px]"></div>
+<div class="absolute bottom-[-50px] left-[-50px] w-64 h-64 bg-primary-container rounded-full blur-[100px]"></div>
+</div>
+<div class="relative z-10 text-center space-y-4">
+<div class="inline-flex items-center px-3 py-1 rounded-full bg-secondary-container/20 border border-secondary-container/30 text-secondary-fixed-dim text-label-sm uppercase tracking-widest mb-2">
+<span class="material-symbols-outlined text-[14px] mr-1" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+                    Elite Üyelik
+                </div>
+<h2 class="font-display-lg-mobile text-display-lg-mobile font-extrabold tracking-tight">Premium'a Geçin</h2>
+<p class="font-body-lg text-body-lg text-surface-variant max-w-xs mx-auto opacity-90">
+                    Başarı yolculuğunuzda sınırları kaldırın ve EKYS'ye eksiksiz hazırlanın.
+                </p>
+</div>
+</section>
+<!-- Features Bento Grid -->
+<section class="-mt-10 px-margin-mobile relative z-20">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="glass-card p-6 rounded-xl flex flex-col items-center text-center space-y-3">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">quiz</span>
+</div>
+<h3 class="font-title-lg text-title-lg">Tüm Sorulara Erişim</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">10.000+ güncel soru ve detaylı çözümlerin tamamı cebinizde.</p>
+</div>
+<div class="glass-card p-6 rounded-xl flex flex-col items-center text-center space-y-3">
+<div class="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+</div>
+<h3 class="font-title-lg text-title-lg">Detaylı İstatistikler</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Yapay zeka destekli gelişim analiziyle eksiklerinizi anında görün.</p>
+</div>
+<div class="glass-card p-6 rounded-xl flex flex-col items-center text-center space-y-3">
+<div class="w-12 h-12 rounded-full bg-error-container/20 flex items-center justify-center text-error">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">block</span>
+</div>
+<h3 class="font-title-lg text-title-lg">Reklamsız Deneyim</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Dikkatiniz dağılmadan sadece hedefinize odaklanın.</p>
+</div>
+</div>
+</section>
+<!-- Plans Selection -->
+<section class="py-xl px-margin-mobile space-y-6">
+<div class="text-center">
+<h2 class="font-headline-md text-headline-md">Size Uygun Planı Seçin</h2>
+</div>
+<!-- Horizontal Scroll Cards for Mobile / Grid for Desktop -->
+<div class="flex flex-col gap-4">
+<!-- Monthly Plan -->
+<div class="border border-outline-variant bg-white rounded-xl p-md flex items-center justify-between group active:scale-[0.98] transition-transform duration-200 cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">calendar_today</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">AYLIK</p>
+<h4 class="font-title-lg text-title-lg">Taze Başlangıç</h4>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline-sm text-headline-sm text-primary">₺99,99</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Aylık</p>
+</div>
+</div>
+<!-- Sınava Kadar Plan (Featured) -->
+<div class="relative overflow-hidden border-2 border-gold bg-premium-surface rounded-xl p-md flex flex-col gap-4 group active:scale-[0.98] transition-transform duration-200 cursor-pointer">
+<div class="absolute top-0 right-0">
+<div class="bg-gold text-white px-4 py-1 rounded-bl-xl font-label-sm uppercase tracking-wide">Popüler</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-gold" style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-secondary">HEDEF ODAKLI</p>
+<h4 class="font-title-lg text-title-lg">Sınava Kadar Paket</h4>
+</div>
+</div>
+<div class="text-right">
+<p class="font-headline-sm text-headline-sm text-primary">₺249,99</p>
+<p class="font-label-md text-label-md text-on-surface-variant">Tek Seferlik</p>
+</div>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-md text-body-md">
+<span class="material-symbols-outlined text-[18px] text-gold">verified</span>
+<span>Tüm denemeler dahil</span>
+</div>
+</div>
+<!-- Yearly Plan -->
+<div class="border border-outline-variant bg-white rounded-xl p-md flex items-center justify-between group active:scale-[0.98] transition-transform duration-200 cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">all_inclusive</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">YILLIK</p>
+<h4 class="font-title-lg text-title-lg">Tam Güvence</h4>
+</div>
+</div>
+<div class="text-right">
+<div class="flex flex-col">
+<p class="font-headline-sm text-headline-sm text-primary">₺399,99</p>
+<p class="font-label-md text-label-md text-on-surface-variant line-through opacity-50">₺599,99</p>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full bg-primary-container h-14 rounded-full text-white font-headline-sm shadow-lg shadow-primary/20 active:opacity-80 transition-all">
+                Üyeliği Başlat
+            </button>
+<p class="text-center font-label-md text-label-md text-on-surface-variant">
+                İstediğiniz zaman iptal edebilirsiniz. Güvenli ödeme.
+            </p>
+</section>
+<!-- Social Proof -->
+<section class="bg-surface-container-low py-xl px-margin-mobile">
+<div class="text-center mb-md">
+<h3 class="font-headline-sm text-headline-sm">Binlerce Öğretmen Aramıza Katıldı</h3>
+<div class="flex justify-center -space-x-3 mt-4">
+<div class="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-slate-200">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a smiling middle-aged male teacher with glasses, soft studio lighting, high-key background, minimalist academic portrait style, part of a high-end educational app interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcY5mgciveLZFEt5GrG0RXuR37Al7weUb0O3PV-C75qVUV7GJ4PAemj8N-G2mShr9sCCzFwMIVxPynzAy9-vAkz4E30_XSp7s1yFNLR83ybLvgMfL432W5BolS718bAxEWBWjGd7yRO-Opha1Td8wkYuJtrbgpHFh_9f_asZNcY7qoJJzUCMWy7Ny18lEpfZJshoYoZ_6dfOm99kA7qMePlWIxy-eH7FVCp-6IYcAlFOd_2QMLN1ThRw"/>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-slate-200">
+<img class="w-full h-full object-cover" data-alt="A professional portrait of a confident female educator wearing a modern blazer, warm natural lighting, blurred school library background, clean minimalist aesthetic, high-end professional photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPSH7u9Xiey7u780QZqOe2yY2YJiiU6UmPOwG-tDaA0_cQXKIyHplBTutYIPy3ZnIJTkHLOME5cghpy02E6Z_GiTyaIbaXpDOWnybvzjGKgdslkWO-Kz96fcDqsenCl-UgfqkwbWVARnd67aKQKWBNiqH_zG1XtqSZMkgjUZbR5pbJFJXrKs02TzR3nQ1SqiLLVUA_Poq5jmFTRlO8iwuiKYzahYmjGLbO2HbBPOy74Q07H3er0rimAA"/>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-slate-200">
+<img class="w-full h-full object-cover" data-alt="A friendly looking young teacher in a bright office environment, modern professional look, high-key bright aesthetic, soft shadows, pristine white and light blue color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoVx6zPjhCb21nd04t-T7EQOS6I5fGAQamjhlGg6kj7-MXfXTTK4i1ziGzSZpUozH-bIKMBvRV5fgn4iELfEtbtXF7ntD62DLACwHWQ6p0pHGb8V1L44cjYD1HuZ_p5uZXjnrCmWtMntcybcZ1EgYvWswESQaKQZx-_TMpLJhosBzMHUgpKckLa5ieklrzIakXoMXbnzHgLqmSXYJo65qbdPuzDRB7SmsGOaCSk915VTWmjrx8MDyBJA"/>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-white bg-primary-fixed text-primary flex items-center justify-center font-label-sm text-[10px]">
+                        +5k
+                    </div>
+</div>
+</div>
+<div class="space-y-4">
+<div class="bg-white p-4 rounded-xl shadow-sm border border-outline-variant">
+<p class="italic font-body-md text-body-md text-on-surface-variant">"EKYS hazırlık sürecimde en büyük yardımcım oldu. Özellikle istatistikler hangi konuya odaklanmam gerektiğini netleştirdi."</p>
+<div class="mt-3 flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary-fixed-dim"></div>
+<span class="font-label-sm text-label-sm">Ömer Y. - Okul Müdürü</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer Info -->
+<section class="py-lg px-margin-mobile opacity-60 text-center space-y-2">
+<p class="font-label-md text-label-md">Yardıma mı ihtiyacınız var? <a class="underline" href="#">Destek ile iletişime geçin</a></p>
+<div class="flex justify-center gap-4 text-label-sm">
+<a href="#">Kullanım Şartları</a>
+<a href="#">Gizlilik Politikası</a>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar (Label Icon Style) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-safe bg-surface/80 backdrop-blur-md h-20 border-t border-outline-variant">
+<div class="flex flex-col items-center justify-center text-on-surface-variant transition-transform duration-200 active:scale-95 cursor-pointer">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Ana Sayfa</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant transition-transform duration-200 active:scale-95 cursor-pointer">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-md text-label-md">Dersler</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant transition-transform duration-200 active:scale-95 cursor-pointer">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-label-md text-label-md">Denemeler</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant transition-transform duration-200 active:scale-95 cursor-pointer">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-label-md text-label-md">İstatistik</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary font-semibold transition-transform duration-200 active:scale-95 cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-md text-label-md">Profil</span>
+</div>
+</nav>
+<script>
+        // Micro-interactions
+        const planCards = document.querySelectorAll('.flex.flex-col.gap-4 > div');
+        planCards.forEach(card => {
+            card.addEventListener('click', () => {
+                planCards.forEach(c => {
+                    c.classList.remove('border-primary', 'border-2', 'bg-surface-container-high');
+                    c.classList.add('border-outline-variant');
+                });
+                card.classList.remove('border-outline-variant');
+                card.classList.add('border-primary', 'border-2', 'bg-surface-container-high');
+            });
+        });
+
+        // Initialize with middle card as primary choice focus effect if not already styled
+        planCards[1].classList.add('ring-2', 'ring-gold', 'ring-offset-2');
+    </script>
+</body></html>

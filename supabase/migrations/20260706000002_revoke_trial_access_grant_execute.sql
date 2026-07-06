@@ -1,0 +1,20 @@
+-- 20260706000002_revoke_trial_access_grant_execute.sql
+-- Follow-up to 20260706000001_trial_access.sql (already applied) — does
+-- not modify it.
+--
+-- check_trial_access_grant() is a SECURITY DEFINER trigger function
+-- (see 20260706000001's own comment: search_path is already pinned to
+-- `public` there, closing the search_path hijack risk). But being a
+-- SECURITY DEFINER function at all means it runs with elevated
+-- privileges, and Postgres grants EXECUTE on newly created functions to
+-- PUBLIC by default — which made it directly callable via RPC by
+-- anon/authenticated clients, not just reachable as a trigger. Supabase's
+-- security advisor flagged exactly this after the migration was applied.
+-- This function is meant to run only as the BEFORE INSERT trigger body
+-- on trial_access — a trigger's execution is not gated by EXECUTE grants
+-- the way a direct function call/RPC is, so revoking EXECUTE from
+-- client-facing roles here does not affect the trigger firing on every
+-- insert into trial_access; it only removes the ability to invoke the
+-- function directly (e.g. `select check_trial_access_grant()` via
+-- PostgREST RPC).
+revoke execute on function public.check_trial_access_grant() from public, anon, authenticated;

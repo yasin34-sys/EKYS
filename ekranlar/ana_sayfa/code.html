@@ -1,0 +1,362 @@
+<!DOCTYPE html><html class="light" lang="tr" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<title>EKYS CEPTE - Ana Sayfa</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed-dim": "#c3c0ff",
+                    "on-error-container": "#93000a",
+                    "tertiary-container": "#5551c2",
+                    "surface-container-highest": "#dce2f7",
+                    "secondary": "#735c00",
+                    "error-container": "#ffdad6",
+                    "inverse-surface": "#293040",
+                    "surface-variant": "#dce2f7",
+                    "on-surface-variant": "#464555",
+                    "inverse-primary": "#c3c0ff",
+                    "inverse-on-surface": "#edf0ff",
+                    "on-tertiary-fixed-variant": "#3b35a7",
+                    "on-primary-fixed": "#0f0069",
+                    "on-tertiary-fixed": "#0f0069",
+                    "surface-container-lowest": "#ffffff",
+                    "outline": "#777587",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "secondary-fixed-dim": "#e9c349",
+                    "on-primary-container": "#dad7ff",
+                    "tertiary": "#3d37a9",
+                    "surface": "#f9f9ff",
+                    "surface-bright": "#f9f9ff",
+                    "surface-tint": "#4d44e3",
+                    "on-surface": "#141b2b",
+                    "primary": "#3525cd",
+                    "on-secondary-fixed": "#241a00",
+                    "on-secondary-container": "#745c00",
+                    "surface-container": "#e9edff",
+                    "on-secondary-fixed-variant": "#574500",
+                    "on-background": "#141b2b",
+                    "on-error": "#ffffff",
+                    "surface-container-low": "#f1f3ff",
+                    "on-tertiary-container": "#dbd7ff",
+                    "primary-fixed": "#e2dfff",
+                    "background": "#f9f9ff",
+                    "on-primary": "#ffffff",
+                    "surface-container-high": "#e1e8fd",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "surface-dim": "#d3daef",
+                    "secondary-fixed": "#ffe088",
+                    "primary-container": "#4f46e5",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#e2dfff",
+                    "secondary-container": "#fed65b",
+                    "error": "#ba1a1a",
+                    "outline-variant": "#c7c4d8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "24px",
+                    "margin-mobile": "20px",
+                    "md": "16px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "xl": "32px",
+                    "unit": "8px",
+                    "margin-desktop": "40px",
+                    "gutter": "16px",
+                    "xxl": "48px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"],
+                    "title-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "label-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-lg-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                    "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "26px", "fontWeight": "400"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #FAFAF8;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Inter', sans-serif;
+        }
+        .paper-card {
+            background-color: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            transition: all 0.2s ease;
+        }
+        .active-scale:active {
+            transform: scale(0.98);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .radial-progress {
+            background: radial-gradient(closest-side, white 79%, transparent 80% 100%),
+                        conic-gradient(#4F46E5 45%, #E5E7EB 0);
+        }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">menu</span>
+</div>
+<h1 class="font-display-lg-mobile text-display-lg-mobile font-bold text-primary dark:text-primary-fixed-dim">EKYS CEPTE</h1>
+<div class="flex items-center">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">notifications</span>
+</div>
+</header>
+<main class="pt-20 pb-32 px-margin-mobile max-w-2xl mx-auto space-y-lg">
+<!-- Greeting Section -->
+<section class="flex justify-between items-end">
+<div class="animate-in fade-in slide-in-from-bottom-2 duration-700">
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Huzurlu Çalışmalar</p>
+<h2 class="font-display-lg-mobile text-display-lg-mobile mt-xs">Merhaba Ahmet, <span class="block font-normal text-on-surface-variant">Hoş Geldiniz</span></h2>
+</div>
+<div class="w-12 h-12 rounded-full border-2 border-primary/10 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional studio headshot of a Turkish educator in their 40s, smiling warmly. The lighting is soft and high-key, matching a light-mode UI aesthetic. The background is a minimalist, blurred office with hints of academic books, maintaining a serene and authoritative atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiyUjKardmAEM7Fht1P80IS7WqltGhvZXtD4wV3ux_axMUehcGHCzRkW2-ytEWXV-0YxUonNoBXoteb7_vkEPbfIV8Ne4M7PGUsBlk-H25gDwJ8hw3WOMqqOPCTE7kFX95YQUiJoCT_kEqA8d8kWELy4IYgpaWzi_QGa90SoXkcr97RpqjoB-6M0s9dNZVK4Y8NNfI-zawc6qfP5UXeqFg7ep5DRxzVhO7MW4bnE8oAS3gruDmopO9MA">
+</div>
+</section>
+<!-- Today's Goal & Hero Section -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Goal Progress Card -->
+<div class="paper-card p-md rounded-xl flex flex-col items-center justify-center space-y-sm text-center transition-all duration-500 opacity-100 translate-y-0">
+<div class="relative w-24 h-24 rounded-full radial-progress flex items-center justify-center">
+<span class="font-headline-md text-headline-md text-primary">45%</span>
+</div>
+<div>
+<h3 class="font-title-lg text-title-lg">Günlük Hedef</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">45 / 100 Soru</p>
+</div>
+</div>
+<!-- "Çalışmaya Devam Et" Hero -->
+<div class="paper-card p-md rounded-xl bg-primary text-on-primary flex flex-col justify-between relative overflow-hidden active-scale group cursor-pointer transition-all duration-500 opacity-100 translate-y-0">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-all"></div>
+<div class="z-10">
+<span class="font-label-sm text-label-sm px-2 py-0.5 bg-white/20 rounded-full">Devam Et</span>
+<h3 class="font-headline-sm text-headline-sm mt-sm">Mevzuat</h3>
+<p class="font-body-md text-body-md text-white/80">657 Sayılı Devlet Memurlar Kanunu</p>
+</div>
+<div class="z-10 mt-xl flex items-center justify-between">
+<div class="w-full bg-white/20 h-1 rounded-full overflow-hidden mr-sm">
+<div class="bg-white w-[70%] h-full"></div>
+</div>
+<span class="material-symbols-outlined">play_circle</span>
+</div>
+</div>
+</div>
+<!-- Hızlı İşlemler (Quick Actions) -->
+<section class="animate-in fade-in slide-in-from-bottom-2 duration-700">
+  <h3 class="font-title-lg text-title-lg mb-md">Konu Bazlı Çalışma</h3>
+  <div class="grid grid-cols-1 gap-sm">
+    <!-- Category 1: Genel Kültür -->
+    <button class="paper-card p-md rounded-xl flex items-center justify-between active-scale transition-all">
+      <div class="flex items-center gap-md">
+        <div class="w-10 h-10 bg-primary-container/10 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-primary-container">public</span>
+        </div>
+        <div class="text-left">
+          <p class="font-title-lg text-title-lg !text-[15px]">Genel Kültür</p>
+          <p class="font-label-sm text-label-sm text-on-surface-variant">450 Soru • %65 Tamamlandı</p>
+        </div>
+      </div>
+      <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+    </button>
+    <!-- Category 2: Atatürk İlkeleri -->
+    <button class="paper-card p-md rounded-xl flex items-center justify-between active-scale transition-all">
+      <div class="flex items-center gap-md">
+        <div class="w-10 h-10 bg-secondary-container/20 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-secondary">history_edu</span>
+        </div>
+        <div class="text-left">
+          <p class="font-title-lg text-title-lg !text-[15px]">Atatürk İlkeleri ve İnkılap Tarihi</p>
+          <p class="font-label-sm text-label-sm text-on-surface-variant">320 Soru • %40 Tamamlandı</p>
+        </div>
+      </div>
+      <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+    </button>
+    <!-- Category 3: Değerler Eğitimi -->
+    <button class="paper-card p-md rounded-xl flex items-center justify-between active-scale transition-all">
+      <div class="flex items-center gap-md">
+        <div class="w-10 h-10 bg-tertiary-fixed-dim/30 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-tertiary">volunteer_activism</span>
+        </div>
+        <div class="text-left">
+          <p class="font-title-lg text-title-lg !text-[15px]">Değerler Eğitimi</p>
+          <p class="font-label-sm text-label-sm text-on-surface-variant">180 Soru • %15 Tamamlandı</p>
+        </div>
+      </div>
+      <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+    </button>
+    <!-- Category 4: Eğitim Yönetimi -->
+    <button class="paper-card p-md rounded-xl flex items-center justify-between active-scale transition-all">
+      <div class="flex items-center gap-md">
+        <div class="w-10 h-10 bg-primary-container/10 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-primary-container">school</span>
+        </div>
+        <div class="text-left">
+          <p class="font-title-lg text-title-lg !text-[15px]">Eğitim Yönetimi ve Girişimcilik</p>
+          <p class="font-label-sm text-label-sm text-on-surface-variant">240 Soru • %32 Tamamlandı</p>
+        </div>
+      </div>
+      <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+    </button>
+    <!-- Category 5: Mevzuat -->
+    <button class="paper-card p-md rounded-xl flex items-center justify-between active-scale transition-all">
+      <div class="flex items-center gap-md">
+        <div class="w-10 h-10 bg-secondary-container/20 rounded-lg flex items-center justify-center">
+          <span class="material-symbols-outlined text-secondary">gavel</span>
+        </div>
+        <div class="text-left">
+          <p class="font-title-lg text-title-lg !text-[15px]">Mevzuat</p>
+          <p class="font-label-sm text-label-sm text-on-surface-variant">600 Soru • %41 Tamamlandı</p>
+        </div>
+      </div>
+      <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+    </button>
+  </div>
+</section>
+<!-- Zayıf Konular (Weak Topics) -->
+<section>
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-title-lg text-title-lg">Zayıf Konular</h3>
+<span class="font-label-md text-label-md text-primary cursor-pointer">Tümünü Gör</span>
+</div>
+<div class="space-y-sm">
+<div class="paper-card p-md rounded-xl flex items-center justify-between group active-scale cursor-pointer transition-all duration-500 opacity-100 translate-y-0">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 bg-error-container/20 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-error">trending_down</span>
+</div>
+<div>
+<p class="font-title-lg text-title-lg !text-[15px]">Eğitim Yönetimi ve Girişimcilik</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-xs">Son başarı: %32</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+<div class="paper-card p-md rounded-xl flex items-center justify-between group active-scale cursor-pointer transition-all duration-500 opacity-100 translate-y-0">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 bg-error-container/20 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-error">trending_down</span>
+</div>
+<div>
+<p class="font-title-lg text-title-lg !text-[15px]">Mevzuat</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-xs">Son başarı: %41</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Son Aktivite (Recent Activity) -->
+<section>
+<h3 class="font-title-lg text-title-lg mb-md">Son Aktivite</h3>
+<div class="border-l-2 border-outline-variant ml-3 pl-lg space-y-lg">
+<!-- Activity Item 1 -->
+<div class="relative">
+<div class="absolute -left-[33px] top-0 w-4 h-4 bg-primary rounded-full border-4 border-white shadow-sm"></div>
+<div class="flex justify-between items-start">
+<div>
+<p class="font-body-lg text-body-lg font-semibold">Tarih Denemesi Tamamlandı</p>
+<p class="font-body-md text-body-md text-on-surface-variant">45 Doğru, 5 Yanlış</p>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant">10 dk önce</span>
+</div>
+</div>
+<!-- Activity Item 2 -->
+<div class="relative">
+<div class="absolute -left-[33px] top-0 w-4 h-4 bg-tertiary-container rounded-full border-4 border-white shadow-sm"></div>
+<div class="flex justify-between items-start">
+<div>
+<p class="font-body-lg text-body-lg font-semibold">Mevzuat Çalışması</p>
+<p class="font-body-md text-body-md text-on-surface-variant">25 sayfa okundu</p>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant">2 saat önce</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-safe bg-surface/80 backdrop-blur-md h-20 border-t border-outline-variant dark:border-outline rounded-t-xl shadow-sm">
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim font-semibold transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-md text-label-md">Ana Sayfa</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-md text-label-md">Dersler</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-label-md text-label-md">Denemeler</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-label-md text-label-md">İstatistik</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant transition-transform duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profil</span>
+</a>
+</nav>
+<!-- FAB for quick study session -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center transition-transform duration-200 active:scale-90 z-40">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+<script>
+        // Simple micro-interaction for cards on scroll
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-4');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.paper-card').forEach(card => {
+            card.classList.add('transition-all', 'duration-500', 'opacity-0', 'translate-y-4');
+            observer.observe(card);
+        });
+    </script>
+
+
+</body></html>

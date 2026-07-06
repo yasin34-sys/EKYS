@@ -1,0 +1,271 @@
+<!DOCTYPE html><html class="light" lang="tr" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<title>EKYS CEPTE - Soru Ekranı</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Design System Tokens -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed-dim": "#c3c0ff",
+                    "on-error-container": "#93000a",
+                    "tertiary-container": "#5551c2",
+                    "surface-container-highest": "#dce2f7",
+                    "secondary": "#735c00",
+                    "error-container": "#ffdad6",
+                    "inverse-surface": "#293040",
+                    "surface-variant": "#dce2f7",
+                    "on-surface-variant": "#464555",
+                    "inverse-primary": "#c3c0ff",
+                    "inverse-on-surface": "#edf0ff",
+                    "on-tertiary-fixed-variant": "#3b35a7",
+                    "on-primary-fixed": "#0f0069",
+                    "on-tertiary-fixed": "#0f0069",
+                    "surface-container-lowest": "#ffffff",
+                    "outline": "#777587",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "secondary-fixed-dim": "#e9c349",
+                    "on-primary-container": "#dad7ff",
+                    "tertiary": "#3d37a9",
+                    "surface": "#f9f9ff",
+                    "surface-bright": "#f9f9ff",
+                    "surface-tint": "#4d44e3",
+                    "on-surface": "#141b2b",
+                    "primary": "#3525cd",
+                    "on-secondary-fixed": "#241a00",
+                    "on-secondary-container": "#745c00",
+                    "surface-container": "#e9edff",
+                    "on-secondary-fixed-variant": "#574500",
+                    "on-background": "#141b2b",
+                    "on-error": "#ffffff",
+                    "surface-container-low": "#f1f3ff",
+                    "on-tertiary-container": "#dbd7ff",
+                    "primary-fixed": "#e2dfff",
+                    "background": "#f9f9ff",
+                    "on-primary": "#ffffff",
+                    "surface-container-high": "#e1e8fd",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "surface-dim": "#d3daef",
+                    "secondary-fixed": "#ffe088",
+                    "primary-container": "#4f46e5",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#e2dfff",
+                    "secondary-container": "#fed65b",
+                    "error": "#ba1a1a",
+                    "outline-variant": "#c7c4d8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "24px",
+                    "margin-mobile": "20px",
+                    "md": "16px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "xl": "32px",
+                    "unit": "8px",
+                    "margin-desktop": "40px",
+                    "gutter": "16px",
+                    "xxl": "48px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"],
+                    "title-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "label-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-lg-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                    "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "26px", "fontWeight": "400"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FAFAF8;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            user-select: none;
+        }
+        .option-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-card.selected {
+            border-color: #3525cd;
+            background-color: #f1f3ff;
+        }
+        .option-circle {
+            transition: all 0.2s ease;
+        }
+        .option-card.selected .option-circle {
+            background-color: #3525cd;
+            color: white;
+            border-color: #3525cd;
+        }
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #E5E7EB;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="text-on-surface antialiased overflow-hidden h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-surface border-b border-outline-variant">
+<div class="flex items-center gap-sm">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-all active:opacity-70">
+<span class="material-symbols-outlined text-on-surface">close</span>
+</button>
+<div class="flex flex-col ml-sm">
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Mevzuat &gt; 657 Sayılı Devlet Memurları Kanunu</span>
+<span class="font-title-lg text-title-lg text-primary font-bold">Soru: 12 / 40</span>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="flex items-center gap-xs px-md py-sm rounded-full border border-outline-variant hover:bg-surface-container-low transition-all group" id="flag-btn" onclick="toggleFlag(this)">
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant group-active:scale-90 transition-transform" id="flag-icon">flag</span>
+<span class="font-label-md text-label-md text-on-surface-variant">İşaretle</span>
+</button>
+</div>
+</header>
+<!-- Progress Indicator -->
+<div class="fixed top-16 left-0 w-full h-1 bg-surface-container">
+<div class="h-full bg-primary-container transition-all duration-500 ease-out" style="width: 24%;"></div>
+</div>
+<!-- Main Content Canvas -->
+<main class="flex-1 mt-20 mb-24 overflow-y-auto custom-scroll px-margin-mobile">
+<div class="max-w-3xl mx-auto py-lg">
+<!-- Question Content Section -->
+<section class="mb-xl">
+<div class="inline-flex items-center px-sm py-xs bg-surface-container-high rounded-lg mb-md">
+<span class="font-label-sm text-label-sm text-primary font-bold">MEVZUAT</span>
+</div>
+<h1 class="font-headline-md text-headline-md text-on-surface leading-snug tracking-tight">
+                    657 sayılı Devlet Memurları Kanunu’na göre, adaylık süresi içinde aylıktan kesme veya kademe ilerlemesinin durdurulması cezası almış olan memurların durumu aşağıdakilerden hangisidir?
+                </h1>
+</section>
+<!-- Options Section -->
+<section class="space-y-md">
+<!-- Option A -->
+<div class="option-card group relative flex items-center p-md bg-white border border-outline-variant rounded-xl cursor-pointer hover:border-primary-container hover:shadow-sm" onclick="selectOption(this)">
+<div class="option-circle flex-shrink-0 w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center mr-md font-semibold text-on-surface-variant">A</div>
+<p class="font-body-lg text-body-lg text-on-surface leading-relaxed">Adaylık süreleri altı ay daha uzatılır.</p>
+</div>
+<!-- Option B -->
+<div class="option-card group relative flex items-center p-md bg-white border border-outline-variant rounded-xl cursor-pointer hover:border-primary-container hover:shadow-sm" onclick="selectOption(this)">
+<div class="option-circle flex-shrink-0 w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center mr-md font-semibold text-on-surface-variant">B</div>
+<p class="font-body-lg text-body-lg text-on-surface leading-relaxed">İlişikleri kesilerek başka bir kuruma atanırlar.</p>
+</div>
+<!-- Option C -->
+<div class="option-card group relative flex items-center p-md bg-white border border-outline-variant rounded-xl cursor-pointer hover:border-primary-container hover:shadow-sm" onclick="selectOption(this)">
+<div class="option-circle flex-shrink-0 w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center mr-md font-semibold text-on-surface-variant">C</div>
+<p class="font-body-lg text-body-lg text-on-surface leading-relaxed">Disiplin amiri tarafından sözlü olarak uyarılırlar.</p>
+</div>
+<!-- Option D -->
+<div class="option-card group relative flex items-center p-md bg-white border border-outline-variant rounded-xl cursor-pointer hover:border-primary-container hover:shadow-sm" onclick="selectOption(this)">
+<div class="option-circle flex-shrink-0 w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center mr-md font-semibold text-on-surface-variant">D</div>
+<p class="font-body-lg text-body-lg text-on-surface leading-relaxed">Görevlerine son verilerek ilişikleri kesilir.</p>
+</div>
+<!-- Option E -->
+<div class="option-card group relative flex items-center p-md bg-white border border-outline-variant rounded-xl cursor-pointer hover:border-primary-container hover:shadow-sm" onclick="selectOption(this)">
+<div class="option-circle flex-shrink-0 w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center mr-md font-semibold text-on-surface-variant">E</div>
+<p class="font-body-lg text-body-lg text-on-surface leading-relaxed">Bir sonraki sınav dönemine kadar açığa alınırlar.</p>
+</div>
+</section>
+<div class="h-12"></div> <!-- Spacer for content -->
+</div>
+</main>
+<!-- Navigation Footer -->
+<footer class="fixed bottom-0 left-0 w-full z-50 bg-surface/90 backdrop-blur-md border-t border-outline-variant px-margin-mobile h-24 pb-safe flex items-center justify-between">
+<button class="flex items-center gap-sm px-xl h-14 rounded-full text-primary font-semibold hover:bg-surface-container-low transition-all active:scale-95">
+<span class="material-symbols-outlined">chevron_left</span>
+<span class="font-title-lg text-title-lg">Geri</span>
+</button>
+<div class="hidden md:flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="w-2 h-2 rounded-full bg-surface-container-highest"></span>
+<span class="w-2 h-2 rounded-full bg-surface-container-highest"></span>
+<span class="w-2 h-2 rounded-full bg-surface-container-highest"></span>
+<span class="w-2 h-2 rounded-full bg-surface-container-highest"></span>
+</div>
+<button class="flex items-center gap-sm px-xl h-14 rounded-full bg-primary-container text-white font-semibold shadow-lg hover:shadow-xl transition-all active:scale-95">
+<span class="font-title-lg text-title-lg">Sonraki</span>
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</footer>
+<!-- Interactive Scripts -->
+<script>
+        function selectOption(element) {
+            // Remove selection from all options
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            // Add selection to clicked option
+            element.classList.add('selected');
+            
+            // Subtle haptic-like scale effect on select
+            element.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                element.style.transform = 'scale(1)';
+            }, 100);
+        }
+
+        let isFlagged = false;
+        function toggleFlag(btn) {
+            isFlagged = !isFlagged;
+            const icon = document.getElementById('flag-icon');
+            const text = btn.querySelector('span:last-child');
+            
+            if (isFlagged) {
+                icon.style.fontVariationSettings = "'FILL' 1";
+                icon.classList.remove('text-on-surface-variant');
+                icon.classList.add('text-secondary');
+                btn.classList.add('bg-secondary-container/20', 'border-secondary-container');
+                text.innerText = "İşaretlendi";
+                text.classList.add('text-secondary');
+            } else {
+                icon.style.fontVariationSettings = "'FILL' 0";
+                icon.classList.add('text-on-surface-variant');
+                icon.classList.remove('text-secondary');
+                btn.classList.remove('bg-secondary-container/20', 'border-secondary-container');
+                text.innerText = "İşaretle";
+                text.classList.remove('text-secondary');
+            }
+        }
+    </script>
+
+
+</body></html>

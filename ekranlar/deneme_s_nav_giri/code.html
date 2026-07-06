@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EKYS CEPTE - Deneme Sınavı</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#745c00",
+                      "on-secondary": "#ffffff",
+                      "on-secondary-fixed-variant": "#574500",
+                      "tertiary-container": "#5551c2",
+                      "surface-container": "#e9edff",
+                      "primary-fixed-dim": "#c3c0ff",
+                      "on-background": "#141b2b",
+                      "tertiary": "#3d37a9",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-fixed": "#0f0069",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed": "#e2dfff",
+                      "on-surface-variant": "#464555",
+                      "inverse-on-surface": "#edf0ff",
+                      "background": "#f9f9ff",
+                      "outline-variant": "#c7c4d8",
+                      "primary": "#3525cd",
+                      "surface-variant": "#dce2f7",
+                      "surface-container-highest": "#dce2f7",
+                      "on-primary": "#ffffff",
+                      "surface-dim": "#d3daef",
+                      "surface-tint": "#4d44e3",
+                      "surface-container-low": "#f1f3ff",
+                      "outline": "#777587",
+                      "primary-fixed": "#e2dfff",
+                      "primary-container": "#4f46e5",
+                      "secondary-fixed-dim": "#e9c349",
+                      "on-primary-container": "#dad7ff",
+                      "on-tertiary-fixed": "#0f0069",
+                      "on-error-container": "#93000a",
+                      "on-error": "#ffffff",
+                      "surface-container-high": "#e1e8fd",
+                      "inverse-primary": "#c3c0ff",
+                      "surface": "#f9f9ff",
+                      "secondary-container": "#fed65b",
+                      "on-surface": "#141b2b",
+                      "inverse-surface": "#293040",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-fixed-variant": "#3323cc",
+                      "secondary": "#735c00",
+                      "on-tertiary-fixed-variant": "#3b35a7",
+                      "on-secondary-fixed": "#241a00",
+                      "surface-bright": "#f9f9ff",
+                      "error": "#ba1a1a",
+                      "secondary-fixed": "#ffe088",
+                      "on-tertiary-container": "#dbd7ff",
+                      "tertiary-fixed-dim": "#c3c0ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "margin-mobile": "20px",
+                      "unit": "8px",
+                      "margin-desktop": "40px",
+                      "lg": "24px",
+                      "xl": "32px",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "gutter": "16px",
+                      "xxl": "48px"
+              },
+              "fontFamily": {
+                      "body-md": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "title-lg": ["Inter"],
+                      "display-lg-mobile": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "label-md": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "headline-sm": ["Inter"]
+              },
+              "fontSize": {
+                      "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }],
+                      "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }],
+                      "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                      "title-lg": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                      "display-lg-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                      "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                      "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                      "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "600" }],
+                      "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen flex flex-col pt-16 pb-20 md:pb-0">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-16 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline transition-all duration-200 active:opacity-70">
+<button class="text-primary dark:text-primary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-highest p-2 rounded-full">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+</button>
+<h1 class="font-display-lg-mobile text-display-lg-mobile font-bold text-primary dark:text-primary-fixed-dim">
+            EKYS CEPTE
+        </h1>
+<button class="text-primary dark:text-primary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-highest p-2 rounded-full">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">more_vert</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow px-margin-mobile md:px-margin-desktop py-lg max-w-3xl mx-auto w-full flex flex-col gap-lg">
+<!-- Exam Header Details -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant p-lg flex flex-col gap-md shadow-sm">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">assignment</span>
+<span class="font-label-md text-label-md text-primary tracking-wider uppercase">Deneme Sınavı</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Genel Deneme - 1</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">EKYS 2024 müfredatına uygun, tam kapsamlı hazırlık denemesi. Sınav ortamını simüle etmek için süreyi dikkatli kullanın.</p>
+<div class="flex gap-md mt-sm">
+<div class="flex items-center gap-xs bg-surface-container-low px-sm py-xs rounded-md">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">schedule</span>
+<span class="font-label-md text-label-md text-on-surface-variant">80 Dakika</span>
+</div>
+<div class="flex items-center gap-xs bg-surface-container-low px-sm py-xs rounded-md">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">format_list_numbered</span>
+<span class="font-label-md text-label-md text-on-surface-variant">80 Soru</span>
+</div>
+</div>
+</section>
+<!-- Subjects Covered -->
+<section class="flex flex-col gap-sm">
+<h3 class="font-title-lg text-title-lg text-on-surface">Soru Dağılımı</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-unit">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface">Genel Kültür ve Genel Yetenek</span>
+<span class="font-label-md text-label-md text-primary bg-primary-fixed px-xs py-xs rounded">16 Soru</span>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface">Atatürk İlkeleri ve İnkılap Tarihi</span>
+<span class="font-label-md text-label-md text-primary bg-primary-fixed px-xs py-xs rounded">8 Soru</span>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface">Değerler Eğitimi</span>
+<span class="font-label-md text-label-md text-primary bg-primary-fixed px-xs py-xs rounded">8 Soru</span>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface">Eğitim ve Öğretimde Etik</span>
+<span class="font-label-md text-label-md text-primary bg-primary-fixed px-xs py-xs rounded">8 Soru</span>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface">Eğitim Bilimleri</span>
+<span class="font-label-md text-label-md text-primary bg-primary-fixed px-xs py-xs rounded">24 Soru</span>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-md flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface">Mevzuat</span>
+<span class="font-label-md text-label-md text-primary bg-primary-fixed px-xs py-xs rounded">16 Soru</span>
+</div>
+</div>
+</section>
+<!-- Rules & Instructions -->
+<section class="flex flex-col gap-sm">
+<h3 class="font-title-lg text-title-lg text-on-surface">Sınav Kuralları</h3>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md">
+<ul class="flex flex-col gap-md">
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-primary mt-1 text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div>
+<p class="font-body-md text-body-md text-on-surface">Sınavı başlattığınızda süre geri sayımı başlayacaktır.</p>
+</div>
+</li>
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-primary mt-1 text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div>
+<p class="font-body-md text-body-md text-on-surface">Sınav esnasında uygulamadan çıkarsanız süreniz işlemeye devam eder.</p>
+</div>
+</li>
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-primary mt-1 text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div>
+<p class="font-body-md text-body-md text-on-surface">Tüm soruları yanıtlamadan sınavı bitirebilirsiniz. Boş bırakılan sorular yanlış sayılmaz.</p>
+</div>
+</li>
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-primary mt-1 text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div>
+<p class="font-body-md text-body-md text-on-surface">Sınav sonucunuz ve detaylı analiziniz sınav bitiminde gösterilecektir.</p>
+</div>
+</li>
+</ul>
+</div>
+</section>
+<!-- Start Action -->
+<div class="mt-auto pt-lg pb-md flex flex-col gap-md">
+<button class="w-full bg-primary-container text-on-primary h-[56px] rounded-lg font-title-lg text-title-lg flex items-center justify-center gap-sm transition-transform duration-200 active:scale-[0.98] shadow-sm">
+                Sınavı Başlat
+                <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<button class="w-full text-primary font-label-md text-label-md h-[44px] flex items-center justify-center hover:bg-surface-container-low rounded-lg transition-colors">
+                Vazgeç
+            </button>
+</div>
+</main>
+<!-- BottomNavBar (Hidden on Web) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-safe bg-surface/80 backdrop-blur-md h-20 rounded-t-xl border-t border-outline-variant dark:border-outline shadow-sm md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant font-label-md text-label-md hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-transform duration-200 active:scale-95 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">home</span>
+<span>Ana Sayfa</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant font-label-md text-label-md hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-transform duration-200 active:scale-95 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">menu_book</span>
+<span>Dersler</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim font-semibold font-label-md text-label-md hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-transform duration-200 active:scale-95 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">assignment</span>
+<span>Denemeler</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant font-label-md text-label-md hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-transform duration-200 active:scale-95 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">leaderboard</span>
+<span>İstatistik</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant font-label-md text-label-md hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-transform duration-200 active:scale-95 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">person</span>
+<span>Profil</span>
+</a>
+</nav>
+</body></html>
