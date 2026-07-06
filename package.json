@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "content:validate": "node tools/content/validate-question-json.mjs"
+    "content:validate": "node tools/content/validate-question-json.mjs",
+    "content:convert-legacy": "node tools/content/convert-legacy-question-json.mjs"
   }
 }

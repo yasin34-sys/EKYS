@@ -74,9 +74,23 @@ JSON **array** (not an object), and each entry uses different field names:
 `bloom_level`, `negative_stem`, `quality_filters`, `quality_score`.
 
 This shape is **not accepted** by the validator as-is. It needs a dedicated
-conversion step (planned, not built in this phase) before it can be treated
-as v1 content. The validator detects this shape specifically and reports a
-dedicated message rather than a generic schema error.
+conversion step before it can be treated as v1 content. The validator
+detects this shape specifically and reports a dedicated message rather than
+a generic schema error.
+
+A standalone converter now exists:
+`tools/content/convert-legacy-question-json.mjs` (also runnable as
+`npm run content:convert-legacy --`). It reads one legacy array file and
+writes one canonical v1 file, mapping `id->id`, `question->question`,
+`options->choices`, `correct_answer->answer`, `rationale->explanation`,
+`tymm_skill->learning_outcome` verbatim (no text is altered, reworded, or
+reformatted). Metadata the legacy shape never had (`package`, `topic`,
+`subtopic`, `difficulty`, `bloom_level`, `question_type`, `status`) is
+supplied via required/optional CLI flags with conservative defaults
+(status defaults to `DRAFT`; see the converter's `--help`-style usage text
+for the full list). It refuses to overwrite an existing output file unless
+`--force` is passed, and runs the canonical validator on its own output
+before reporting success.
 
 ## Metadata retained in source, not imported (MVP)
 

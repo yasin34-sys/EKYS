@@ -1,0 +1,53 @@
+{
+  "package": "TEST-LEGACY",
+  "type": "topic_pack",
+  "topic": "Test Konusu",
+  "question_count": 2,
+  "status": "DRAFT",
+  "questions": [
+    {
+      "id": "LEGACY-001-01",
+      "topic": "Test Konusu",
+      "subtopic": "Test Konusu",
+      "learning_outcome": "Örnek Beceri",
+      "difficulty": 3,
+      "bloom_level": "Belirsiz",
+      "question_type": "Belirsiz",
+      "negative_stem": false,
+      "question": "Bu, eski (legacy) formatta yazılmış örnek bir sorudur.",
+      "choices": {
+        "A": "Birinci seçenek",
+        "B": "İkinci seçenek",
+        "C": "Üçüncü seçenek",
+        "D": "Dördüncü seçenek",
+        "E": "Beşinci seçenek"
+      },
+      "answer": "D",
+      "explanation": "Bu alan artık explanation olarak adlandırılıyor ama eski dosyalarda rationale idi.",
+      "quality_filters": {},
+      "quality_score": 0
+    },
+    {
+      "id": "LEGACY-001-02",
+      "topic": "Test Konusu",
+      "subtopic": "Test Konusu",
+      "learning_outcome": "Başka Beceri",
+      "difficulty": 3,
+      "bloom_level": "Belirsiz",
+      "question_type": "Belirsiz",
+      "negative_stem": false,
+      "question": "İkinci örnek eski format sorusu.",
+      "choices": {
+        "A": "Bir",
+        "B": "İki",
+        "C": "Üç",
+        "D": "Dört",
+        "E": "Beş"
+      },
+      "answer": "B",
+      "explanation": "Örnek açıklama.",
+      "quality_filters": {},
+      "quality_score": 0
+    }
+  ]
+}
