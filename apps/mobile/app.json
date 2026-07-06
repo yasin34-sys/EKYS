@@ -3,6 +3,7 @@
     "name": "EKYS CEPTE",
     "slug": "ekys-cepte",
     "version": "1.0.0",
+    "scheme": "ekyscepte",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
