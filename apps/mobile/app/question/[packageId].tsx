@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import {
   useQuestionRepository,
   useAttemptRepository,
@@ -294,9 +295,9 @@ export default function QuestionScreen() {
             </AppText>
 
             <View style={styles.statsRow}>
-              <StatItem label="Doğru" value={String(correctCount)} color="success" />
-              <StatItem label="Yanlış" value={String(wrongCount)} color="danger" />
-              <StatItem label="Doğruluk" value={`%${accuracyPercent}`} color="primary" />
+              <StatItem icon="checkmark-circle" tone="success" label="Doğru" value={String(correctCount)} />
+              <StatItem icon="close-circle" tone="danger" label="Yanlış" value={String(wrongCount)} />
+              <StatItem icon="stats-chart" tone="info" label="Doğruluk" value={`%${accuracyPercent}`} />
             </View>
           </Card>
 
@@ -420,18 +421,33 @@ function renderTrialIssue(result: TrialIssueResult) {
   }
 }
 
+// Same icon-in-circle stat treatment already established on the Session
+// Result screen (Phase 3B.7) — reused here for consistency, not shared
+// code, since the two screens track different value sets.
+const statTones = {
+  success: { background: colors.successMuted, icon: colors.success },
+  danger: { background: colors.dangerMuted, icon: colors.danger },
+  info: { background: colors.infoMuted, icon: colors.info },
+} as const;
+
 function StatItem({
+  icon,
+  tone,
   label,
   value,
-  color,
 }: {
+  icon: keyof typeof Ionicons.glyphMap;
+  tone: keyof typeof statTones;
   label: string;
   value: string;
-  color: 'success' | 'danger' | 'primary';
 }) {
+  const toneColors = statTones[tone];
   return (
     <View style={styles.statItem}>
-      <AppText variant="title3" color={color === 'primary' ? 'primary' : color}>
+      <View style={[styles.statIconCircle, { backgroundColor: toneColors.background }]}>
+        <Ionicons name={icon} size={16} color={toneColors.icon} />
+      </View>
+      <AppText variant="title3" style={styles.statValue}>
         {value}
       </AppText>
       <AppText variant="caption" color="tertiary">
@@ -469,5 +485,14 @@ const styles = StyleSheet.create({
   summaryNarrative: { marginTop: spacing.xs, marginBottom: spacing.lg },
   statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.md },
   statItem: { alignItems: 'center', gap: spacing.xs / 2 },
+  statIconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: radii.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs / 2,
+  },
+  statValue: { fontVariant: ['tabular-nums'] },
   secondaryButtonWrap: { marginTop: spacing.sm },
 });
