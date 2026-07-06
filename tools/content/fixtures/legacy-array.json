@@ -1,0 +1,30 @@
+[
+  {
+    "id": "LEGACY-001-01",
+    "question": "Bu, eski (legacy) formatta yazılmış örnek bir sorudur.",
+    "options": {
+      "A": "Birinci seçenek",
+      "B": "İkinci seçenek",
+      "C": "Üçüncü seçenek",
+      "D": "Dördüncü seçenek",
+      "E": "Beşinci seçenek"
+    },
+    "correct_answer": "D",
+    "tymm_skill": "Örnek Beceri",
+    "rationale": "Bu alan artık explanation olarak adlandırılıyor ama eski dosyalarda rationale idi."
+  },
+  {
+    "id": "LEGACY-001-02",
+    "question": "İkinci örnek eski format sorusu.",
+    "options": {
+      "A": "Bir",
+      "B": "İki",
+      "C": "Üç",
+      "D": "Dört",
+      "E": "Beş"
+    },
+    "correct_answer": "B",
+    "tymm_skill": "Başka Beceri",
+    "rationale": "Örnek açıklama."
+  }
+]

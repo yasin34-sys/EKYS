@@ -1,0 +1,51 @@
+{
+  "package": "FIX-002",
+  "type": "topic_pack",
+  "topic": "Hatalı Konu",
+  "question_count": 3,
+  "status": "YAYINDA",
+  "questions": [
+    {
+      "id": "FIX-000003",
+      "topic": "Hatalı Konu",
+      "subtopic": "Alt konu",
+      "learning_outcome": "Bir kazanım.",
+      "difficulty": 3,
+      "bloom_level": "Bilgi",
+      "question_type": "Bilgi",
+      "negative_stem": false,
+      "question": "Bu sorunun cevabı geçersiz bir harf.",
+      "choices": {
+        "A": "Birinci",
+        "B": "İkinci",
+        "C": "Üçüncü",
+        "D": "Dördüncü",
+        "E": "Beşinci"
+      },
+      "answer": "F",
+      "explanation": "Açıklama.",
+      "quality_filters": {},
+      "quality_score": 90
+    },
+    {
+      "id": "FIX-000003",
+      "topic": "Hatalı Konu",
+      "subtopic": "Alt konu",
+      "learning_outcome": "Bir kazanım.",
+      "difficulty": 0,
+      "bloom_level": "Kavrama",
+      "question_type": "Kavrama",
+      "negative_stem": "false",
+      "question": "Bu soru eksik seçenek içeriyor.",
+      "choices": {
+        "A": "Birinci",
+        "B": "İkinci",
+        "C": "Üçüncü",
+        "D": "Dördüncü"
+      },
+      "answer": "A",
+      "quality_filters": {},
+      "quality_score": 150
+    }
+  ]
+}

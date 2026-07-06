@@ -1,5 +1,8 @@
 {
   "name": "ekys-cepte",
   "version": "0.0.0",
-  "private": true
+  "private": true,
+  "scripts": {
+    "content:validate": "node tools/content/validate-question-json.mjs"
+  }
 }

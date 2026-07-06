@@ -1,0 +1,57 @@
+{
+  "package": "FIX-001",
+  "type": "topic_pack",
+  "topic": "Örnek Konu",
+  "question_count": 2,
+  "questions": [
+    {
+      "id": "FIX-000001",
+      "topic": "Örnek Konu",
+      "subtopic": "Alt konu A",
+      "learning_outcome": "Örnek bir kazanımı açıklar.",
+      "difficulty": 3,
+      "bloom_level": "Kavrama",
+      "question_type": "Kavrama",
+      "negative_stem": false,
+      "question": "Bu örnek bir soru metnidir. Doğru seçenek hangisidir?",
+      "choices": {
+        "A": "Birinci seçenek",
+        "B": "İkinci seçenek",
+        "C": "Üçüncü seçenek",
+        "D": "Dördüncü seçenek",
+        "E": "Beşinci seçenek"
+      },
+      "answer": "B",
+      "explanation": "İkinci seçenek doğrudur çünkü örnek açıklamadır.",
+      "quality_filters": {
+        "single_correct_answer_check": "passed",
+        "osym_style_check": "passed"
+      },
+      "quality_score": 92
+    },
+    {
+      "id": "FIX-000002",
+      "topic": "Örnek Konu",
+      "subtopic": "Alt konu B",
+      "learning_outcome": "İkinci bir kazanımı açıklar.",
+      "difficulty": 4,
+      "bloom_level": "Analiz",
+      "question_type": "Senaryolu",
+      "negative_stem": true,
+      "question": "Aşağıdakilerden hangisi doğru DEĞİLDİR?",
+      "choices": {
+        "A": "Doğru bir ifade",
+        "B": "Doğru bir başka ifade",
+        "C": "Yanlış olan ifade",
+        "D": "Doğru bir ifade daha",
+        "E": "Doğru son ifade"
+      },
+      "answer": "C",
+      "explanation": "C seçeneği yanlıştır, diğerleri doğrudur.",
+      "quality_filters": {
+        "negative_stem_check": "passed"
+      },
+      "quality_score": 88
+    }
+  ]
+}
