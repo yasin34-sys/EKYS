@@ -15,7 +15,10 @@ const packageTypeLabel: Record<string, string> = {
   ZORLAYICI_DENEME: 'Zorlayıcı Deneme',
 };
 
-const packageTypeIcon: Record<string, keyof typeof Ionicons.glyphMap> = {
+// Exported so package/[id].tsx can use the exact same icon mapping —
+// visual consistency between the list card and the detail screen it
+// leads to, without a second lookup table to keep in sync by hand.
+export const packageTypeIcon: Record<string, keyof typeof Ionicons.glyphMap> = {
   TEMEL_CALISMA: 'book-outline',
   YOGUN_TEKRAR: 'refresh-outline',
   ZORLAYICI_DENEME: 'timer-outline',

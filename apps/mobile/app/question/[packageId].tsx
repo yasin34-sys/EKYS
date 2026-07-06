@@ -33,7 +33,7 @@ import {
   SecondaryButton,
   FadeInUp,
 } from '../../src/components';
-import { radii, spacing } from '../../src/theme';
+import { colors, radii, spacing } from '../../src/theme';
 import type { OptionRowState } from '../../src/components/OptionRow';
 import type { Question } from '../../src/domain';
 
@@ -229,15 +229,20 @@ export default function QuestionScreen() {
       <View style={styles.headerRow}>
         <BackButton />
         {currentQuestion && !isPastEnd ? (
-          <AppText variant="footnote" color="secondary">
-            {currentIndex + 1} / {totalQuestions}
-          </AppText>
+          <View
+            style={styles.progressPill}
+            accessibilityLabel={`Soru ${currentIndex + 1} / ${totalQuestions}`}
+          >
+            <AppText variant="footnote" color="secondary" style={styles.progressPillText}>
+              {currentIndex + 1} / {totalQuestions}
+            </AppText>
+          </View>
         ) : null}
       </View>
 
       {currentQuestion && !isPastEnd ? (
         <View style={styles.progressWrap}>
-          <ProgressBar progress={(currentIndex + 1) / totalQuestions} />
+          <ProgressBar progress={(currentIndex + 1) / totalQuestions} height={4} />
         </View>
       ) : null}
 
@@ -444,6 +449,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  progressPill: {
+    backgroundColor: colors.surfaceSecondary,
+    borderRadius: radii.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+  },
+  progressPillText: { fontVariant: ['tabular-nums'] },
   progressWrap: { marginBottom: spacing.lg },
   options: { marginTop: spacing.lg },
   footer: { marginTop: spacing.lg },

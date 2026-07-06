@@ -284,6 +284,23 @@ ABANDONED` only — both terminal, no reversal. Constraint: `status !=
 `status`. RLS: client INSERT and UPDATE, self-scoped. Sync: at creation
 (queued/background) and again on completion/update.
 
+Server-enforced (Phase 3B.3.3, `20260706000006_harden_exam_sessions.sql`),
+in addition to RLS's self-scoping: a `BEFORE INSERT` trigger
+(`check_exam_session_package_eligibility`) rejects the insert unless
+`package_id` belongs to `exam_id`, the package is `PUBLISHED` and
+`ZORLAYICI_DENEME`, the exam is `PUBLISHED`, and the user has access
+(`packages.is_free_tier` or an `ACTIVE` entitlement via
+`package_access`) — mirroring the client-side check already added to
+`StartExamSessionUseCase` (Phase 3B.3.1). `id`/`user_id`/`exam_id`/
+`package_id`/`started_at`/`created_at` are immutable after creation
+(enforced in `check_exam_session_status_transition`, alongside the
+existing status state machine) — `updated_at` is deliberately excluded
+from that list, since it is maintained by the existing
+`set_updated_at` trigger and is expected to change on every update. A
+partial unique index, `uq_exam_sessions_one_active_per_user_exam` on
+`(user_id, exam_id) WHERE status = 'IN_PROGRESS'`, guarantees at most
+one active session per (user, exam), race-free.
+
 ---
 
 ## Group 4 — Derived / Analytics Model

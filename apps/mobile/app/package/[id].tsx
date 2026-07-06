@@ -1,19 +1,15 @@
-import { useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import {
   usePackageRepository,
   useEntitlementRepository,
   useTrialAccessRepository,
   useCurrentUserProfile,
-  useExamSessionRepository,
 } from '../../src/services/hooks';
 import { GetPackageByIdUseCase } from '../../src/application/GetPackageByIdUseCase';
 import { GetPackagesByExamUseCase } from '../../src/application/GetPackagesByExamUseCase';
-import { StartExamSessionUseCase } from '../../src/application/StartExamSessionUseCase';
-import { expoIdGenerator } from '../../src/application/shared/expoIdGenerator';
-import { systemClock } from '../../src/application/shared/systemClock';
 import {
   ScreenContainer,
   AppText,
@@ -22,8 +18,11 @@ import {
   EmptyState,
   PrimaryButton,
   BackButton,
+  IconChip,
+  AccessTag,
+  packageTypeIcon,
 } from '../../src/components';
-import { radii, spacing } from '../../src/theme';
+import { colors, radii, spacing } from '../../src/theme';
 
 const packageTypeLabel: Record<string, string> = {
   TEMEL_CALISMA: 'Temel Çalışma',
@@ -58,9 +57,6 @@ export default function PackageDetailScreen() {
   const packageRepository = usePackageRepository();
   const entitlementRepository = useEntitlementRepository();
   const trialAccessRepository = useTrialAccessRepository();
-  const examSessionRepository = useExamSessionRepository();
-
-  const [isStarting, setIsStarting] = useState(false);
 
   const { data: userProfile } = useCurrentUserProfile();
 
@@ -84,37 +80,24 @@ export default function PackageDetailScreen() {
   const accessEntry = accessQuery.data?.find((entry) => entry.package.id === id);
   const accessStatus = accessEntry?.accessStatus ?? null;
 
-  // package_type is the existing mode signal — ZORLAYICI_DENEME is
-  // already named as the mock-exam study mode, distinct from
-  // TEMEL_CALISMA/YOGUN_TEKRAR (Practice). Not a new field, not
-  // overloading package_type's original study-mode purpose.
-  async function handleStart() {
-    if (!packageQuery.data || !userProfile) return;
+  // package_type is the existing mode signal — ZORLAYICI_DENEME now
+  // routes to the pre-start confirmation screen (Phase 3B.3), which is
+  // what calls StartExamSessionUseCase; Package Detail itself no longer
+  // starts a Deneme session directly. Practice packages still route
+  // straight into the Question Screen, unchanged.
+  function handleStart() {
+    if (!packageQuery.data) return;
     const pkg = packageQuery.data;
 
-    if (pkg.packageType !== 'ZORLAYICI_DENEME') {
-      router.push(`/question/${pkg.id}`);
+    if (pkg.packageType === 'ZORLAYICI_DENEME') {
+      router.push({
+        pathname: '/exam-start/[packageId]',
+        params: { packageId: pkg.id, examId: pkg.examId },
+      });
       return;
     }
 
-    setIsStarting(true);
-    try {
-      const session = await new StartExamSessionUseCase({
-        examSessionRepository,
-        entitlementRepository,
-        packageRepository,
-        generateId: expoIdGenerator,
-        now: systemClock,
-      }).execute({ userId: userProfile.id, examId: pkg.examId, packageId: pkg.id });
-
-      router.push({
-        pathname: '/exam-session/[sessionId]',
-        params: { sessionId: session.id, packageId: pkg.id, examId: pkg.examId },
-      });
-    } catch {
-      setIsStarting(false);
-      Alert.alert('Hata', 'Sınav başlatılamadı. Lütfen tekrar dene.');
-    }
+    router.push(`/question/${pkg.id}`);
   }
 
   // TRIAL is only ever reached for TEMEL_CALISMA/YOGUN_TEKRAR (Deneme
@@ -154,12 +137,31 @@ export default function PackageDetailScreen() {
         </View>
       ) : (
         <Card variant="hero">
-          <AppText variant="title2">
-            {packageTypeLabel[packageQuery.data.packageType] ?? packageQuery.data.packageType}
-          </AppText>
-          <AppText variant="subhead" color="secondary" style={styles.metaLine}>
-            {difficultyLabel[packageQuery.data.difficultyLevel] ?? packageQuery.data.difficultyLevel}
-          </AppText>
+          <View style={styles.titleRow}>
+            <IconChip
+              icon={
+                <Ionicons
+                  name={packageTypeIcon[packageQuery.data.packageType] ?? 'albums-outline'}
+                  size={22}
+                  color={colors.accent}
+                />
+              }
+              size={44}
+            />
+            <View style={styles.titleTextWrap}>
+              <AppText variant="title2">
+                {packageTypeLabel[packageQuery.data.packageType] ?? packageQuery.data.packageType}
+              </AppText>
+              <AppText variant="subhead" color="secondary" style={styles.metaLine}>
+                {difficultyLabel[packageQuery.data.difficultyLevel] ?? packageQuery.data.difficultyLevel}
+              </AppText>
+            </View>
+          </View>
+
+          {accessStatus !== null ? (
+            <AccessTag isFreeTier={packageQuery.data.isFreeTier} accessStatus={accessStatus} />
+          ) : null}
+
           <AppText variant="body" color="secondary" style={styles.narrative}>
             {packageTypeNarrative[packageQuery.data.packageType] ?? ''}
           </AppText>
@@ -176,7 +178,7 @@ export default function PackageDetailScreen() {
               <AppText variant="subhead" color="success" style={styles.accessNote}>
                 Bu pakete erişimin var
               </AppText>
-              <PrimaryButton label="Başla" onPress={handleStart} disabled={isStarting} />
+              <PrimaryButton label="Başla" onPress={handleStart} />
             </>
           ) : accessStatus === 'TRIAL' ? (
             <>
@@ -204,7 +206,9 @@ export default function PackageDetailScreen() {
 
 const styles = StyleSheet.create({
   headerRow: { paddingTop: spacing.sm, paddingBottom: spacing.md },
-  metaLine: { marginTop: spacing.xs },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  titleTextWrap: { flex: 1 },
+  metaLine: { marginTop: spacing.xs / 2 },
   narrative: { marginTop: spacing.md, marginBottom: spacing.lg },
   accessNote: { marginBottom: spacing.md },
   comingSoonNote: { marginTop: spacing.sm, textAlign: 'center' },

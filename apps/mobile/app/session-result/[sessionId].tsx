@@ -119,9 +119,12 @@ export default function SessionResultScreen() {
         packageId: params.packageId,
       });
 
+      // Routed using the session's own fields, not the request params —
+      // StartExamSessionUseCase can return an existing IN_PROGRESS
+      // session (idempotent resume) rather than the one just requested.
       router.replace({
         pathname: '/exam-session/[sessionId]',
-        params: { sessionId: newSession.id, packageId: params.packageId, examId: params.examId },
+        params: { sessionId: newSession.id, packageId: newSession.packageId, examId: newSession.examId },
       });
     } catch {
       setIsRetrying(false);

@@ -106,6 +106,8 @@ Fields: id, user_id, exam_id, question_id, exam_session_id (nullable — free pr
 ### Exam Session
 Fields: id, user_id, exam_id, package_id, status, started_at, completed_at, score/result snapshot, idempotency_key, sync_status. A completed session may store a final score/result snapshot — accepted because it represents a historical fact about that specific completed session, not a live-changing derived metric; Attempts remain the source of truth for recomputation and audit. Same client-generated/local-then-server-durable pattern as Attempt. RLS fail-closed, self-scoped client write. Client → Server, syncs on completion (Attempts sync incrementally throughout, reducing data-loss risk while preserving offline-first behavior).
 
+- **Karar (2026-07-06, Phase 3B.3.3):** formal Deneme session creation is now server-enforced, not just client-validated — a trigger rejects package/exam mismatches, non-`PUBLISHED`/non-`ZORLAYICI_DENEME` packages, and missing access; `id`/`user_id`/`exam_id`/`package_id`/`started_at`/`created_at` are immutable post-creation (`updated_at` excluded — it is trigger-maintained); and a partial unique index guarantees at most one `IN_PROGRESS` session per (user, exam).
+
 ### (No separate Exam Session Attempt table)
 Explicitly resolved, not an oversight: Attempt belongs to zero-or-one Exam Session (one-to-many, not many-to-many), so this relationship is fully represented by Attempt's own `exam_session_id` and `sequence` fields. A separate join table was judged unnecessary complexity — it would also duplicate RLS and sync surface that Attempt already covers.
 
