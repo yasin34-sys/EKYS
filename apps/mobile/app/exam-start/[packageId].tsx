@@ -154,6 +154,9 @@ export default function ExamStartScreen() {
       ) : (
         <>
           <Card variant="hero" style={styles.section}>
+            <AppText variant="footnote" color="tertiary" style={styles.eyebrow}>
+              DENEME SINAVI
+            </AppText>
             <View style={styles.titleRow}>
               <IconChip
                 icon={
@@ -239,7 +242,7 @@ function InfoStat({
 }) {
   return (
     <View style={styles.infoItem}>
-      <Ionicons name={icon} size={18} color={colors.accent} />
+      <IconChip icon={<Ionicons name={icon} size={16} color={colors.accent} />} size={28} />
       <AppText variant="footnote" color="tertiary" style={styles.infoLabel}>
         {label}
       </AppText>
@@ -254,6 +257,7 @@ const styles = StyleSheet.create({
   headerRow: { paddingTop: spacing.sm, paddingBottom: spacing.md },
   section: { marginBottom: spacing.xl },
   sectionTitle: { marginBottom: spacing.md },
+  eyebrow: { letterSpacing: 0.5, marginBottom: spacing.md },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.lg },
   titleTextWrap: { flex: 1 },
   metaLine: { marginTop: spacing.xs / 2 },
