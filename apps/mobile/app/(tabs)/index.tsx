@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import {
   useExamRepository,
   useExamSessionRepository,
@@ -10,7 +11,18 @@ import {
 } from '../../src/services/hooks';
 import { GetPublishedExamsUseCase } from '../../src/application/GetPublishedExamsUseCase';
 import { ScreenContainer, AppText, Card, Skeleton, TopAppBar } from '../../src/components';
-import { spacing } from '../../src/theme';
+import { colors, radii, spacing } from '../../src/theme';
+
+// Real device time only — user_profiles has no name/photo field to greet
+// by (see Phase 3A audit), so this is the honest version of
+// ekranlar/ana_sayfa's "Merhaba Ahmet, Hoş Geldiniz" personalization:
+// warm, but never inventing a name or avatar that doesn't exist.
+function getGreeting(hour: number): string {
+  if (hour >= 5 && hour < 12) return 'Günaydın';
+  if (hour >= 12 && hour < 18) return 'İyi Çalışmalar';
+  if (hour >= 18 && hour < 22) return 'İyi Akşamlar';
+  return 'İyi Geceler';
+}
 
 // Home's Hero Card, per SCREEN_SPECIFICATIONS.md §4, has a 3-tier
 // priority: 1) resume an active (IN_PROGRESS) Exam Session, 2) else
@@ -86,10 +98,33 @@ export default function HomeScreen() {
     router.push('/exams');
   }
 
+  // Same three states and copy as before, restructured into plain
+  // variables so the accent-filled hero card below stays flat JSX
+  // instead of three nested ternaries.
+  let heroPillLabel = 'Başla';
+  let heroHeadline = 'Yeni bir konuya başla';
+  let heroBody = 'Çalışmaya başlamak için Dersler sekmesinden bir konu seç.';
+  let heroIcon: keyof typeof Ionicons.glyphMap = 'arrow-forward-circle-outline';
+  let heroAccessibilityLabel = 'Derslere göz at';
+
+  if (activeSession) {
+    heroPillLabel = 'Devam Et';
+    heroHeadline = 'Kaldığın yerden devam et';
+    heroBody = 'Yarım kalan sınavın seni bekliyor.';
+    heroIcon = 'play-circle-outline';
+    heroAccessibilityLabel = 'Sınava devam et';
+  } else if (repeatPoolCount > 0) {
+    heroPillLabel = 'Tekrar Et';
+    heroHeadline = `${repeatPoolCount} tekrar sorusu seni bekliyor`;
+    heroBody = 'Yanlış yaptığın soruları tekrar çözerek pekiştir.';
+    heroIcon = 'refresh-circle-outline';
+    heroAccessibilityLabel = 'Tekrar havuzuna git';
+  }
+
   return (
     <ScreenContainer scroll topBar={<TopAppBar />}>
       <View style={styles.header}>
-        <AppText variant="largeTitle">EKYS CEPTE</AppText>
+        <AppText variant="largeTitle">{getGreeting(new Date().getHours())}</AppText>
         <AppText variant="subhead" color="secondary" style={styles.subtitle}>
           Sınavına hazırlan, ilerlemeni takip et.
         </AppText>
@@ -115,41 +150,23 @@ export default function HomeScreen() {
           </AppText>
         </Card>
       ) : (
-        <Pressable
-          onPress={handleHeroPress}
-          accessibilityRole="button"
-          accessibilityLabel={
-            activeSession
-              ? 'Sınava devam et'
-              : repeatPoolCount > 0
-                ? 'Tekrar havuzuna git'
-                : 'Derslere göz at'
-          }
-        >
+        <Pressable onPress={handleHeroPress} accessibilityRole="button" accessibilityLabel={heroAccessibilityLabel}>
           {({ pressed }) => (
-            <Card variant="hero" style={pressed ? styles.heroPressed : undefined}>
-              {activeSession ? (
-                <>
-                  <AppText variant="headline">Kaldığın yerden devam et</AppText>
-                  <AppText variant="subhead" color="secondary" style={styles.cardBody}>
-                    Yarım kalan sınavın seni bekliyor.
-                  </AppText>
-                </>
-              ) : repeatPoolCount > 0 ? (
-                <>
-                  <AppText variant="headline">{repeatPoolCount} tekrar sorusu seni bekliyor</AppText>
-                  <AppText variant="subhead" color="secondary" style={styles.cardBody}>
-                    Yanlış yaptığın soruları tekrar çözerek pekiştir.
-                  </AppText>
-                </>
-              ) : (
-                <>
-                  <AppText variant="headline">Yeni bir konuya başla</AppText>
-                  <AppText variant="subhead" color="secondary" style={styles.cardBody}>
-                    Çalışmaya başlamak için Dersler sekmesinden bir konu seç.
-                  </AppText>
-                </>
-              )}
+            <Card variant="hero" style={[styles.heroCard, pressed && styles.heroPressed]}>
+              <View style={styles.heroPill}>
+                <AppText variant="caption" style={styles.heroPillText}>
+                  {heroPillLabel}
+                </AppText>
+              </View>
+              <AppText variant="title2" style={styles.heroHeadline}>
+                {heroHeadline}
+              </AppText>
+              <AppText variant="subhead" style={styles.heroBody}>
+                {heroBody}
+              </AppText>
+              <View style={styles.heroFooter}>
+                <Ionicons name={heroIcon} size={28} color={colors.textOnAccent} />
+              </View>
             </Card>
           )}
         </Pressable>
@@ -163,5 +180,18 @@ const styles = StyleSheet.create({
   subtitle: { marginTop: spacing.xs },
   cardBody: { marginTop: spacing.xs },
   skeletonLine: { marginBottom: spacing.sm },
-  heroPressed: { opacity: 0.9 },
+  heroCard: { backgroundColor: colors.accent, borderColor: colors.accentPressed },
+  heroPressed: { opacity: 0.92 },
+  heroPill: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderRadius: radii.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+    marginBottom: spacing.sm,
+  },
+  heroPillText: { color: colors.textOnAccent },
+  heroHeadline: { color: colors.textOnAccent },
+  heroBody: { color: 'rgba(255,255,255,0.85)', marginTop: spacing.xs },
+  heroFooter: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: spacing.lg },
 });
