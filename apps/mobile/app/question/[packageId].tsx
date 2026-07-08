@@ -425,7 +425,7 @@ function renderTrialIssue(result: TrialIssueResult) {
     case 'OFFLINE':
       return (
         <InfoState
-          icon="cloud-offline-outline"
+          illustration={require('../../assets/illustrations/offline.png')}
           tone="info"
           title="Çevrimdışısın"
           message="Yalnızca daha önce açtığın deneme soruları çevrimdışı kullanılabilir."

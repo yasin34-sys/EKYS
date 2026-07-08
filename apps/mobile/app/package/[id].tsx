@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -7,11 +8,13 @@ import {
   useEntitlementRepository,
   useTrialAccessRepository,
   useQuestionRepository,
+  useTopicRepository,
   useCurrentUserProfile,
 } from '../../src/services/hooks';
 import { GetPackageByIdUseCase } from '../../src/application/GetPackageByIdUseCase';
 import { GetPackagesByExamUseCase } from '../../src/application/GetPackagesByExamUseCase';
 import { GetQuestionsByPackageUseCase } from '../../src/application/GetQuestionsByPackageUseCase';
+import { GetTopicsByExamUseCase } from '../../src/application/GetTopicsByExamUseCase';
 import {
   ScreenContainer,
   AppText,
@@ -48,6 +51,31 @@ const packageTypeNarrative: Record<string, string> = {
   ZORLAYICI_DENEME: 'Gerçek sınav formatına yakın, zamanlı bir deneme sınavı.',
 };
 
+// Real, verifiable behavior only — practice rows match
+// app/question/[packageId].tsx's actual behavior (getOptionState reveals
+// correct/incorrect immediately on submit; no timer/duration state
+// exists anywhere in that screen). ZORLAYICI_DENEME rows intentionally
+// match app/exam-start/[packageId].tsx's already-verified "Sınav
+// Kuralları" copy word-for-word (shown again here, one step earlier,
+// before the user even reaches that confirmation screen) rather than
+// inventing separate wording for the same real behavior.
+const packageRules: Record<string, string[]> = {
+  TEMEL_CALISMA: [
+    'Her sorudan hemen sonra doğru cevabı görürsün.',
+    'Süre sınırı yoktur, kendi hızında ilerleyebilirsin.',
+  ],
+  YOGUN_TEKRAR: [
+    'Her sorudan hemen sonra doğru cevabı görürsün.',
+    'Süre sınırı yoktur, kendi hızında ilerleyebilirsin.',
+  ],
+  ZORLAYICI_DENEME: [
+    'Sınava başladığında süre geri sayımı hemen başlar.',
+    'Cevabın, bir sonraki soruya geçtiğinde kaydedilir.',
+    'Tüm soruları yanıtlamadan sınavı bitirebilirsin; boş bıraktıkların yanlış sayılmaz.',
+    'Sonucun ve analizin, sınavı bitirdiğinde gösterilir.',
+  ],
+};
+
 // accessStatus is derived by reusing GetPackagesByExamUseCase (already
 // approved) rather than introducing a new "package with access" use
 // case — fetches the exam's full package list and finds this one's
@@ -60,6 +88,7 @@ export default function PackageDetailScreen() {
   const entitlementRepository = useEntitlementRepository();
   const trialAccessRepository = useTrialAccessRepository();
   const questionRepository = useQuestionRepository();
+  const topicRepository = useTopicRepository();
 
   const { data: userProfile } = useCurrentUserProfile();
 
@@ -79,6 +108,30 @@ export default function PackageDetailScreen() {
     enabled: Boolean(id),
   });
   const questionCount = questionsQuery.data?.length;
+
+  // Real per-topic question counts within this package — grouped from
+  // the same questions already fetched above, names resolved from the
+  // exam's real topic list (same use case the question screens already
+  // use for their topic breadcrumb). A topicId missing from that list
+  // is skipped rather than shown with a fabricated name.
+  const topicsQuery = useQuery({
+    queryKey: ['topics', 'byExam', packageQuery.data?.examId],
+    queryFn: () => new GetTopicsByExamUseCase({ topicRepository }).execute(packageQuery.data!.examId),
+    enabled: Boolean(packageQuery.data),
+  });
+
+  const topicDistribution = useMemo(() => {
+    if (!questionsQuery.data || !topicsQuery.data) return null;
+    const topicNameById = new Map(topicsQuery.data.map((topic) => [topic.id, topic.name]));
+    const countByTopicId = new Map<string, number>();
+    for (const question of questionsQuery.data) {
+      countByTopicId.set(question.topicId, (countByTopicId.get(question.topicId) ?? 0) + 1);
+    }
+    return Array.from(countByTopicId.entries())
+      .map(([topicId, count]) => ({ topicId, name: topicNameById.get(topicId), count }))
+      .filter((entry): entry is { topicId: string; name: string; count: number } => Boolean(entry.name))
+      .sort((a, b) => b.count - a.count);
+  }, [questionsQuery.data, topicsQuery.data]);
 
   const accessQuery = useQuery({
     queryKey: ['packages', 'byExam', packageQuery.data?.examId, userProfile?.id],
@@ -150,6 +203,7 @@ export default function PackageDetailScreen() {
           />
         </View>
       ) : (
+        <>
         <Card variant="hero">
           <View style={styles.titleRow}>
             <IconChip
@@ -203,17 +257,77 @@ export default function PackageDetailScreen() {
               <PrimaryButton label="Ücretsiz Dene" onPress={handleStartTrial} />
             </>
           ) : (
-            <>
+            // No disabled-but-styled-as-tappable button here on purpose —
+            // a disabled "Kilidi Aç" reads as broken, not as "coming soon".
+            // Same honest "Yakında" pill Settings/About already use instead,
+            // since there is no purchase flow to route into yet.
+            <View style={styles.lockedNotice}>
               <AppText variant="subhead" color="secondary" style={styles.accessNote}>
-                Bu paketin kilidini açman gerekiyor
+                Bu paket şu anda kilitli
               </AppText>
-              <PrimaryButton label="Kilidi Aç" disabled />
+              <View style={styles.comingSoonTag}>
+                <AppText variant="caption" color="tertiary">
+                  Yakında
+                </AppText>
+              </View>
               <AppText variant="footnote" color="tertiary" style={styles.comingSoonNote}>
                 Premium özellikler yakında eklenecek.
               </AppText>
-            </>
+            </View>
           )}
         </Card>
+
+        {topicDistribution && topicDistribution.length > 0 ? (
+          <View style={styles.section}>
+            <AppText variant="title3" style={styles.sectionTitle}>
+              Soru Dağılımı
+            </AppText>
+            <Card>
+              {topicDistribution.map((entry, index) => (
+                <View
+                  key={entry.topicId}
+                  style={[
+                    styles.distributionRow,
+                    index !== topicDistribution.length - 1 && styles.distributionRowDivider,
+                  ]}
+                >
+                  <AppText variant="body" style={styles.distributionName} numberOfLines={1}>
+                    {entry.name}
+                  </AppText>
+                  <AppText
+                    variant="subhead"
+                    color="secondary"
+                    style={{ fontVariant: ['tabular-nums'] }}
+                  >
+                    {entry.count} Soru
+                  </AppText>
+                </View>
+              ))}
+            </Card>
+          </View>
+        ) : null}
+
+        {(packageRules[packageQuery.data.packageType] ?? []).length > 0 ? (
+          <View style={styles.section}>
+            <AppText variant="title3" style={styles.sectionTitle}>
+              Kurallar
+            </AppText>
+            <Card>
+              {packageRules[packageQuery.data.packageType].map((rule, index, rules) => (
+                <View
+                  key={rule}
+                  style={[styles.ruleRow, index !== rules.length - 1 && styles.ruleRowDivider]}
+                >
+                  <Ionicons name="checkmark-circle" size={20} color={colors.accent} />
+                  <AppText variant="body" style={styles.ruleText}>
+                    {rule}
+                  </AppText>
+                </View>
+              ))}
+            </Card>
+          </View>
+        ) : null}
+        </>
       )}
     </ScreenContainer>
   );
@@ -226,8 +340,29 @@ const styles = StyleSheet.create({
   metaLine: { marginTop: spacing.xs / 2 },
   narrative: { marginTop: spacing.md, marginBottom: spacing.lg },
   accessNote: { marginBottom: spacing.md },
+  lockedNotice: { alignItems: 'center' },
+  comingSoonTag: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+    borderRadius: radii.full,
+    backgroundColor: colors.border,
+  },
   comingSoonNote: { marginTop: spacing.sm, textAlign: 'center' },
   skeletonLine: { marginBottom: spacing.sm },
   ctaSkeleton: { marginTop: spacing.md },
   centerFill: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: spacing.xxl },
+  section: { marginTop: spacing.xl },
+  sectionTitle: { marginBottom: spacing.md },
+  distributionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+  },
+  distributionRowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+  distributionName: { flex: 1 },
+  ruleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, paddingVertical: spacing.sm },
+  ruleRowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+  ruleText: { flex: 1 },
 });

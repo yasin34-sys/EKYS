@@ -1,14 +1,21 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { View, StyleSheet, Alert, Animated, AccessibilityInfo } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 import {
   useExamSessionRepository,
   useEntitlementRepository,
   usePackageRepository,
+  useAttemptRepository,
+  useQuestionRepository,
+  useTopicRepository,
   useCurrentUserProfile,
 } from '../../src/services/hooks';
 import { StartExamSessionUseCase } from '../../src/application/StartExamSessionUseCase';
+import { GetAttemptsBySessionUseCase } from '../../src/application/GetAttemptsBySessionUseCase';
+import { GetQuestionsByPackageUseCase } from '../../src/application/GetQuestionsByPackageUseCase';
+import { GetTopicsByExamUseCase } from '../../src/application/GetTopicsByExamUseCase';
 import { expoIdGenerator } from '../../src/application/shared/expoIdGenerator';
 import { systemClock } from '../../src/application/shared/systemClock';
 import {
@@ -18,6 +25,8 @@ import {
   PrimaryButton,
   SecondaryButton,
   FadeInUp,
+  TopicMasteryChip,
+  ProgressBar,
 } from '../../src/components';
 import { colors, spacing, confidentEase } from '../../src/theme';
 
@@ -104,10 +113,71 @@ export default function SessionResultScreen() {
   const examSessionRepository = useExamSessionRepository();
   const entitlementRepository = useEntitlementRepository();
   const packageRepository = usePackageRepository();
+  const attemptRepository = useAttemptRepository();
+  const questionRepository = useQuestionRepository();
+  const topicRepository = useTopicRepository();
 
   const { data: userProfile } = useCurrentUserProfile();
 
   const [isRetrying, setIsRetrying] = useState(false);
+
+  // Konu Analizi: re-derived from this session's real attempts, not
+  // passed through from exam-session (which only forwards the aggregate
+  // correct/wrong counts already shown above). Questions are fetched by
+  // package (one call, already an approved use case) rather than by id
+  // per attempt, since every attempted question belongs to this
+  // package's own question list.
+  const attemptsQuery = useQuery({
+    queryKey: ['attempts', 'bySession', params.sessionId],
+    queryFn: () => new GetAttemptsBySessionUseCase({ attemptRepository }).execute(params.sessionId),
+    enabled: Boolean(params.sessionId),
+  });
+
+  const questionsQuery = useQuery({
+    queryKey: ['questions', 'byPackage', params.packageId],
+    queryFn: () => new GetQuestionsByPackageUseCase({ questionRepository }).execute(params.packageId),
+    enabled: Boolean(params.packageId),
+  });
+
+  const topicsQuery = useQuery({
+    queryKey: ['topics', 'byExam', params.examId],
+    queryFn: () => new GetTopicsByExamUseCase({ topicRepository }).execute(params.examId),
+    enabled: Boolean(params.examId),
+  });
+
+  // Grouped and named only from real data — a topicId that can't be
+  // resolved to a real topic name (or a question that isn't found in
+  // the package's own list) is skipped rather than shown with a
+  // fabricated name or lumped into a fake "Diğer" bucket.
+  const topicAnalysis = useMemo(() => {
+    if (!attemptsQuery.data || !questionsQuery.data || !topicsQuery.data) return null;
+    const topicIdByQuestionId = new Map(questionsQuery.data.map((q) => [q.id, q.topicId]));
+    const topicNameById = new Map(topicsQuery.data.map((t) => [t.id, t.name]));
+    const statsByTopicId = new Map<string, { correct: number; total: number }>();
+
+    for (const attempt of attemptsQuery.data) {
+      const topicId = topicIdByQuestionId.get(attempt.questionId);
+      if (!topicId) continue;
+      const stats = statsByTopicId.get(topicId) ?? { correct: 0, total: 0 };
+      stats.total += 1;
+      if (attempt.isCorrect) stats.correct += 1;
+      statsByTopicId.set(topicId, stats);
+    }
+
+    return Array.from(statsByTopicId.entries())
+      .map(([topicId, stats]) => ({
+        topicId,
+        name: topicNameById.get(topicId),
+        correct: stats.correct,
+        total: stats.total,
+        accuracy: stats.total > 0 ? stats.correct / stats.total : 0,
+      }))
+      .filter(
+        (entry): entry is { topicId: string; name: string; correct: number; total: number; accuracy: number } =>
+          Boolean(entry.name),
+      )
+      .sort((a, b) => b.total - a.total);
+  }, [attemptsQuery.data, questionsQuery.data, topicsQuery.data]);
 
   async function handleRetry() {
     if (!userProfile) return;
@@ -168,6 +238,38 @@ export default function SessionResultScreen() {
         <StatCard icon="ellipse-outline" tone="neutral" label="Boş" value={String(blankCount)} />
         <StatCard icon="time-outline" tone="info" label="Süre" value={timeUsedLabel} />
       </View>
+
+      {topicAnalysis && topicAnalysis.length > 0 ? (
+        <View style={styles.section}>
+          <AppText variant="title3" style={styles.sectionTitle}>
+            Konu Analizi
+          </AppText>
+          <Card style={styles.topicAnalysisCard}>
+            {topicAnalysis.map((entry, index) => (
+              <View
+                key={entry.topicId}
+                style={[
+                  styles.topicRow,
+                  index !== topicAnalysis.length - 1 && styles.topicRowDivider,
+                ]}
+              >
+                <View style={styles.topicHeaderRow}>
+                  <AppText variant="body" style={styles.topicName} numberOfLines={1}>
+                    {entry.name}
+                  </AppText>
+                  <TopicMasteryChip accuracy={entry.accuracy} />
+                </View>
+                <AppText variant="footnote" color="secondary" style={styles.topicMeta}>
+                  {entry.correct}/{entry.total} Doğru · %{Math.round(entry.accuracy * 100)}
+                </AppText>
+                <View style={styles.topicProgressWrap}>
+                  <ProgressBar progress={entry.accuracy} height={4} />
+                </View>
+              </View>
+            ))}
+          </Card>
+        </View>
+      ) : null}
 
       <PrimaryButton label="Tekrar Dene" onPress={handleRetry} disabled={isRetrying} />
       <View style={styles.secondaryButtonWrap}>
@@ -235,4 +337,13 @@ const styles = StyleSheet.create({
   },
   statTextWrap: { flexShrink: 1 },
   secondaryButtonWrap: { marginTop: spacing.sm },
+  section: { marginBottom: spacing.lg },
+  sectionTitle: { marginBottom: spacing.md },
+  topicAnalysisCard: { paddingVertical: spacing.xs },
+  topicRow: { paddingVertical: spacing.sm },
+  topicRowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+  topicHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
+  topicName: { flex: 1 },
+  topicMeta: { marginTop: spacing.xs / 2 },
+  topicProgressWrap: { marginTop: spacing.xs / 2 },
 });

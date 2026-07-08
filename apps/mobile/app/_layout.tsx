@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { IntegrityCheckResult } from '../src/database/sqlite';
 import { createServices } from '../src/services/createServices';
 import { ServiceProvider } from '../src/services/ServiceProvider';
@@ -12,6 +13,7 @@ import { BootstrapAppUseCase } from '../src/application/BootstrapAppUseCase';
 import { AuthNotConfiguredError } from '../src/auth/errors';
 import { ScreenContainer, LoadingState, InfoState } from '../src/components';
 import { useAppFonts } from '../src/theme';
+import OnboardingScreen from '../src/screens/OnboardingScreen';
 
 type BootstrapState =
   | { status: 'loading' }
@@ -23,9 +25,42 @@ type BootstrapState =
 // Created once, module-level — not per render, per mount cycle.
 const queryClient = new QueryClient();
 
+// Versioned so a future redesign of onboarding can show it again to
+// everyone by bumping the suffix, without needing a migration — reading
+// an unset key returns null, which reads as "not seen" (never crashes,
+// never assumes false is true).
+const ONBOARDING_STORAGE_KEY = 'ekys:onboarding:v1:seen';
+
 export default function RootLayout() {
   const fontsLoaded = useAppFonts();
   const [bootstrap, setBootstrap] = useState<BootstrapState>({ status: 'loading' });
+  // Independent of bootstrap on purpose: a local-only AsyncStorage read,
+  // no network/auth/sync involved, so it can never be the thing that
+  // makes bootstrap slower or less reliable. null = not yet read.
+  const [onboardingSeen, setOnboardingSeen] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    AsyncStorage.getItem(ONBOARDING_STORAGE_KEY)
+      .then((value) => {
+        if (!cancelled) setOnboardingSeen(value === 'true');
+      })
+      .catch(() => {
+        // A storage read failure must never trap the user before Home —
+        // treat it the same as "already seen" rather than getting stuck.
+        if (!cancelled) setOnboardingSeen(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  function handleOnboardingComplete() {
+    setOnboardingSeen(true);
+    // Best-effort: if this write fails, onboarding may show once more on
+    // the next launch, which is a mild inconvenience, not a functional break.
+    AsyncStorage.setItem(ONBOARDING_STORAGE_KEY, 'true').catch(() => {});
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -136,7 +171,7 @@ export default function RootLayout() {
     };
   }, []);
 
-  if (!fontsLoaded || bootstrap.status === 'loading') {
+  if (!fontsLoaded || bootstrap.status === 'loading' || (bootstrap.status === 'ready' && onboardingSeen === null)) {
     return (
       <SafeAreaProvider>
         <ScreenContainer centered>
@@ -191,6 +226,18 @@ export default function RootLayout() {
           />
           <StatusBar style="dark" />
         </ScreenContainer>
+      </SafeAreaProvider>
+    );
+  }
+
+  // Shown once, on first launch, before the tab stack ever mounts — not
+  // reached via router navigation, so there's no "flash of Home then
+  // jump to onboarding" and no interaction with Stack/back-button state.
+  if (onboardingSeen === false) {
+    return (
+      <SafeAreaProvider>
+        <OnboardingScreen onComplete={handleOnboardingComplete} />
+        <StatusBar style="dark" />
       </SafeAreaProvider>
     );
   }
