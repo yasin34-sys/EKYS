@@ -2,6 +2,29 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { AuthService, AuthSession, UpgradeAnonymousAccountParams } from './AuthService';
 import { AuthNotConfiguredError, AuthSessionError } from './errors';
 
+// Bootstrap must never hang forever on a stalled/dropped connection —
+// signInAnonymously() has been observed to neither resolve nor reject
+// on some devices/networks. This bounds the wait so bootstrap always
+// reaches a definite state (ready, offline-tolerant, or a surfaced
+// error) instead of leaving the app stuck on its loading screen.
+const ANONYMOUS_SIGN_IN_TIMEOUT_MS = 10000;
+
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new AuthSessionError(message)), timeoutMs);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
+
 export class SupabaseAuthService implements AuthService {
   // client is nullable — supabaseClient.ts guards against constructing
   // a SupabaseClient before real credentials exist. Every method here
@@ -30,7 +53,11 @@ export class SupabaseAuthService implements AuthService {
       };
     }
 
-    const { data, error } = await client.auth.signInAnonymously();
+    const { data, error } = await withTimeout(
+      client.auth.signInAnonymously(),
+      ANONYMOUS_SIGN_IN_TIMEOUT_MS,
+      'Timed out creating anonymous session',
+    );
     if (error || !data.session) {
       throw new AuthSessionError('Failed to create anonymous session', error);
     }

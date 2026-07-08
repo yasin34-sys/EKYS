@@ -13,7 +13,8 @@
       "backgroundColor": "#F7FBFF"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ekyscepte.app"
     },
     "android": {
       "package": "com.ekyscepte.app",
