@@ -1,4 +1,6 @@
+import { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import {
   useExamRepository,
@@ -6,11 +8,13 @@ import {
   usePackageRepository,
   useEntitlementRepository,
   useTrialAccessRepository,
+  useLearningMetricsRepository,
   useCurrentUserProfile,
 } from '../../src/services/hooks';
 import { GetPublishedExamsUseCase } from '../../src/application/GetPublishedExamsUseCase';
 import { GetTopicsByExamUseCase } from '../../src/application/GetTopicsByExamUseCase';
 import { GetPackagesByExamUseCase } from '../../src/application/GetPackagesByExamUseCase';
+import { GetDashboardMetricsUseCase } from '../../src/application/GetDashboardMetricsUseCase';
 import { ScreenContainer, AppText, EmptyState, TopicList, PackageList, TopAppBar } from '../../src/components';
 import { spacing } from '../../src/theme';
 
@@ -35,6 +39,7 @@ export default function LessonsScreen() {
   const packageRepository = usePackageRepository();
   const entitlementRepository = useEntitlementRepository();
   const trialAccessRepository = useTrialAccessRepository();
+  const learningMetricsRepository = useLearningMetricsRepository();
 
   const { data: userProfile } = useCurrentUserProfile();
 
@@ -66,6 +71,44 @@ export default function LessonsScreen() {
     (entry) => entry.package.packageType !== 'ZORLAYICI_DENEME',
   );
 
+  // Real TOPIC_ACCURACY values (same use case Statistics/Learning
+  // Progress/Home already trust) — passed to TopicList so topic rows can
+  // show a mastery chip + progress bar. Never fabricated: a topic simply
+  // missing from this map falls back to 0 accuracy inside TopicList,
+  // matching Learning Progress's own existing "no attempts yet reads as
+  // Başlangıç" convention, not an invented value.
+  const dashboardMetricsQuery = useQuery({
+    queryKey: ['dashboardMetrics', userProfile?.id, examId],
+    queryFn: () =>
+      new GetDashboardMetricsUseCase({ learningMetricsRepository }).execute(
+        userProfile!.id,
+        examId as string,
+      ),
+    enabled: Boolean(userProfile) && Boolean(examId),
+  });
+  const accuracyByTopicId = new Map(
+    (dashboardMetricsQuery.data?.topicMetrics ?? [])
+      .filter((metric) => metric.metricType === 'TOPIC_ACCURACY' && metric.topicId !== null)
+      .map((metric) => [metric.topicId as string, metric.value]),
+  );
+
+  // Same fix already applied to Statistics/Home for this exact query:
+  // returning to Dersler after solving practice/repeat/Deneme questions
+  // elsewhere should reflect newly-recomputed accuracy, not a stale
+  // mount-time snapshot. Manual refetch() bypasses `enabled`, so it's
+  // guarded the same way `enabled` already is. topics/packages aren't
+  // refetched here — no existing behavior on this screen did that either.
+  useFocusEffect(
+    useCallback(() => {
+      if (!userProfile || !examId) return;
+      dashboardMetricsQuery.refetch();
+      // dashboardMetricsQuery itself changes identity every render and is
+      // deliberately left out of the deps array — only re-running on
+      // focus or when the guard's own ids change is intended here.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [userProfile, examId]),
+  );
+
   return (
     <ScreenContainer scroll topBar={<TopAppBar />}>
       <View style={styles.header}>
@@ -93,7 +136,11 @@ export default function LessonsScreen() {
         </View>
       ) : (
         <>
-          <TopicList isLoading={examsQuery.isLoading || topicsQuery.isLoading} topics={topicsQuery.data} />
+          <TopicList
+            isLoading={examsQuery.isLoading || topicsQuery.isLoading}
+            topics={topicsQuery.data}
+            accuracyByTopicId={dashboardMetricsQuery.data ? accuracyByTopicId : undefined}
+          />
           <PackageList
             isLoading={examsQuery.isLoading || packagesQuery.isLoading || !userProfile}
             packages={studyPackages}

@@ -6,10 +6,12 @@ import {
   usePackageRepository,
   useEntitlementRepository,
   useTrialAccessRepository,
+  useQuestionRepository,
   useCurrentUserProfile,
 } from '../../src/services/hooks';
 import { GetPackageByIdUseCase } from '../../src/application/GetPackageByIdUseCase';
 import { GetPackagesByExamUseCase } from '../../src/application/GetPackagesByExamUseCase';
+import { GetQuestionsByPackageUseCase } from '../../src/application/GetQuestionsByPackageUseCase';
 import {
   ScreenContainer,
   AppText,
@@ -57,6 +59,7 @@ export default function PackageDetailScreen() {
   const packageRepository = usePackageRepository();
   const entitlementRepository = useEntitlementRepository();
   const trialAccessRepository = useTrialAccessRepository();
+  const questionRepository = useQuestionRepository();
 
   const { data: userProfile } = useCurrentUserProfile();
 
@@ -65,6 +68,17 @@ export default function PackageDetailScreen() {
     queryFn: () => new GetPackageByIdUseCase({ packageRepository }).execute(id as string),
     enabled: Boolean(id),
   });
+
+  // Real question count, same use case Exam Start already uses for
+  // Deneme packages — shown here too so practice packages aren't the
+  // only ones missing it. Never fabricated: appended to the meta line
+  // only once this query actually resolves (see render below).
+  const questionsQuery = useQuery({
+    queryKey: ['questions', 'byPackage', id],
+    queryFn: () => new GetQuestionsByPackageUseCase({ questionRepository }).execute(id as string),
+    enabled: Boolean(id),
+  });
+  const questionCount = questionsQuery.data?.length;
 
   const accessQuery = useQuery({
     queryKey: ['packages', 'byExam', packageQuery.data?.examId, userProfile?.id],
@@ -154,6 +168,7 @@ export default function PackageDetailScreen() {
               </AppText>
               <AppText variant="subhead" color="secondary" style={styles.metaLine}>
                 {difficultyLabel[packageQuery.data.difficultyLevel] ?? packageQuery.data.difficultyLevel}
+                {questionCount !== undefined ? ` · ${questionCount} Soru` : ''}
               </AppText>
             </View>
           </View>

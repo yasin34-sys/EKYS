@@ -11,9 +11,11 @@ import {
   useRepeatPoolRepository,
   useTrialAccessRepository,
   useTrialGrantSync,
+  useTopicRepository,
 } from '../../src/services/hooks';
 import { GetQuestionsByPackageUseCase } from '../../src/application/GetQuestionsByPackageUseCase';
 import { GetRepeatPoolUseCase } from '../../src/application/GetRepeatPoolUseCase';
+import { GetTopicsByExamUseCase } from '../../src/application/GetTopicsByExamUseCase';
 import { GetTrialQuestionByIndexUseCase } from '../../src/application/GetTrialQuestionByIndexUseCase';
 import type { GetTrialQuestionResult } from '../../src/application/GetTrialQuestionByIndexUseCase';
 import { SubmitAnswerUseCase } from '../../src/application/SubmitAnswerUseCase';
@@ -66,6 +68,7 @@ export default function QuestionScreen() {
   const repeatPoolRepository = useRepeatPoolRepository();
   const trialAccessRepository = useTrialAccessRepository();
   const trialGrantSync = useTrialGrantSync();
+  const topicRepository = useTopicRepository();
 
   const { data: userProfile } = useCurrentUserProfile();
 
@@ -161,6 +164,22 @@ export default function QuestionScreen() {
       ? trialResult.question
       : undefined
     : activeQuestions?.[currentIndex];
+
+  // Topic breadcrumb: resolved from currentQuestion.examId, not route
+  // params — this works identically for FULL, TRIAL, and Repeat Pool
+  // (Repeat Pool's own examId route param is the source exam already, but
+  // reading it off the question itself keeps this independent of that and
+  // avoids relying on Repeat Pool's params staying shaped a particular
+  // way). No fabricated name: the chip is only ever rendered once a real
+  // topic name resolves (see render below).
+  const topicsQuery = useQuery({
+    queryKey: ['topics', 'byExam', currentQuestion?.examId],
+    queryFn: () => new GetTopicsByExamUseCase({ topicRepository }).execute(currentQuestion!.examId),
+    enabled: Boolean(currentQuestion?.examId),
+  });
+  const topicName = currentQuestion
+    ? (topicsQuery.data?.find((topic) => topic.id === currentQuestion.topicId)?.name ?? null)
+    : null;
 
   const totalQuestions = isTrialMode
     ? isTrialQuestionResult
@@ -323,6 +342,19 @@ export default function QuestionScreen() {
         </FadeInUp>
       ) : currentQuestion ? (
         <>
+          {topicName ? (
+            <View style={styles.topicChip}>
+              <Ionicons name="bookmark-outline" size={14} color={colors.textSecondary} />
+              <AppText
+                variant="footnote"
+                color="secondary"
+                style={styles.topicChipText}
+                numberOfLines={1}
+              >
+                {topicName}
+              </AppText>
+            </View>
+          ) : null}
           <QuestionCard body={currentQuestion.body} />
 
           <View style={styles.options}>
@@ -473,6 +505,18 @@ const styles = StyleSheet.create({
   },
   progressPillText: { fontVariant: ['tabular-nums'] },
   progressWrap: { marginBottom: spacing.lg },
+  topicChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: spacing.xs / 2,
+    backgroundColor: colors.surfaceSecondary,
+    borderRadius: radii.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+    marginBottom: spacing.sm,
+  },
+  topicChipText: { flexShrink: 1 },
   options: { marginTop: spacing.lg },
   footer: { marginTop: spacing.lg },
   errorNote: { marginTop: spacing.sm, textAlign: 'center' },

@@ -4,12 +4,19 @@ import { AppText } from './AppText';
 import { Card } from './Card';
 import { IconChip } from './IconChip';
 import { Skeleton } from './Skeleton';
+import { TopicMasteryChip } from './TopicMasteryChip';
+import { ProgressBar } from './ProgressBar';
 import { colors, spacing } from '../theme';
 import type { Topic } from '../domain';
 
 export interface TopicListProps {
   isLoading: boolean;
   topics: Topic[] | undefined;
+  // Optional: real TOPIC_ACCURACY values keyed by topic id (Dersler's own
+  // GetDashboardMetricsUseCase call — see (tabs)/exams.tsx). Left
+  // undefined by any caller that doesn't have this data (e.g. Exam
+  // Detail), in which case rows render exactly as before, unchanged.
+  accuracyByTopicId?: Map<string, number>;
 }
 
 interface TopicNode {
@@ -61,7 +68,7 @@ function topicIcon(name: string): keyof typeof Ionicons.glyphMap {
 
 // Extracted from Exam Detail — same loading/empty/loaded branching,
 // unchanged, just moved into its own file.
-export function TopicList({ isLoading, topics }: TopicListProps) {
+export function TopicList({ isLoading, topics, accuracyByTopicId }: TopicListProps) {
   const nodes = topics ? flattenTopicTree(topics) : [];
   const topLevelCount = nodes.filter((n) => n.depth === 0).length;
 
@@ -84,7 +91,12 @@ export function TopicList({ isLoading, topics }: TopicListProps) {
       ) : nodes.length > 0 ? (
         <Card>
           {nodes.map((node, index) => (
-            <TopicRow key={node.topic.id} node={node} isLast={index === nodes.length - 1} />
+            <TopicRow
+              key={node.topic.id}
+              node={node}
+              isLast={index === nodes.length - 1}
+              accuracyByTopicId={accuracyByTopicId}
+            />
           ))}
         </Card>
       ) : (
@@ -98,8 +110,20 @@ export function TopicList({ isLoading, topics }: TopicListProps) {
   );
 }
 
-function TopicRow({ node, isLast }: { node: TopicNode; isLast: boolean }) {
+function TopicRow({
+  node,
+  isLast,
+  accuracyByTopicId,
+}: {
+  node: TopicNode;
+  isLast: boolean;
+  accuracyByTopicId?: Map<string, number>;
+}) {
   const { topic, depth } = node;
+  // Mastery info only ever shown for top-level rows (depth 0) — subtopic
+  // rows stay as plain indented text, unchanged, keeping this compact
+  // rather than repeating the chip/bar treatment at every nesting level.
+  const accuracy = depth === 0 && accuracyByTopicId ? (accuracyByTopicId.get(topic.id) ?? 0) : null;
 
   return (
     <View
@@ -115,13 +139,24 @@ function TopicRow({ node, isLast }: { node: TopicNode; isLast: boolean }) {
           size={32}
         />
       ) : null}
-      <AppText
-        variant={depth === 0 ? 'headline' : 'body'}
-        color={depth === 0 ? 'primary' : 'secondary'}
-        style={depth === 0 ? styles.topLevelText : undefined}
-      >
-        {topic.name}
-      </AppText>
+      <View style={styles.topicTextWrap}>
+        <View style={styles.topicHeaderRow}>
+          <AppText
+            variant={depth === 0 ? 'headline' : 'body'}
+            color={depth === 0 ? 'primary' : 'secondary'}
+            style={styles.topicNameText}
+            numberOfLines={2}
+          >
+            {topic.name}
+          </AppText>
+          {accuracy !== null ? <TopicMasteryChip accuracy={accuracy} /> : null}
+        </View>
+        {accuracy !== null ? (
+          <View style={styles.topicProgressWrap}>
+            <ProgressBar progress={accuracy} height={4} />
+          </View>
+        ) : null}
+      </View>
     </View>
   );
 }
@@ -142,5 +177,13 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   topicRowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
-  topLevelText: { flex: 1 },
+  topicTextWrap: { flex: 1 },
+  topicHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
+  topicNameText: { flexShrink: 1 },
+  topicProgressWrap: { marginTop: spacing.xs },
 });

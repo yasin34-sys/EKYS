@@ -7,10 +7,23 @@ import {
   useExamRepository,
   useExamSessionRepository,
   useRepeatPoolRepository,
+  useTopicRepository,
+  useLearningMetricsRepository,
   useCurrentUserProfile,
 } from '../../src/services/hooks';
 import { GetPublishedExamsUseCase } from '../../src/application/GetPublishedExamsUseCase';
-import { ScreenContainer, AppText, Card, Skeleton, TopAppBar } from '../../src/components';
+import { GetTopicsByExamUseCase } from '../../src/application/GetTopicsByExamUseCase';
+import { GetDashboardMetricsUseCase } from '../../src/application/GetDashboardMetricsUseCase';
+import {
+  ScreenContainer,
+  AppText,
+  Card,
+  Skeleton,
+  TopAppBar,
+  IconChip,
+  TopicMasteryChip,
+  ProgressBar,
+} from '../../src/components';
 import { colors, radii, spacing } from '../../src/theme';
 
 // Real device time only — user_profiles has no name/photo field to greet
@@ -33,6 +46,8 @@ export default function HomeScreen() {
   const examRepository = useExamRepository();
   const examSessionRepository = useExamSessionRepository();
   const repeatPoolRepository = useRepeatPoolRepository();
+  const topicRepository = useTopicRepository();
+  const learningMetricsRepository = useLearningMetricsRepository();
 
   const { data: userProfile } = useCurrentUserProfile();
 
@@ -55,6 +70,27 @@ export default function HomeScreen() {
     enabled: Boolean(userProfile) && Boolean(examId) && activeSessionQuery.data === null,
   });
 
+  // "Odaklanılacak Konular" (weak-topics) section below the hero — same
+  // TOPIC_ACCURACY data already trusted on Statistics/Learning Progress,
+  // just re-read here. No new domain concept, no fabricated percentages:
+  // if either query hasn't resolved real data yet, weakTopics is simply
+  // empty and the section renders nothing (see render below).
+  const topicsQuery = useQuery({
+    queryKey: ['topics', 'byExam', examId],
+    queryFn: () => new GetTopicsByExamUseCase({ topicRepository }).execute(examId as string),
+    enabled: Boolean(examId),
+  });
+
+  const dashboardMetricsQuery = useQuery({
+    queryKey: ['dashboardMetrics', userProfile?.id, examId],
+    queryFn: () =>
+      new GetDashboardMetricsUseCase({ learningMetricsRepository }).execute(
+        userProfile!.id,
+        examId as string,
+      ),
+    enabled: Boolean(userProfile) && Boolean(examId),
+  });
+
   // The Hero Card's priority tier (ADR-010's event-driven principle: "app
   // coming to foreground"/a relevant user action triggers refetch, not
   // polling) can go stale otherwise — React Navigation keeps tab screens
@@ -63,11 +99,17 @@ export default function HomeScreen() {
   // Manual refetch() bypasses `enabled`, so both calls are guarded the
   // same way `enabled` already is — otherwise a focus event before
   // userProfile/examId resolve would fire a query with a missing id.
+  // dashboardMetricsQuery (the weak-topics section) is guarded and
+  // refetched the same way, for the same reason — solving practice/repeat
+  // questions elsewhere and returning Home should reflect the just-updated
+  // TOPIC_ACCURACY values, not a stale mount-time snapshot (same fix
+  // Statistics/learning-progress already apply to this exact query).
   useFocusEffect(
     useCallback(() => {
       if (!userProfile || !examId) return;
       activeSessionQuery.refetch();
       repeatPoolQuery.refetch();
+      dashboardMetricsQuery.refetch();
       // The query objects themselves change identity every render and
       // are deliberately left out of the deps array — only re-running
       // on focus or when the guard's own ids change is intended here.
@@ -82,6 +124,29 @@ export default function HomeScreen() {
 
   const activeSession = activeSessionQuery.data;
   const repeatPoolCount = repeatPoolQuery.data?.length ?? 0;
+
+  // Lowest-2 real TOPIC_ACCURACY values with a resolvable topic name —
+  // never fabricated, never shown until both queries have real data.
+  const weakTopics =
+    topicsQuery.data && dashboardMetricsQuery.data
+      ? (() => {
+          const topicsById = new Map(topicsQuery.data.map((topic) => [topic.id, topic]));
+          return dashboardMetricsQuery.data.topicMetrics
+            .filter(
+              (metric) =>
+                metric.metricType === 'TOPIC_ACCURACY' &&
+                metric.topicId !== null &&
+                topicsById.has(metric.topicId),
+            )
+            .sort((a, b) => a.value - b.value)
+            .slice(0, 2)
+            .map((metric) => ({
+              id: metric.topicId as string,
+              name: topicsById.get(metric.topicId as string)!.name,
+              accuracy: metric.value,
+            }));
+        })()
+      : [];
 
   function handleHeroPress() {
     if (activeSession) {
@@ -171,7 +236,82 @@ export default function HomeScreen() {
           )}
         </Pressable>
       )}
+
+      <View style={styles.quickActionsRow}>
+        <QuickActionTile
+          icon="book-outline"
+          label="Dersler"
+          onPress={() => router.push('/exams')}
+        />
+        <QuickActionTile
+          icon="document-text-outline"
+          label="Denemeler"
+          onPress={() => router.push('/packages')}
+        />
+        <QuickActionTile
+          icon="refresh-outline"
+          label="Tekrar"
+          onPress={() => router.push('/repeat-pool')}
+        />
+      </View>
+
+      {weakTopics.length > 0 ? (
+        <View style={styles.weakTopicsSection}>
+          <AppText variant="title3" style={styles.weakTopicsTitle}>
+            Odaklanılacak Konular
+          </AppText>
+          <Card style={styles.weakTopicsCard}>
+            {weakTopics.map((topic, index) => (
+              <View
+                key={topic.id}
+                style={[
+                  styles.weakTopicRow,
+                  index !== weakTopics.length - 1 && styles.weakTopicRowDivider,
+                ]}
+              >
+                <View style={styles.weakTopicHeader}>
+                  <AppText variant="body" style={styles.weakTopicName} numberOfLines={1}>
+                    {topic.name}
+                  </AppText>
+                  <TopicMasteryChip accuracy={topic.accuracy} />
+                </View>
+                <View style={styles.weakTopicProgressWrap}>
+                  <ProgressBar progress={topic.accuracy} height={4} />
+                </View>
+              </View>
+            ))}
+          </Card>
+        </View>
+      ) : null}
     </ScreenContainer>
+  );
+}
+
+function QuickActionTile({
+  icon,
+  label,
+  onPress,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      style={styles.quickActionPressable}
+    >
+      {({ pressed }) => (
+        <Card style={[styles.quickActionCard, pressed && styles.quickActionCardPressed]}>
+          <IconChip icon={<Ionicons name={icon} size={20} color={colors.accent} />} size={36} />
+          <AppText variant="footnote" style={styles.quickActionLabel} numberOfLines={1}>
+            {label}
+          </AppText>
+        </Card>
+      )}
+    </Pressable>
   );
 }
 
@@ -194,4 +334,27 @@ const styles = StyleSheet.create({
   heroHeadline: { color: colors.textOnAccent },
   heroBody: { color: 'rgba(255,255,255,0.85)', marginTop: spacing.xs },
   heroFooter: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: spacing.lg },
+  quickActionsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.lg },
+  quickActionPressable: { flex: 1 },
+  quickActionCard: {
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xs,
+  },
+  quickActionCardPressed: { opacity: 0.85 },
+  quickActionLabel: { textAlign: 'center' },
+  weakTopicsSection: { marginTop: spacing.xl },
+  weakTopicsTitle: { marginBottom: spacing.md },
+  weakTopicsCard: { paddingVertical: spacing.xs },
+  weakTopicRow: { paddingVertical: spacing.sm },
+  weakTopicRowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+  weakTopicHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
+  weakTopicName: { flex: 1 },
+  weakTopicProgressWrap: { marginTop: spacing.xs },
 });

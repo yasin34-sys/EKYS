@@ -30,10 +30,16 @@ const MAX_VISIBLE_STAT_CARDS = 6;
 // screen (Design System §17: largeTitle, no back affordance, brand bar
 // above it), per Phase 2A's 5-tab restructuring. Same use cases, same
 // data, no new logic — visual/navigation change only.
-function narrativeForAccuracy(topicName: string, accuracy: number): string {
-  if (accuracy >= 0.75) return `Güçlüsün: "${topicName}"`;
-  if (accuracy >= 0.34) return `Gelişiyorsun: "${topicName}"`;
-  return `Daha fazla çalış: "${topicName}"`;
+// Short qualitative label only — the topic name is rendered on its own
+// line instead (see the stat card below), rather than being embedded
+// inside this sentence. A long real topic name concatenated into a full
+// sentence at this card's ~47% width was exactly what caused the
+// truncation/wrapping problem this fixes; keeping the two independent
+// means neither is at the mercy of the other's length.
+function narrativeForAccuracy(accuracy: number): string {
+  if (accuracy >= 0.75) return 'Güçlüsün';
+  if (accuracy >= 0.34) return 'Gelişiyorsun';
+  return 'Daha fazla çalış';
 }
 
 export default function StatisticsTabScreen() {
@@ -147,8 +153,11 @@ export default function StatisticsTabScreen() {
               const topicName = topic?.name ?? 'Genel';
               return (
                 <Card key={metric.id} style={styles.statCard}>
-                  <AppText variant="footnote" color="secondary" numberOfLines={2}>
-                    {narrativeForAccuracy(topicName, metric.value)}
+                  <AppText variant="footnote" color="tertiary" numberOfLines={1}>
+                    {narrativeForAccuracy(metric.value)}
+                  </AppText>
+                  <AppText variant="subhead" color="primary" numberOfLines={2} style={styles.statTopicName}>
+                    {topicName}
                   </AppText>
                   <AppText
                     variant="title2"
@@ -188,6 +197,7 @@ const styles = StyleSheet.create({
   emptyMessage: { marginTop: spacing.xs },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, marginBottom: spacing.lg },
   statCard: { width: '47%', gap: spacing.xs },
+  statTopicName: { marginTop: -spacing.xs / 2 },
   statProgressWrap: { marginTop: spacing.xs / 2 },
   statCardSkeleton: { width: '47%', gap: spacing.sm },
   statValue: { marginTop: spacing.xs / 2 },

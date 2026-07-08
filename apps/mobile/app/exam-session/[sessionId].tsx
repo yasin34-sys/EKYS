@@ -9,10 +9,12 @@ import {
   useLearningMetricsRepository,
   useExamSessionRepository,
   useExamRepository,
+  useTopicRepository,
   useCurrentUserProfile,
 } from '../../src/services/hooks';
 import { GetQuestionsByPackageUseCase } from '../../src/application/GetQuestionsByPackageUseCase';
 import { GetExamByIdUseCase } from '../../src/application/GetExamByIdUseCase';
+import { GetTopicsByExamUseCase } from '../../src/application/GetTopicsByExamUseCase';
 import { SubmitAnswerUseCase } from '../../src/application/SubmitAnswerUseCase';
 import { FinishExamSessionUseCase } from '../../src/application/FinishExamSessionUseCase';
 import { GetAttemptsBySessionUseCase } from '../../src/application/GetAttemptsBySessionUseCase';
@@ -49,6 +51,7 @@ export default function ExamSessionScreen() {
   const learningMetricsRepository = useLearningMetricsRepository();
   const examSessionRepository = useExamSessionRepository();
   const examRepository = useExamRepository();
+  const topicRepository = useTopicRepository();
 
   const { data: userProfile } = useCurrentUserProfile();
 
@@ -85,6 +88,20 @@ export default function ExamSessionScreen() {
   const totalQuestions = questions?.length ?? 0;
   const currentQuestion = questions?.[currentIndex];
   const isLastQuestion = currentIndex === totalQuestions - 1;
+
+  // Topic breadcrumb: resolved from currentQuestion.examId (same approach
+  // as the practice/trial/repeat question screen) rather than the route's
+  // own examId param, so both solving screens stay consistent. No
+  // fabricated name — the chip only renders once a real topic name
+  // resolves (see render below).
+  const topicsQuery = useQuery({
+    queryKey: ['topics', 'byExam', currentQuestion?.examId],
+    queryFn: () => new GetTopicsByExamUseCase({ topicRepository }).execute(currentQuestion!.examId),
+    enabled: Boolean(currentQuestion?.examId),
+  });
+  const topicName = currentQuestion
+    ? (topicsQuery.data?.find((topic) => topic.id === currentQuestion.topicId)?.name ?? null)
+    : null;
 
   async function submitCurrentAnswer(): Promise<void> {
     if (!currentQuestion || !selectedOptionId || !userProfile) return;
@@ -279,6 +296,19 @@ export default function ExamSessionScreen() {
         </View>
       ) : currentQuestion ? (
         <>
+          {topicName ? (
+            <View style={styles.topicChip}>
+              <Ionicons name="bookmark-outline" size={14} color={colors.textSecondary} />
+              <AppText
+                variant="footnote"
+                color="secondary"
+                style={styles.topicChipText}
+                numberOfLines={1}
+              >
+                {topicName}
+              </AppText>
+            </View>
+          ) : null}
           <QuestionCard body={currentQuestion.body} />
 
           <View style={styles.options}>
@@ -345,6 +375,18 @@ const styles = StyleSheet.create({
   },
   progressPillText: { fontVariant: ['tabular-nums'] },
   progressWrap: { marginBottom: spacing.lg },
+  topicChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: spacing.xs / 2,
+    backgroundColor: colors.surfaceSecondary,
+    borderRadius: radii.full,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+    marginBottom: spacing.sm,
+  },
+  topicChipText: { flexShrink: 1 },
   options: { marginTop: spacing.lg },
   footer: { marginTop: spacing.lg },
   errorNote: { marginTop: spacing.sm, textAlign: 'center' },
