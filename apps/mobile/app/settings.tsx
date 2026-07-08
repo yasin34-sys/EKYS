@@ -13,6 +13,14 @@ interface SettingsRow {
 // ThemeProvider; notifications need a push system; data/privacy controls
 // have no flow yet) — rendered disabled with an honest "Yakında" tag
 // rather than a toggle that would silently do nothing.
+//
+// Store-readiness TODO: "Hesabı Sil" must become a real, working
+// in-app account-deletion flow before any account-creation feature ships
+// — Apple App Store Review Guideline 5.1.1(v) and Google Play's Account
+// Deletion policy both require this once accounts exist, not just a
+// support-ticket workaround. No action needed while the app stays
+// anonymous-only (current state), but this row shouldn't stay a
+// permanent "Yakında" once that changes.
 const groups: { title: string; rows: SettingsRow[] }[] = [
   {
     title: 'Görünüm',
@@ -36,6 +44,9 @@ export default function SettingsScreen() {
       </View>
       <AppText variant="title2" style={styles.title}>
         Ayarlar
+      </AppText>
+      <AppText variant="subhead" color="secondary" style={styles.subtitle}>
+        Bu seçenekler üzerinde çalışıyoruz; sırayla aktif olacaklar.
       </AppText>
 
       {groups.map((group) => (
@@ -71,7 +82,8 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   headerRow: { paddingTop: spacing.sm, paddingBottom: spacing.md },
-  title: { marginBottom: spacing.lg },
+  title: { marginBottom: spacing.xs },
+  subtitle: { marginBottom: spacing.lg },
   group: { marginBottom: spacing.lg },
   groupLabel: { marginBottom: spacing.sm, marginLeft: spacing.xs, letterSpacing: 0.4 },
   groupCard: { paddingVertical: spacing.xs },

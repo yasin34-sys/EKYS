@@ -8,6 +8,14 @@ import { colors, radii, spacing } from '../src/theme';
 // undecided per SCREEN_SPECIFICATIONS.md §19 ("mechanism not yet
 // decided, flagged") — shown as honest "Yakında" rows rather than
 // linking to a fabricated URL.
+//
+// Store-readiness TODO: "Gizlilik Politikası" specifically cannot stay
+// "Yakında" at actual submission time — both Apple App Store Review
+// Guidelines and the Google Play Developer Program Policy require a
+// live, reachable privacy policy URL before an app can be published,
+// and this app already collects device/account data via Supabase. Real
+// legal copy and a real URL have to come from the product owner, not be
+// invented here.
 const linkRows = ['Gizlilik Politikası', 'Kullanım Koşulları', 'Destek'];
 
 export default function AboutScreen() {
@@ -20,6 +28,9 @@ export default function AboutScreen() {
       </View>
       <AppText variant="title2" style={styles.title}>
         Hakkında
+      </AppText>
+      <AppText variant="subhead" color="secondary" style={styles.subtitle}>
+        Yasal belgeler ve destek seçenekleri yakında eklenecek.
       </AppText>
 
       <Card style={styles.card}>
@@ -55,7 +66,8 @@ export default function AboutScreen() {
 
 const styles = StyleSheet.create({
   headerRow: { paddingTop: spacing.sm, paddingBottom: spacing.md },
-  title: { marginBottom: spacing.lg },
+  title: { marginBottom: spacing.xs },
+  subtitle: { marginBottom: spacing.lg },
   card: { paddingVertical: spacing.xs },
   row: {
     flexDirection: 'row',

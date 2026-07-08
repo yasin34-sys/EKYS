@@ -36,6 +36,10 @@ supabase/.temp/
 **/.codex-*.log
 **/.codex-*.err.log
 
+# Raw/generated asset inbox. Curated app assets live under apps/mobile/assets/,
+# and store-ready derivatives live under store-assets/.
+/assets/
+
 # OS files
 .DS_Store
 Thumbs.db
