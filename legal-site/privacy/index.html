@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gizlilik Politikası — EKYS CEPTE</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<div class="draft-banner">Taslak — yayın öncesi bilgiler tamamlanmalı</div>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="brand">
+      <span class="brand-mark">EKYS CEPTE</span>
+      <span class="brand-subtitle">Yasal Bilgiler</span>
+    </div>
+    <nav class="site-nav">
+      <a href="../index.html">Ana Sayfa</a>
+      <a href="../privacy/index.html" class="active">Gizlilik Politikası</a>
+      <a href="../terms/index.html">Kullanım Koşulları</a>
+      <a href="../support/index.html">Destek</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <h1 class="page-title">Gizlilik Politikası</h1>
+  <p class="page-meta">
+    Yürürlük tarihi: <span class="placeholder">[[EFFECTIVE_DATE]]</span> ·
+    Bu metin taslaktır ve <span class="placeholder">[[LEGAL_ENTITY]]</span> bilgisi netleşene kadar
+    resmi olarak yayınlanmamıştır.
+  </p>
+
+  <div class="card">
+    <h2>1. Bu politika neyi kapsar</h2>
+    <p>
+      Bu sayfa, EKYS CEPTE mobil uygulamasının hangi verileri topladığını, bu verileri nasıl
+      kullandığını ve hangi üçüncü taraf hizmetlerden yararlandığını açıklar. Aşağıdaki bilgiler,
+      uygulamanın mevcut, gerçek davranışına dayanır — varsayımsal veya planlanan bir özellik
+      burada anlatılmamıştır.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>2. Topladığımız veriler</h2>
+    <p>Uygulama, çalışabilmek için aşağıdaki verileri toplar ve saklar:</p>
+    <ul>
+      <li>
+        <strong>Anonim kullanıcı kimliği:</strong> Uygulamayı ilk açtığınızda, Supabase Auth
+        aracılığıyla isimsiz (anonim) bir oturum ve rastgele bir kullanıcı kimliği oluşturulur.
+        Bu kimlik; e-posta adresi, ad soyad veya telefon numarası içermez.
+      </li>
+      <li>
+        <strong>Hesap durumu:</strong> Kullanıcı profilinizin "anonim" veya "kayıtlı" olduğunu
+        belirten bir durum bilgisi (<code>user_profiles</code>). Şu an için uygulamada gerçek bir
+        kayıt/giriş ekranı bulunmadığından bu değer herkes için "anonim"dir.
+      </li>
+      <li>
+        <strong>Soru cevapları (attempts):</strong> Hangi soruyu, hangi seçenekle, doğru mu yanlış
+        mı cevapladığınız ve ne zaman cevapladığınız.
+      </li>
+      <li>
+        <strong>Deneme sınavı oturumları (exam_sessions):</strong> Başlattığınız deneme sınavları,
+        durumu, puanı ve tamamlanma zamanı.
+      </li>
+      <li>
+        <strong>Öğrenme metrikleri (learning_metrics):</strong> Yukarıdaki verilerden hesaplanan,
+        konu bazlı başarı yüzdeleri gibi türetilmiş ilerleme bilgileri.
+      </li>
+      <li>
+        <strong>Ücretsiz deneme erişim kayıtları (trial_access):</strong> Ücretsiz deneme
+        kapsamında hangi soruların açıldığı bilgisi.
+      </li>
+      <li>
+        <strong>Cihazda yerel depolama:</strong> Uygulama, yukarıdaki verilerin bir kopyasını
+        cihazınızdaki yerel bir SQLite veritabanında tutar; bu sayede çevrimdışıyken de
+        daha önce açılmış içerikler kullanılabilir.
+      </li>
+      <li>
+        <strong>Uygulama tercihi:</strong> Cihazınızda, tanıtım ekranını (onboarding) daha önce
+        görüp görmediğinizi hatırlamak için tek bir yerel tercih bilgisi (AsyncStorage) tutulur.
+        Bu bilgi kişisel veri içermez, yalnızca bir evet/hayır değeridir.
+      </li>
+    </ul>
+    <p>
+      Uygulama; adınızı, fotoğrafınızı, biyografinizi veya serbest metin girdiğiniz herhangi bir
+      içeriği talep etmez veya saklamaz — çünkü böyle bir alan veri modelinde bulunmamaktadır.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>3. Verileri nasıl kullanıyoruz</h2>
+    <p>Yukarıdaki veriler yalnızca uygulamanın temel işlevleri için kullanılır:</p>
+    <ul>
+      <li>Hangi paketlere/içeriklere erişiminiz olduğunu belirlemek (erişim kontrolü),</li>
+      <li>İlerlemenizi, doğru/yanlış istatistiklerinizi ve konu bazlı gelişiminizi göstermek,</li>
+      <li>Yarım kalan bir sınava veya tekrar havuzuna kaldığınız yerden devam edebilmenizi sağlamak,</li>
+      <li>Cihazlar arasında ve çevrimdışı/çevrimiçi durumlar arasında verilerinizi senkronize etmek.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>4. Üçüncü taraf hizmetler</h2>
+    <p>
+      Uygulamanın arka uç (backend) altyapısı için tek üçüncü taraf hizmet
+      <strong>Supabase</strong>'dir. Supabase; kimlik doğrulama (anonim oturumlar),
+      veritabanı ve senkronizasyon altyapısını sağlar. Veriler, uygulama ile Supabase arasında
+      HTTPS üzerinden iletilir.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>5. Kullanmadığımız şeyler</h2>
+    <p>Bu bölüm, olası yanlış varsayımları önlemek için açıkça belirtilmiştir. Uygulama şu anda:</p>
+    <ul>
+      <li>Reklam göstermez ve herhangi bir reklam SDK'sı içermez,</li>
+      <li>Kullanıcı takibi (tracking) yapan bir SDK içermez,</li>
+      <li>Analitik (analytics) SDK'sı kullanmaz,</li>
+      <li>Konum (location) bilgisi talep etmez veya toplamaz,</li>
+      <li>Kamera veya fotoğraflara erişmez,</li>
+      <li>Rehber/kişiler (contacts) bilgisine erişmez,</li>
+      <li>Push bildirim göndermez (bildirim tercihleri ekranı arayüzde görünür ama şu an devre dışıdır),</li>
+      <li>Herhangi bir ödeme (payment) SDK'sı içermez — uygulama içi satın alma altyapısı henüz kurulmamıştır.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>6. Veri güvenliği</h2>
+    <p>
+      Uygulama ile sunucu arasındaki tüm veri alışverişi HTTPS üzerinden şifreli olarak
+      gerçekleşir. Sunucu tarafı altyapı Supabase tarafından işletilmektedir. Bunun ötesinde,
+      henüz bağımsız bir güvenlik denetiminden geçmediğimiz için ek bir güvenlik garantisi
+      vermiyoruz.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>7. Hesap kontrolü ve silme</h2>
+    <p>
+      Uygulama şu anda yalnızca anonim hesaplarla çalışmaktadır; e-posta/şifre ile kayıt olma
+      veya giriş yapma özelliği bulunmamaktadır. Bu nedenle hesabınızı "silme" işlemi için
+      uygulama içinde henüz çalışan bir akış yoktur (Ayarlar ekranında bu seçenek "Yakında"
+      olarak işaretlidir).
+    </p>
+    <p>
+      Verilerinizin silinmesini talep etmek isterseniz, gerçek bir destek kanalı
+      (<span class="placeholder">[[SUPPORT_EMAIL]]</span>) yayınlanana kadar bu talebi iletecek
+      resmi bir yöntem bulunmamaktadır. Bu kanal yayınlandığında, silme talepleri bu üzerinden
+      işleme alınacaktır.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>8. İletişim</h2>
+    <p>
+      Şirket/işletme: <span class="placeholder">[[LEGAL_ENTITY]]</span><br>
+      Destek e-postası: <span class="placeholder">[[SUPPORT_EMAIL]]</span><br>
+      İşletme adresi (opsiyonel): <span class="placeholder">[[BUSINESS_ADDRESS_OPTIONAL]]</span>
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>9. Değişiklikler</h2>
+    <p>
+      Bu politika, uygulamanın gerçek davranışı değiştikçe güncellenecektir. Önemli
+      değişikliklerde yürürlük tarihi bu sayfada güncellenecektir.
+    </p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <p>&copy; <span class="placeholder">[[EFFECTIVE_DATE]]</span> <span class="placeholder">[[LEGAL_ENTITY]]</span></p>
+    <p>Bu sayfa taslak niteliğindedir; yayın öncesi işletme bilgileri tamamlanacaktır.</p>
+  </div>
+</footer>
+
+</body>
+</html>

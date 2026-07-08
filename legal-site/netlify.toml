@@ -1,0 +1,15 @@
+# EKYS CEPTE — legal-site Netlify config.
+# Plain static HTML/CSS, no build step. Each page lives at its own
+# folder + index.html (e.g. privacy/index.html), so Netlify serves
+# clean URLs like /privacy and /terms with no extra redirect rules.
+
+[build]
+  publish = "."
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), camera=(), microphone=()"
