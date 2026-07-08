@@ -96,6 +96,16 @@ export class SqliteExamSessionRepository implements ExamSessionRepository {
     return row ? mapExamSessionRow(row) : null;
   }
 
+  async getRecentCompleted(userId: string, limit: number): Promise<ExamSession[]> {
+    const result = await this.db.execute(
+      `SELECT * FROM exam_sessions
+       WHERE user_id = ? AND status = 'COMPLETED'
+       ORDER BY completed_at DESC LIMIT ?;`,
+      [userId, limit],
+    );
+    return (result.rows as unknown as ExamSessionRow[]).map(mapExamSessionRow);
+  }
+
   async getUnsynced(): Promise<ExamSession[]> {
     const result = await this.db.execute(
       `SELECT * FROM exam_sessions WHERE synced_at IS NULL ORDER BY created_at ASC;`,

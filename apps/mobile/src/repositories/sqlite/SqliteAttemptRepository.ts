@@ -104,6 +104,16 @@ export class SqliteAttemptRepository implements AttemptRepository {
     return (result.rows as unknown as AttemptRow[]).map(mapAttemptRow);
   }
 
+  async getRecentStandalone(userId: string, limit: number): Promise<Attempt[]> {
+    const result = await this.db.execute(
+      `SELECT * FROM attempts
+       WHERE user_id = ? AND exam_session_id IS NULL
+       ORDER BY answered_at DESC LIMIT ?;`,
+      [userId, limit],
+    );
+    return (result.rows as unknown as AttemptRow[]).map(mapAttemptRow);
+  }
+
   async getUnsynced(): Promise<Attempt[]> {
     const result = await this.db.execute(
       `SELECT * FROM attempts WHERE synced_at IS NULL ORDER BY created_at ASC;`,

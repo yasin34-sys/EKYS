@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as SplashScreen from 'expo-splash-screen';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { IntegrityCheckResult } from '../src/database/sqlite';
@@ -25,6 +26,12 @@ type BootstrapState =
 // Created once, module-level — not per render, per mount cycle.
 const queryClient = new QueryClient();
 
+// Keeps the native splash (config-plugin-driven, see app.json) visible
+// from native process start until fonts are ready — called at module
+// scope, before RootLayout ever mounts. Swallowed: a second call (e.g.
+// Fast Refresh) throws, and that's not a real failure.
+SplashScreen.preventAutoHideAsync().catch(() => {});
+
 // Versioned so a future redesign of onboarding can show it again to
 // everyone by bumping the suffix, without needing a migration — reading
 // an unset key returns null, which reads as "not seen" (never crashes,
@@ -34,6 +41,19 @@ const ONBOARDING_STORAGE_KEY = 'ekys:onboarding:v1:seen';
 export default function RootLayout() {
   const fontsLoaded = useAppFonts();
   const [bootstrap, setBootstrap] = useState<BootstrapState>({ status: 'loading' });
+
+  // Hides the native splash as soon as fonts are ready — deliberately
+  // independent of bootstrap.status, since the native splash's only job
+  // is to bridge native process start to the first real React paint
+  // (even if that paint is just the "Yükleniyor…" loading state below),
+  // not to babysit auth/bootstrap/sync. A bootstrap or database-integrity
+  // error must never leave the app stuck behind the native splash — this
+  // effect fires regardless of how bootstrap eventually resolves.
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [fontsLoaded]);
   // Independent of bootstrap on purpose: a local-only AsyncStorage read,
   // no network/auth/sync involved, so it can never be the thing that
   // makes bootstrap slower or less reliable. null = not yet read.

@@ -9,11 +9,14 @@ import {
   useRepeatPoolRepository,
   useTopicRepository,
   useLearningMetricsRepository,
+  useAttemptRepository,
   useCurrentUserProfile,
 } from '../../src/services/hooks';
 import { GetPublishedExamsUseCase } from '../../src/application/GetPublishedExamsUseCase';
 import { GetTopicsByExamUseCase } from '../../src/application/GetTopicsByExamUseCase';
 import { GetDashboardMetricsUseCase } from '../../src/application/GetDashboardMetricsUseCase';
+import { GetRecentActivityUseCase } from '../../src/application/GetRecentActivityUseCase';
+import type { RecentActivityItem } from '../../src/application/GetRecentActivityUseCase';
 import {
   ScreenContainer,
   AppText,
@@ -37,6 +40,57 @@ function getGreeting(hour: number): string {
   return 'İyi Geceler';
 }
 
+// Simple, real relative-time formatting for "Son Aktivite" timestamps —
+// no library added, just a few honest buckets (dk/sa/gün).
+function formatRelativeTime(isoString: string, now: Date): string {
+  const diffMs = now.getTime() - new Date(isoString).getTime();
+  const diffMinutes = Math.floor(diffMs / 60000);
+  if (diffMinutes < 1) return 'az önce';
+  if (diffMinutes < 60) return `${diffMinutes} dk önce`;
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours} sa önce`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays} gün önce`;
+}
+
+// Switch (not an intermediate boolean) so TypeScript actually narrows
+// `item` per case — a real requirement here, not just a lint nicety,
+// since DENEME_COMPLETED and QUESTION_SOLVED expose different fields.
+function describeRecentActivityItem(item: RecentActivityItem): {
+  icon: keyof typeof Ionicons.glyphMap;
+  background: string;
+  iconColor: string;
+  title: string;
+  subtitle: string;
+} {
+  switch (item.type) {
+    case 'DENEME_COMPLETED':
+      return {
+        icon: 'document-text-outline',
+        background: colors.accentMuted,
+        iconColor: colors.accent,
+        title: 'Deneme tamamlandı',
+        subtitle: `Puan: ${Math.round(item.score)}`,
+      };
+    case 'QUESTION_SOLVED':
+      return item.isCorrect
+        ? {
+            icon: 'checkmark-circle',
+            background: colors.successMuted,
+            iconColor: colors.success,
+            title: 'Soru çözüldü',
+            subtitle: 'Doğru',
+          }
+        : {
+            icon: 'close-circle',
+            background: colors.dangerMuted,
+            iconColor: colors.danger,
+            title: 'Soru çözüldü',
+            subtitle: 'Yanlış',
+          };
+  }
+}
+
 // Home's Hero Card, per SCREEN_SPECIFICATIONS.md §4, has a 3-tier
 // priority: 1) resume an active (IN_PROGRESS) Exam Session, 2) else
 // surface the Repeat Pool if non-empty, 3) else point at Dersler.
@@ -48,6 +102,7 @@ export default function HomeScreen() {
   const repeatPoolRepository = useRepeatPoolRepository();
   const topicRepository = useTopicRepository();
   const learningMetricsRepository = useLearningMetricsRepository();
+  const attemptRepository = useAttemptRepository();
 
   const { data: userProfile } = useCurrentUserProfile();
 
@@ -91,6 +146,18 @@ export default function HomeScreen() {
     enabled: Boolean(userProfile) && Boolean(examId),
   });
 
+  // "Son Aktivite" — real completed Denemeler + standalone practice/
+  // repeat/trial attempts only, see GetRecentActivityUseCase for exactly
+  // what is and isn't included. No fabricated streaks/charts/time-spent.
+  const recentActivityQuery = useQuery({
+    queryKey: ['recentActivity', userProfile?.id],
+    queryFn: () =>
+      new GetRecentActivityUseCase({ examSessionRepository, attemptRepository }).execute(
+        userProfile!.id,
+      ),
+    enabled: Boolean(userProfile),
+  });
+
   // The Hero Card's priority tier (ADR-010's event-driven principle: "app
   // coming to foreground"/a relevant user action triggers refetch, not
   // polling) can go stale otherwise — React Navigation keeps tab screens
@@ -110,6 +177,7 @@ export default function HomeScreen() {
       activeSessionQuery.refetch();
       repeatPoolQuery.refetch();
       dashboardMetricsQuery.refetch();
+      recentActivityQuery.refetch();
       // The query objects themselves change identity every render and
       // are deliberately left out of the deps array — only re-running
       // on focus or when the guard's own ids change is intended here.
@@ -147,6 +215,8 @@ export default function HomeScreen() {
             }));
         })()
       : [];
+
+  const recentActivity = recentActivityQuery.data ?? [];
 
   function handleHeroPress() {
     if (activeSession) {
@@ -283,6 +353,46 @@ export default function HomeScreen() {
           </Card>
         </View>
       ) : null}
+
+      {recentActivity.length > 0 ? (
+        <View style={styles.recentActivitySection}>
+          <AppText variant="title3" style={styles.recentActivityTitle}>
+            Son Aktivite
+          </AppText>
+          <Card style={styles.recentActivityCard}>
+            {recentActivity.map((item, index) => {
+              const display = describeRecentActivityItem(item);
+
+              return (
+                <View
+                  key={item.id}
+                  style={[
+                    styles.recentActivityRow,
+                    index !== recentActivity.length - 1 && styles.recentActivityRowDivider,
+                  ]}
+                >
+                  <View
+                    style={[styles.recentActivityIconCircle, { backgroundColor: display.background }]}
+                  >
+                    <Ionicons name={display.icon} size={16} color={display.iconColor} />
+                  </View>
+                  <View style={styles.recentActivityTextWrap}>
+                    <AppText variant="body" numberOfLines={1}>
+                      {display.title}
+                    </AppText>
+                    <AppText variant="footnote" color="secondary">
+                      {display.subtitle}
+                    </AppText>
+                  </View>
+                  <AppText variant="caption" color="tertiary">
+                    {formatRelativeTime(item.occurredAt, new Date())}
+                  </AppText>
+                </View>
+              );
+            })}
+          </Card>
+        </View>
+      ) : null}
     </ScreenContainer>
   );
 }
@@ -357,4 +467,22 @@ const styles = StyleSheet.create({
   },
   weakTopicName: { flex: 1 },
   weakTopicProgressWrap: { marginTop: spacing.xs },
+  recentActivitySection: { marginTop: spacing.xl },
+  recentActivityTitle: { marginBottom: spacing.md },
+  recentActivityCard: { paddingVertical: spacing.xs },
+  recentActivityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.sm,
+  },
+  recentActivityRowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+  recentActivityIconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: radii.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  recentActivityTextWrap: { flex: 1 },
 });

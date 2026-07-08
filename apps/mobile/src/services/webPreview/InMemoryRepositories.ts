@@ -173,6 +173,12 @@ export class InMemoryAttemptRepository implements AttemptRepository {
       .filter((a) => a.examSessionId === examSessionId)
       .sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0));
   }
+  async getRecentStandalone(userId: string, limit: number): Promise<Attempt[]> {
+    return webPreviewStore.attempts
+      .filter((a) => a.userId === userId && a.examSessionId === null)
+      .sort((a, b) => (a.answeredAt < b.answeredAt ? 1 : a.answeredAt > b.answeredAt ? -1 : 0))
+      .slice(0, limit);
+  }
   async getUnsynced(): Promise<Attempt[]> {
     return webPreviewStore.attempts.filter((a) => a.syncedAt === null);
   }
@@ -212,6 +218,16 @@ export class InMemoryExamSessionRepository implements ExamSessionRepository {
         (s) => s.userId === userId && s.examId === examId && s.status === 'IN_PROGRESS',
       ) ?? null
     );
+  }
+  async getRecentCompleted(userId: string, limit: number): Promise<ExamSession[]> {
+    return webPreviewStore.examSessions
+      .filter((s) => s.userId === userId && s.status === 'COMPLETED')
+      .sort((a, b) => {
+        const aTime = a.completedAt ?? '';
+        const bTime = b.completedAt ?? '';
+        return aTime < bTime ? 1 : aTime > bTime ? -1 : 0;
+      })
+      .slice(0, limit);
   }
   async getUnsynced(): Promise<ExamSession[]> {
     return webPreviewStore.examSessions.filter((s) => s.syncedAt === null);

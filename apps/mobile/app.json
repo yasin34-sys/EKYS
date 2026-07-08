@@ -7,17 +7,13 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#F7FBFF"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ekyscepte.app"
     },
     "android": {
       "package": "com.ekyscepte.app",
+      "backgroundColor": "#F7FBFF",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -31,7 +27,15 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#F7FBFF"
+        }
+      ]
     ]
   }
 }
