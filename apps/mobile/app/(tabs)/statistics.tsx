@@ -26,22 +26,12 @@ import { colors, spacing } from '../../src/theme';
 const MAX_VISIBLE_STAT_CARDS = 6;
 
 // Tab-hosted version of the same Statistics content previously only
-// reachable by pushing app/statistics.tsx from Profile — now a top-of-tab
-// screen (Design System §17: largeTitle, no back affordance, brand bar
-// above it), per Phase 2A's 5-tab restructuring. Same use cases, same
-// data, no new logic — visual/navigation change only.
-// Short qualitative label only — the topic name is rendered on its own
-// line instead (see the stat card below), rather than being embedded
-// inside this sentence. A long real topic name concatenated into a full
-// sentence at this card's ~47% width was exactly what caused the
-// truncation/wrapping problem this fixes; keeping the two independent
-// means neither is at the mercy of the other's length.
-function narrativeForAccuracy(accuracy: number): string {
-  if (accuracy >= 0.75) return 'Güçlüsün';
-  if (accuracy >= 0.34) return 'Gelişiyorsun';
-  return 'Daha fazla çalış';
-}
-
+// reachable by pushing a standalone screen from Profile — now a
+// top-of-tab screen (Design System §17: largeTitle, no back affordance,
+// brand bar above it), per Phase 2A's 5-tab restructuring. Same use
+// cases, same data, no new logic — visual/navigation change only. (The
+// old standalone screen, app/statistics.tsx, was a since-deleted,
+// unreachable leftover — see Phase 6C.2's route-collision cleanup.)
 export default function StatisticsTabScreen() {
   const examRepository = useExamRepository();
   const topicRepository = useTopicRepository();
@@ -153,10 +143,7 @@ export default function StatisticsTabScreen() {
               const topicName = topic?.name ?? 'Genel';
               return (
                 <Card key={metric.id} style={styles.statCard}>
-                  <AppText variant="footnote" color="tertiary" numberOfLines={1}>
-                    {narrativeForAccuracy(metric.value)}
-                  </AppText>
-                  <AppText variant="subhead" color="primary" numberOfLines={2} style={styles.statTopicName}>
+                  <AppText variant="subhead" color="primary" numberOfLines={2}>
                     {topicName}
                   </AppText>
                   <AppText
@@ -188,7 +175,7 @@ export default function StatisticsTabScreen() {
 
 const styles = StyleSheet.create({
   header: { paddingTop: spacing.lg, paddingBottom: spacing.lg },
-  eyebrow: { letterSpacing: 0.5, marginBottom: spacing.xs / 2 },
+  eyebrow: { marginBottom: spacing.xs / 2 },
   heroCard: { marginBottom: spacing.lg, alignItems: 'flex-start' },
   heroHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   heroHeadlineText: { flex: 1 },
@@ -197,7 +184,6 @@ const styles = StyleSheet.create({
   emptyMessage: { marginTop: spacing.xs },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, marginBottom: spacing.lg },
   statCard: { width: '47%', gap: spacing.xs },
-  statTopicName: { marginTop: -spacing.xs / 2 },
   statProgressWrap: { marginTop: spacing.xs / 2 },
   statCardSkeleton: { width: '47%', gap: spacing.sm },
   statValue: { marginTop: spacing.xs / 2 },

@@ -281,7 +281,6 @@ export default function RootLayout() {
             <Stack.Screen name="exam-session/[sessionId]" />
             <Stack.Screen name="session-result/[sessionId]" />
             <Stack.Screen name="repeat-pool" />
-            <Stack.Screen name="statistics" />
             <Stack.Screen name="learning-progress" />
             <Stack.Screen name="settings" />
             <Stack.Screen name="about" />

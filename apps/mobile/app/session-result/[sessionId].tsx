@@ -318,7 +318,7 @@ function StatCard({
 
 const styles = StyleSheet.create({
   resultCard: { marginTop: spacing.lg, marginBottom: spacing.lg, alignItems: 'center' },
-  eyebrow: { letterSpacing: 0.5, marginBottom: spacing.xs },
+  eyebrow: { marginBottom: spacing.xs },
   scoreValue: { marginTop: spacing.sm },
   narrative: { marginTop: spacing.xs, textAlign: 'center' },
   statsGrid: {

@@ -1,8 +1,16 @@
+import { useCallback } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
-import { useCurrentUserProfile } from '../../src/services/hooks';
+import {
+  useCurrentUserProfile,
+  useExamRepository,
+  useLearningMetricsRepository,
+} from '../../src/services/hooks';
+import { GetPublishedExamsUseCase } from '../../src/application/GetPublishedExamsUseCase';
+import { GetDashboardMetricsUseCase } from '../../src/application/GetDashboardMetricsUseCase';
 import { ScreenContainer, AppText, Card, Skeleton, TopAppBar, IconChip } from '../../src/components';
 import { colors, radii, spacing } from '../../src/theme';
 import type { AccountStatus } from '../../src/domain';
@@ -37,10 +45,57 @@ const navRows: NavRow[] = [
 // there's no streak or exam-countdown concept anywhere in the domain.
 // The identity block below keeps only what's real (accountStatus) and
 // uses a generic person icon in place of a photo, rather than inventing
-// any of it.
+// any of it. The one stat card below it (overall accuracy) is real too —
+// the same GetDashboardMetricsUseCase figure Statistics already shows,
+// not a new metric invented for this screen.
 export default function ProfileScreen() {
+  const examRepository = useExamRepository();
+  const learningMetricsRepository = useLearningMetricsRepository();
+
   const { data: userProfile, isLoading } = useCurrentUserProfile();
   const version = Constants.expoConfig?.version ?? '—';
+
+  // Same real overall-accuracy figure Statistics already computes from
+  // GetDashboardMetricsUseCase (TOPIC_ACCURACY average) — reused here,
+  // not recomputed with new logic, so Profile can show one honest summary
+  // stat instead of no progress information at all. Omitted entirely
+  // (see render below) until there's real data, same as Home's weak
+  // topics / recent activity sections.
+  const examsQuery = useQuery({
+    queryKey: ['exams', 'published'],
+    queryFn: () => new GetPublishedExamsUseCase({ examRepository }).execute(),
+  });
+  const examId = examsQuery.data?.[0]?.id;
+
+  const metricsQuery = useQuery({
+    queryKey: ['dashboardMetrics', userProfile?.id, examId],
+    queryFn: () =>
+      new GetDashboardMetricsUseCase({ learningMetricsRepository }).execute(
+        userProfile!.id,
+        examId as string,
+      ),
+    enabled: Boolean(userProfile) && Boolean(examId),
+  });
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!userProfile || !examId) return;
+      metricsQuery.refetch();
+      // metricsQuery itself changes identity every render and is
+      // deliberately left out of the deps array — only re-running on
+      // focus or when the guard's own ids change is intended here.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [userProfile, examId]),
+  );
+
+  const progressLoading = isLoading || examsQuery.isLoading || (Boolean(examId) && metricsQuery.isLoading);
+  const accuracyMetrics = (metricsQuery.data?.topicMetrics ?? []).filter(
+    (m) => m.metricType === 'TOPIC_ACCURACY',
+  );
+  const overallAccuracy =
+    accuracyMetrics.length > 0
+      ? accuracyMetrics.reduce((sum, m) => sum + m.value, 0) / accuracyMetrics.length
+      : null;
 
   return (
     <ScreenContainer scroll topBar={<TopAppBar />}>
@@ -68,6 +123,28 @@ export default function ProfileScreen() {
         )}
       </View>
 
+      {progressLoading ? (
+        <Card variant="hero" style={styles.progressCard}>
+          <Skeleton width="60%" height={16} style={styles.progressSkeletonLine} />
+          <Skeleton width="30%" height={28} />
+        </Card>
+      ) : overallAccuracy !== null ? (
+        <Card variant="hero" style={styles.progressCard}>
+          <View style={styles.progressHeaderRow}>
+            <Ionicons name="stats-chart-outline" size={16} color={colors.accent} />
+            <AppText variant="footnote" color="tertiary">
+              GENEL DOĞRULUK ORANI
+            </AppText>
+          </View>
+          <AppText variant="title1" color="primary" style={{ fontVariant: ['tabular-nums'] }}>
+            %{Math.round(overallAccuracy * 100)}
+          </AppText>
+        </Card>
+      ) : null}
+
+      <AppText variant="footnote" color="tertiary" style={styles.sectionEyebrow}>
+        UYGULAMA
+      </AppText>
       <Card style={styles.navCard}>
         {navRows.map((row, index) => (
           <Pressable
@@ -119,6 +196,10 @@ const styles = StyleSheet.create({
     borderRadius: radii.full,
     backgroundColor: colors.surfaceSecondary,
   },
+  progressCard: { alignItems: 'flex-start', marginBottom: spacing.xl },
+  progressSkeletonLine: { marginBottom: spacing.sm },
+  progressHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.sm },
+  sectionEyebrow: { marginBottom: spacing.sm, marginLeft: spacing.xs },
   navCard: { paddingVertical: spacing.xs },
   navRow: {
     flexDirection: 'row',

@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   title: { marginBottom: spacing.xs },
   subtitle: { marginBottom: spacing.lg },
   group: { marginBottom: spacing.lg },
-  groupLabel: { marginBottom: spacing.sm, marginLeft: spacing.xs, letterSpacing: 0.4 },
+  groupLabel: { marginBottom: spacing.sm, marginLeft: spacing.xs },
   groupCard: { paddingVertical: spacing.xs },
   row: {
     flexDirection: 'row',

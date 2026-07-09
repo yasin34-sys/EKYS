@@ -259,6 +259,9 @@ export default function HomeScreen() {
   return (
     <ScreenContainer scroll topBar={<TopAppBar />}>
       <View style={styles.header}>
+        <AppText variant="footnote" color="tertiary" style={styles.eyebrow}>
+          BUGÜN
+        </AppText>
         <AppText variant="largeTitle">{getGreeting(new Date().getHours())}</AppText>
         <AppText variant="subhead" color="secondary" style={styles.subtitle}>
           Sınavına hazırlan, ilerlemeni takip et.
@@ -307,6 +310,9 @@ export default function HomeScreen() {
         </Pressable>
       )}
 
+      <AppText variant="title3" style={styles.quickActionsTitle}>
+        Hızlı İşlemler
+      </AppText>
       <View style={styles.quickActionsRow}>
         <QuickActionTile
           icon="book-outline"
@@ -327,9 +333,19 @@ export default function HomeScreen() {
 
       {weakTopics.length > 0 ? (
         <View style={styles.weakTopicsSection}>
-          <AppText variant="title3" style={styles.weakTopicsTitle}>
-            Odaklanılacak Konular
-          </AppText>
+          <View style={styles.weakTopicsHeader}>
+            <AppText variant="title3">Odaklanılacak Konular</AppText>
+            <Pressable
+              onPress={() => router.push('/learning-progress')}
+              accessibilityRole="button"
+              accessibilityLabel="Tüm konuları gör"
+              hitSlop={8}
+            >
+              <AppText variant="footnote" color="accent">
+                Tümünü Gör
+              </AppText>
+            </Pressable>
+          </View>
           <Card style={styles.weakTopicsCard}>
             {weakTopics.map((topic, index) => (
               <View
@@ -427,6 +443,7 @@ function QuickActionTile({
 
 const styles = StyleSheet.create({
   header: { paddingTop: spacing.lg, paddingBottom: spacing.xl },
+  eyebrow: { marginBottom: spacing.xs / 2 },
   subtitle: { marginTop: spacing.xs },
   cardBody: { marginTop: spacing.xs },
   skeletonLine: { marginBottom: spacing.sm },
@@ -444,7 +461,8 @@ const styles = StyleSheet.create({
   heroHeadline: { color: colors.textOnAccent },
   heroBody: { color: 'rgba(255,255,255,0.85)', marginTop: spacing.xs },
   heroFooter: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: spacing.lg },
-  quickActionsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.lg },
+  quickActionsTitle: { marginTop: spacing.xl, marginBottom: spacing.md },
+  quickActionsRow: { flexDirection: 'row', gap: spacing.sm },
   quickActionPressable: { flex: 1 },
   quickActionCard: {
     alignItems: 'center',
@@ -455,7 +473,12 @@ const styles = StyleSheet.create({
   quickActionCardPressed: { opacity: 0.85 },
   quickActionLabel: { textAlign: 'center' },
   weakTopicsSection: { marginTop: spacing.xl },
-  weakTopicsTitle: { marginBottom: spacing.md },
+  weakTopicsHeader: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    marginBottom: spacing.md,
+  },
   weakTopicsCard: { paddingVertical: spacing.xs },
   weakTopicRow: { paddingVertical: spacing.sm },
   weakTopicRowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },

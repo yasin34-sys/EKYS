@@ -56,7 +56,7 @@ function flattenTopicTree(topics: Topic[]): TopicNode[] {
 // (PROJECT_CHARTER.md §4) — chooses an icon, never a claim about
 // progress/content. Falls back to a generic icon for anything else
 // (sub-topics, future subjects) rather than guessing.
-function topicIcon(name: string): keyof typeof Ionicons.glyphMap {
+export function topicIcon(name: string): keyof typeof Ionicons.glyphMap {
   const normalized = name.toLocaleLowerCase('tr-TR');
   if (normalized.includes('genel kültür')) return 'earth-outline';
   if (normalized.includes('inkılap') || normalized.includes('atatürk')) return 'flag-outline';

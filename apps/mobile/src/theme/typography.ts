@@ -29,5 +29,5 @@ export const typography = {
   body: { fontFamily: fontFamily.regular, fontSize: 16, lineHeight: 24, letterSpacing: 0 }, // body-md
   subhead: { fontFamily: fontFamily.regular, fontSize: 14, lineHeight: 20, letterSpacing: 0 }, // body-sm
   footnote: { fontFamily: fontFamily.regular, fontSize: 12, lineHeight: 16, letterSpacing: 0 }, // no direct stitch equivalent
-  caption: { fontFamily: fontFamily.medium, fontSize: 12, lineHeight: 16, letterSpacing: 0.1 }, // label-sm
+  caption: { fontFamily: fontFamily.medium, fontSize: 12, lineHeight: 16, letterSpacing: 0 }, // label-sm
 } as const;

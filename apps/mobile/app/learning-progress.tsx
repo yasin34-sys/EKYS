@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import {
   useExamRepository,
   useTopicRepository,
@@ -11,7 +12,17 @@ import {
 import { GetPublishedExamsUseCase } from '../src/application/GetPublishedExamsUseCase';
 import { GetTopicsByExamUseCase } from '../src/application/GetTopicsByExamUseCase';
 import { GetDashboardMetricsUseCase } from '../src/application/GetDashboardMetricsUseCase';
-import { ScreenContainer, AppText, Card, Skeleton, BackButton, TopicMasteryChip, ProgressBar } from '../src/components';
+import {
+  ScreenContainer,
+  AppText,
+  Card,
+  Skeleton,
+  BackButton,
+  IconChip,
+  TopicMasteryChip,
+  ProgressBar,
+  topicIcon,
+} from '../src/components';
 import { colors, spacing } from '../src/theme';
 import type { Topic } from '../src/domain';
 
@@ -77,9 +88,16 @@ export default function LearningProgressScreen() {
       <View style={styles.headerRow}>
         <BackButton />
       </View>
-      <AppText variant="title2" style={styles.title}>
-        Konu İlerlemesi
-      </AppText>
+      <View style={styles.titleRow}>
+        <AppText variant="largeTitle" style={styles.titleText}>
+          Konu İlerlemesi
+        </AppText>
+        {!isLoading && leafTopics.length > 0 ? (
+          <AppText variant="footnote" color="tertiary" style={styles.titleCount}>
+            {leafTopics.length} Konu
+          </AppText>
+        ) : null}
+      </View>
 
       {isLoading ? (
         <Card>
@@ -103,8 +121,14 @@ export default function LearningProgressScreen() {
                 style={[styles.row, index !== leafTopics.length - 1 && styles.rowDivider]}
               >
                 <View style={styles.rowTop}>
+                  <IconChip
+                    icon={<Ionicons name={topicIcon(topic.name)} size={18} color={colors.accent} />}
+                    size={32}
+                  />
                   <View style={styles.rowText}>
-                    <AppText variant="body">{topic.name}</AppText>
+                    <AppText variant="body" numberOfLines={2}>
+                      {topic.name}
+                    </AppText>
                     {parentName(topic) ? (
                       <AppText variant="caption" color="tertiary">
                         {parentName(topic)}
@@ -127,11 +151,19 @@ export default function LearningProgressScreen() {
 
 const styles = StyleSheet.create({
   headerRow: { paddingTop: spacing.sm, paddingBottom: spacing.md },
-  title: { marginBottom: spacing.lg },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  titleText: { flex: 1 },
+  titleCount: { flexShrink: 0 },
   skeletonRow: { marginBottom: spacing.sm },
   row: { paddingVertical: spacing.sm },
-  rowTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  rowTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   rowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
-  rowText: { flex: 1, paddingRight: spacing.sm },
+  rowText: { flex: 1 },
   rowProgressWrap: { marginTop: spacing.sm },
 });
