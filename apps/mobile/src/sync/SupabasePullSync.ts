@@ -49,12 +49,64 @@ import { SyncNotConfiguredError, SyncRowError } from './errors';
 // conceptually an access-model table (like entitlements/package_access)
 // but its FK shape puts it after the content tables in pull order, not
 // before them.
+
+// Supabase/PostgREST caps any single response at 1000 rows by default
+// (db-max-rows) — silently, not as an error: a query matching more rows
+// than that simply returns the first page with no indication anything
+// was left out. At current draft-content volume, every table here
+// stays well under that, but questions/question_options/
+// package_questions will not once real content is imported (Phase
+// 7A.0 audit). PAGE_SIZE is set below Supabase's default 1000-row cap,
+// not at it — but that margin only holds while this project's
+// db-max-rows setting stays at least PAGE_SIZE. If db-max-rows is ever
+// lowered below PAGE_SIZE, a page could itself be silently truncated
+// (fetchAllPages would then misread a truncated page as "last page"
+// once its length is short, without knowing it was truncated rather
+// than genuinely final) — that would need revisiting with either
+// exact-count detection (e.g. reading the response's Content-Range
+// total) or a smaller PAGE_SIZE, not assumed away by this comment.
+const PAGE_SIZE = 500;
+
 export class SupabasePullSync implements PullSync {
   constructor(
     private readonly client: SupabaseClient | null,
     private readonly db: DB,
     private readonly authService: AuthService,
   ) {}
+
+  // Pages through a query via .range(), accumulating every page into one
+  // array. `buildQuery` must already carry every filter/order this call
+  // needs (including .order(...), required for .range() to paginate
+  // deterministically) — this helper only ever supplies the range
+  // itself, calling buildQuery again with the next window until a page
+  // comes back shorter than PAGE_SIZE (the signal there's no next page).
+  //
+  // If any page errors, the whole call fails and returns { data: null,
+  // error } immediately, discarding rows already accumulated from
+  // earlier successful pages in this same call — a table is either
+  // fetched in full or not upserted at all this pull, never partially.
+  private async fetchAllPages(
+    buildQuery: (from: number, to: number) => PromiseLike<{ data: any[] | null; error: unknown }>,
+  ): Promise<{ data: any[] | null; error: unknown }> {
+    const allRows: any[] = [];
+    let from = 0;
+
+    for (;;) {
+      const to = from + PAGE_SIZE - 1;
+      const { data, error } = await buildQuery(from, to);
+      if (error) {
+        return { data: null, error };
+      }
+
+      const page = data ?? [];
+      allRows.push(...page);
+
+      if (page.length < PAGE_SIZE) {
+        return { data: allRows, error: null };
+      }
+      from += PAGE_SIZE;
+    }
+  }
 
   async pull(): Promise<SyncResult> {
     const startedAt = new Date().toISOString();
@@ -213,7 +265,14 @@ export class SupabasePullSync implements PullSync {
   }
 
   private async pullExams(client: SupabaseClient): Promise<TableSyncResult> {
-    const { data, error } = await client.from('exams').select('*').eq('status', 'PUBLISHED');
+    const { data, error } = await this.fetchAllPages((from, to) =>
+      client
+        .from('exams')
+        .select('*')
+        .eq('status', 'PUBLISHED')
+        .order('id', { ascending: true })
+        .range(from, to),
+    );
     if (error) {
       return {
         table: 'exams',
@@ -260,7 +319,14 @@ export class SupabasePullSync implements PullSync {
   }
 
   private async pullTopics(client: SupabaseClient): Promise<TableSyncResult> {
-    const { data, error } = await client.from('topics').select('*').eq('status', 'PUBLISHED');
+    const { data, error } = await this.fetchAllPages((from, to) =>
+      client
+        .from('topics')
+        .select('*')
+        .eq('status', 'PUBLISHED')
+        .order('id', { ascending: true })
+        .range(from, to),
+    );
     if (error) {
       return {
         table: 'topics',
@@ -305,7 +371,14 @@ export class SupabasePullSync implements PullSync {
   }
 
   private async pullPackages(client: SupabaseClient): Promise<TableSyncResult> {
-    const { data, error } = await client.from('packages').select('*').eq('status', 'PUBLISHED');
+    const { data, error } = await this.fetchAllPages((from, to) =>
+      client
+        .from('packages')
+        .select('*')
+        .eq('status', 'PUBLISHED')
+        .order('id', { ascending: true })
+        .range(from, to),
+    );
     if (error) {
       return {
         table: 'packages',
@@ -360,7 +433,14 @@ export class SupabasePullSync implements PullSync {
   // only authorization layer, identical in spirit to how exams/topics/
   // packages already rely on RLS rather than a client-side rule.
   private async pullQuestions(client: SupabaseClient): Promise<TableSyncResult> {
-    const { data, error } = await client.from('questions').select('*').eq('status', 'PUBLISHED');
+    const { data, error } = await this.fetchAllPages((from, to) =>
+      client
+        .from('questions')
+        .select('*')
+        .eq('status', 'PUBLISHED')
+        .order('id', { ascending: true })
+        .range(from, to),
+    );
     if (error) {
       return {
         table: 'questions',
@@ -424,7 +504,9 @@ export class SupabasePullSync implements PullSync {
   // reverts the clear too, leaving that question exactly as it was
   // before this pull rather than in a partially-cleared state.
   private async pullQuestionOptions(client: SupabaseClient): Promise<TableSyncResult> {
-    const { data, error } = await client.from('question_options').select('*');
+    const { data, error } = await this.fetchAllPages((from, to) =>
+      client.from('question_options').select('*').order('id', { ascending: true }).range(from, to),
+    );
     if (error) {
       return {
         table: 'question_options',
@@ -498,7 +580,14 @@ export class SupabasePullSync implements PullSync {
   // only authorization layer. Composite-keyed (package_id, question_id),
   // no id/updated_at column of its own.
   private async pullPackageQuestions(client: SupabaseClient): Promise<TableSyncResult> {
-    const { data, error } = await client.from('package_questions').select('*');
+    const { data, error } = await this.fetchAllPages((from, to) =>
+      client
+        .from('package_questions')
+        .select('*')
+        .order('package_id', { ascending: true })
+        .order('question_id', { ascending: true })
+        .range(from, to),
+    );
     if (error) {
       return {
         table: 'package_questions',
