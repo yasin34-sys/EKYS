@@ -162,6 +162,22 @@ CREATE TABLE IF NOT EXISTS package_questions (
 CREATE INDEX IF NOT EXISTS idx_package_questions_question_id ON package_questions(question_id);
 
 
+-- content_sync_state: device-local only, no Supabase equivalent. Records
+-- which package_id/version/checksum combination has already had its
+-- content (questions/question_options/package_questions) pulled, so a
+-- future pull can skip re-downloading a package's content when the
+-- server's current version/checksum for that package already matches
+-- what's stored here. Added Phase 7A.2 — see SupabasePullSync.ts's
+-- pullPackageContent for how this is written/read.
+CREATE TABLE IF NOT EXISTS content_sync_state (
+  package_id TEXT PRIMARY KEY REFERENCES packages(id) ON DELETE CASCADE,
+  synced_version INTEGER NOT NULL,
+  synced_checksum TEXT,
+  question_count INTEGER NOT NULL CHECK (question_count >= 0),
+  synced_at TEXT NOT NULL
+);
+
+
 -- ============================================================================
 -- Group 2 — User / Access Model
 -- ============================================================================

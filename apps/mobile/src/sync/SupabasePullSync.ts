@@ -49,6 +49,47 @@ import { SyncNotConfiguredError, SyncRowError } from './errors';
 // conceptually an access-model table (like entitlements/package_access)
 // but its FK shape puts it after the content tables in pull order, not
 // before them.
+//
+// Fifth (Phase 7A.2, corrected 7A.2.1 and 7A.2.2): content is no longer
+// pulled as three flat, whole-table queries. pullPackageContent() below
+// considers only packages this user currently has full access to —
+// is_free_tier, or (only when this cycle's entitlements/package_access
+// pulls both actually succeeded — see below) an ACTIVE entitlement's
+// package_access row for this user — and, via the device-local
+// content_sync_state table (see sqlite_schema.sql), skips re-fetching a
+// full-access package's questions/question_options/package_questions
+// when the server's current packages.version/checksum for that package
+// already matches what was recorded last time. A package the user does
+// not currently have full access to is skipped entirely: no network
+// call, and content_sync_state is never written or updated for it — RLS
+// can legitimately return zero package_questions for a locked package,
+// and recording that as "synced" would make the package stay skipped
+// forever once access is later granted, unless its version/checksum
+// also happened to change. Trial-only access (Phase 2B.4) does not
+// count as full access here; it stays lazy through TrialGrantSync, not
+// this pipeline. A package that is new or changed is fetched and
+// written — questions, then question_options, then package_questions,
+// then content_sync_state, in that FK-safe order — in one op-sqlite
+// transaction, so a failure partway through never leaves
+// content_sync_state claiming a version/checksum whose rows didn't
+// actually make it in, and a fresh device with no local rows yet never
+// violates package_questions' FK to questions.
+//
+// pull() only calls pullPackageContent when this cycle's packages pull
+// (packagesResult) itself succeeded, and only tells it entitlement-only
+// packages are eligible when this cycle's entitlements and
+// package_access pulls both also succeeded (accessMetadataFresh). Local
+// packages/entitlements/package_access rows persist across pulls, so
+// "this ran after pullPackages/pullEntitlements/pullPackageAccess in the
+// sequence" does not by itself mean those local rows reflect anything
+// current — only a pull that succeeded this cycle guarantees that. If
+// packagesResult failed, local packages.version/checksum could be
+// stale, and content sync is skipped entirely rather than comparing
+// against a value that isn't known to be current. If entitlements/
+// package_access failed, a stale local ACTIVE entitlement could make a
+// now-locked package look full-access; accessMetadataFresh being false
+// prevents that branch of the access check from being used at all,
+// leaving only is_free_tier packages eligible that cycle.
 
 // Supabase/PostgREST caps any single response at 1000 rows by default
 // (db-max-rows) — silently, not as an error: a query matching more rows
@@ -66,6 +107,23 @@ import { SyncNotConfiguredError, SyncRowError } from './errors';
 // exact-count detection (e.g. reading the response's Content-Range
 // total) or a smaller PAGE_SIZE, not assumed away by this comment.
 const PAGE_SIZE = 500;
+
+// Separate concern from PAGE_SIZE/.range() row pagination: an
+// .in('id', questionIds) filter puts every id directly into the
+// PostgREST request URL, not just the response. A package with
+// hundreds of questions could produce a URL long enough to be rejected
+// before the request even reaches row pagination. pullPackageContent
+// splits questionIds into chunks of this size and issues one filtered
+// (still separately row-paginated via fetchAllPages) query per chunk.
+const QUESTION_ID_FILTER_CHUNK_SIZE = 100;
+
+function chunkArray<T>(items: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+}
 
 export class SupabasePullSync implements PullSync {
   constructor(
@@ -130,22 +188,62 @@ export class SupabasePullSync implements PullSync {
     // local schema's FK constraints (PRAGMA foreign_keys = ON) — so
     // content tables must be pulled before the access tables that
     // reference them.
+    //
+    // Several results are kept in named variables, not just pushed
+    // straight into the tables array, because pullPackageContent below
+    // needs to inspect whether packagesResult/entitlementsResult/
+    // packageAccessResult actually succeeded this cycle — not merely
+    // that they ran earlier in the list. A prior pull could have left
+    // locally-stored packages.version/checksum or entitlements/
+    // package_access rows that are now stale if this cycle's refresh of
+    // any of them failed (e.g. a transient network error on just that
+    // one call); pullPackageContent must not treat those stale local
+    // rows as current (see its own doc-comment for what goes wrong if it
+    // does).
+    const userProfileResult = await this.pullUserProfile(client, userId);
+    const examsResult = await this.pullExams(client);
+    const topicsResult = await this.pullTopics(client);
+    const packagesResult = await this.pullPackages(client);
+    const entitlementsResult = await this.pullEntitlements(client, userId);
+    const packageAccessResult = await this.pullPackageAccess(client, userId);
+
+    // Interim content hydration (see PullSync.ts / class doc-comment
+    // above) — questions require exams/topics (already pulled);
+    // package_questions requires packages (already pulled). Per-package,
+    // cache-skip-aware, and gated to full-access packages only — see the
+    // fifth known limitation/note above. Skipped entirely, without
+    // touching content_sync_state, if this cycle's packages pull failed:
+    // local packages.version/checksum could then be stale, and content
+    // sync must never be gated on a version/checksum that isn't known to
+    // be current. See pullPackageContent's own doc-comment for how
+    // accessMetadataFresh (derived from entitlementsResult/
+    // packageAccessResult below) further restricts which packages are
+    // even considered.
+    const contentResults: TableSyncResult[] =
+      packagesResult.failed === 0
+        ? await this.pullPackageContent(
+            client,
+            userId,
+            entitlementsResult.failed === 0 && packageAccessResult.failed === 0,
+          )
+        : [
+            { table: 'questions', succeeded: 0, failed: 0, errors: [] },
+            { table: 'question_options', succeeded: 0, failed: 0, errors: [] },
+            { table: 'package_questions', succeeded: 0, failed: 0, errors: [] },
+          ];
+
+    // trial_access last — see the fourth known limitation above.
+    const trialAccessResult = await this.pullTrialAccess(client, userId);
+
     const tables = [
-      await this.pullUserProfile(client, userId),
-      await this.pullExams(client),
-      await this.pullTopics(client),
-      await this.pullPackages(client),
-      await this.pullEntitlements(client, userId),
-      await this.pullPackageAccess(client, userId),
-      // Interim content hydration (see PullSync.ts / class doc-comment
-      // above) — questions require exams/topics (already pulled);
-      // package_questions requires packages (already pulled) and
-      // questions (pulled just before it).
-      await this.pullQuestions(client),
-      await this.pullQuestionOptions(client),
-      await this.pullPackageQuestions(client),
-      // trial_access last — see the fourth known limitation above.
-      await this.pullTrialAccess(client, userId),
+      userProfileResult,
+      examsResult,
+      topicsResult,
+      packagesResult,
+      entitlementsResult,
+      packageAccessResult,
+      ...contentResults,
+      trialAccessResult,
     ];
 
     return {
@@ -427,117 +525,336 @@ export class SupabasePullSync implements PullSync {
     return { table: 'packages', succeeded, failed: errors.length, errors };
   }
 
-  // Interim direct-table hydration (see PullSync.ts) — no status filter
-  // beyond PUBLISHED and no client-side entitlement check: RLS
-  // (questions_select_entitled / questions_select_free_tier) is the
-  // only authorization layer, identical in spirit to how exams/topics/
-  // packages already rely on RLS rather than a client-side rule.
-  private async pullQuestions(client: SupabaseClient): Promise<TableSyncResult> {
-    const { data, error } = await this.fetchAllPages((from, to) =>
-      client
-        .from('questions')
-        .select('*')
-        .eq('status', 'PUBLISHED')
-        .order('id', { ascending: true })
-        .range(from, to),
-    );
-    if (error) {
-      return {
-        table: 'questions',
-        succeeded: 0,
-        failed: 1,
-        errors: [new SyncRowError('questions', '(all)', error)],
-      };
-    }
-
-    let succeeded = 0;
-    const errors: SyncRowError[] = [];
-    for (const row of data ?? []) {
-      try {
-        await this.db.execute(
-          `INSERT INTO questions (id, exam_id, topic_id, question_type, body, revision, status, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-           ON CONFLICT (id) DO UPDATE SET
-             exam_id = excluded.exam_id,
-             topic_id = excluded.topic_id,
-             question_type = excluded.question_type,
-             body = excluded.body,
-             revision = excluded.revision,
-             status = excluded.status,
-             updated_at = excluded.updated_at;`,
-          [
-            row.id,
-            row.exam_id,
-            row.topic_id,
-            row.question_type,
-            row.body,
-            row.revision,
-            row.status,
-            row.created_at,
-            row.updated_at,
-          ],
-        );
-        succeeded++;
-      } catch (cause) {
-        errors.push(new SyncRowError('questions', row.id, cause));
-      }
-    }
-
-    return { table: 'questions', succeeded, failed: errors.length, errors };
-  }
-
-  // RLS (question_options_select_entitled / _select_free_tier) is the
-  // only authorization layer — no status column of its own to filter
-  // on, unlike its parent Question.
+  // Per-package content pull (Phase 7A.2, corrected 7A.2.1 and 7A.2.2),
+  // replacing three flat whole-table queries with a per-package
+  // skip/fetch decision driven by content_sync_state (see
+  // sqlite_schema.sql). No status filter on package_questions/
+  // question_options beyond what RLS already enforces (questions is
+  // filtered to PUBLISHED, matching the prior flat query;
+  // package_questions/question_options have no status column of their
+  // own, identical to before) — client-side authorization logic is not
+  // added on top of RLS here any more than it was before this phase,
+  // beyond the full-access gate below, which exists to protect
+  // content_sync_state's correctness, not to enforce access (RLS
+  // already does that).
   //
-  // Grouped by question_id; the clear (is_correct = 0) and every upsert
-  // for that question run inside one db.transaction(), atomically: the
-  // local schema's partial unique index only allows one is_correct = 1
-  // row per question_id, so if which option is correct changed
-  // server-side since the last pull, upserting the new correct option
-  // before clearing the old one would collide with that index — and if
-  // the clear succeeds but a later upsert in the same group fails, an
-  // un-transacted sequence could leave that question with zero correct
-  // options locally. op-sqlite's transaction() auto-commits if the
-  // callback resolves and auto-rolls-back everything in it if the
-  // callback throws, so a failure anywhere in a question's group
-  // reverts the clear too, leaving that question exactly as it was
-  // before this pull rather than in a partially-cleared state.
-  private async pullQuestionOptions(client: SupabaseClient): Promise<TableSyncResult> {
-    const { data, error } = await this.fetchAllPages((from, to) =>
-      client.from('question_options').select('*').order('id', { ascending: true }).range(from, to),
+  // Callers must only invoke this once this cycle's packages pull has
+  // succeeded (pull() only calls this when packagesResult.failed === 0)
+  // — local packages.version/checksum are the values content_sync_state
+  // gets compared against and written with, so they must be known
+  // current this cycle, not merely "current as of some earlier pull."
+  //
+  // `accessMetadataFresh` (7A.2.2) is likewise supplied by the caller,
+  // not derived here, and must reflect whether *this cycle's*
+  // pullEntitlements/pullPackageAccess both succeeded — not simply that
+  // they ran earlier in pull()'s sequence. Local entitlements/
+  // package_access rows persist across cycles, so if either pull failed
+  // this time (e.g. a transient network error), those local rows could
+  // be stale: a since-revoked ACTIVE entitlement or an already-removed
+  // package_access row would still be sitting there unchanged. Treating
+  // that stale data as current could make a locked package look
+  // full-access, in which case RLS would legitimately return zero
+  // package_questions for it, and content_sync_state would end up
+  // written with question_count = 0 — indistinguishable from "this
+  // package genuinely has no questions," and wrongly persistent even
+  // after the user is later actually granted access, unless
+  // version/checksum also happens to change. When accessMetadataFresh is
+  // false, only is_free_tier packages are considered; every
+  // entitlement-only package is skipped with no network call and no
+  // content_sync_state write/update, exactly like a genuinely locked
+  // package is.
+  //
+  // For a full-access package whose local content_sync_state.
+  // synced_version/synced_checksum already match packages.version/
+  // checksum, the package is skipped entirely: no network call, no
+  // local write. This is the cache-skip design from the Phase 7A.0
+  // audit — packages.version is bumped by editorial tooling whenever a
+  // package's question set changes, so an unchanged version/checksum is
+  // treated as "content already up to date."
+  //
+  // For a full-access package that is new or has changed, its
+  // package_questions, matching questions, and matching question_options
+  // are fetched, then written together with the content_sync_state row
+  // in a single db.transaction(), in FK-safe order — questions first
+  // (package_questions.question_id references questions(id); a fresh
+  // device has no local questions row yet), then question_options, then
+  // package_questions, then content_sync_state last. This is the same
+  // all-or-nothing guarantee the prior per-question option transaction
+  // relied on, just scoped to the whole package instead of one question:
+  // if anything in the callback throws, op-sqlite rolls back everything
+  // in it, so content_sync_state is never left claiming a
+  // version/checksum whose rows didn't actually land locally. A network
+  // fetch failure (package_questions/questions/question_options), or a
+  // questions result short of the package_questions question_id count
+  // (see the count check below), short-circuits before the transaction
+  // even starts, for the same reason.
+  //
+  // Per Phase 7A.2 scope: no stale-row cleanup here either — a question
+  // dropped from a package server-side, or a package no longer
+  // PUBLISHED or no longer full-access, is not deleted locally. That gap
+  // is unchanged from the prior flat-pull implementation, not newly
+  // introduced.
+  private async pullPackageContent(
+    client: SupabaseClient,
+    userId: string,
+    accessMetadataFresh: boolean,
+  ): Promise<TableSyncResult[]> {
+    const questionsResult: TableSyncResult = { table: 'questions', succeeded: 0, failed: 0, errors: [] };
+    const optionsResult: TableSyncResult = {
+      table: 'question_options',
+      succeeded: 0,
+      failed: 0,
+      errors: [],
+    };
+    const packageQuestionsResult: TableSyncResult = {
+      table: 'package_questions',
+      succeeded: 0,
+      failed: 0,
+      errors: [],
+    };
+
+    // Full-access packages only: free tier always qualifies, since
+    // is_free_tier is content policy, not access metadata that this
+    // cycle's pulls could have left stale. The entitlement/package_access
+    // branch only qualifies a package when accessMetadataFresh is true —
+    // when it's false, that branch is skipped outright (short-circuited
+    // via the `? = 1` guard below) rather than trusting whatever
+    // entitlements/package_access rows happen to already be stored
+    // locally from a possibly-earlier, now-stale pull. Trial-only access
+    // does not appear here at all — trial_access has no bearing on this
+    // EXISTS clause, fresh or not.
+    const localPackagesResult = await this.db.execute(
+      `SELECT p.id, p.version, p.checksum
+       FROM packages p
+       WHERE p.status = 'PUBLISHED'
+         AND (
+           p.is_free_tier = 1
+           OR (
+             ? = 1
+             AND EXISTS (
+               SELECT 1
+               FROM package_access pa
+               JOIN entitlements e ON e.id = pa.entitlement_id
+               WHERE pa.package_id = p.id
+                 AND e.user_id = ?
+                 AND e.status = 'ACTIVE'
+             )
+           )
+         );`,
+      [accessMetadataFresh ? 1 : 0, userId],
     );
-    if (error) {
-      return {
-        table: 'question_options',
-        succeeded: 0,
-        failed: 1,
-        errors: [new SyncRowError('question_options', '(all)', error)],
-      };
-    }
+    const localPackages = localPackagesResult.rows as unknown as Array<{
+      id: string;
+      version: number;
+      checksum: string | null;
+    }>;
 
-    const rows = data ?? [];
-    const rowsByQuestionId = new Map<string, typeof rows>();
-    for (const row of rows) {
-      const list = rowsByQuestionId.get(row.question_id) ?? [];
-      list.push(row);
-      rowsByQuestionId.set(row.question_id, list);
-    }
+    for (const pkg of localPackages) {
+      const stateRowResult = await this.db.execute(
+        `SELECT synced_version, synced_checksum FROM content_sync_state WHERE package_id = ?;`,
+        [pkg.id],
+      );
+      const stateRow = (
+        stateRowResult.rows as unknown as Array<{
+          synced_version: number;
+          synced_checksum: string | null;
+        }>
+      )[0];
 
-    let succeeded = 0;
-    const errors: SyncRowError[] = [];
+      if (
+        stateRow &&
+        stateRow.synced_version === pkg.version &&
+        (stateRow.synced_checksum ?? null) === (pkg.checksum ?? null)
+      ) {
+        continue;
+      }
 
-    for (const [questionId, questionOptions] of rowsByQuestionId) {
-      let failedRowId: string | null = null;
+      const { data: packageQuestionsData, error: packageQuestionsError } = await this.fetchAllPages(
+        (from, to) =>
+          client
+            .from('package_questions')
+            .select('*')
+            .eq('package_id', pkg.id)
+            .order('question_id', { ascending: true })
+            .range(from, to),
+      );
+      if (packageQuestionsError) {
+        packageQuestionsResult.failed++;
+        packageQuestionsResult.errors.push(
+          new SyncRowError('package_questions', pkg.id, packageQuestionsError),
+        );
+        continue;
+      }
+      const packageQuestions = packageQuestionsData ?? [];
+      const questionIds = [...new Set(packageQuestions.map((row) => row.question_id as string))];
+
+      let questions: any[] = [];
+      let options: any[] = [];
+
+      if (questionIds.length > 0) {
+        // Chunked, not one .in(...questionIds) call — see
+        // QUESTION_ID_FILTER_CHUNK_SIZE's comment above. Each chunk is
+        // still separately row-paginated via fetchAllPages; chunking and
+        // row pagination are independent concerns (URL/filter size vs.
+        // response row count) and both apply here.
+        const idChunks = chunkArray(questionIds, QUESTION_ID_FILTER_CHUNK_SIZE);
+
+        let questionsChunkError: unknown = null;
+        for (const idChunk of idChunks) {
+          const { data: questionsData, error: questionsError } = await this.fetchAllPages(
+            (from, to) =>
+              client
+                .from('questions')
+                .select('*')
+                .eq('status', 'PUBLISHED')
+                .in('id', idChunk)
+                .order('id', { ascending: true })
+                .range(from, to),
+          );
+          if (questionsError) {
+            questionsChunkError = questionsError;
+            break;
+          }
+          questions.push(...(questionsData ?? []));
+        }
+        if (questionsChunkError) {
+          // Any chunk failing fails the whole package: partial question
+          // data is not written, so the transaction below is never
+          // reached and content_sync_state is left untouched for it.
+          questionsResult.failed++;
+          questionsResult.errors.push(new SyncRowError('questions', pkg.id, questionsChunkError));
+          continue;
+        }
+
+        // Set-based, not a length comparison — robust across chunk
+        // boundaries. package_questions named question ids that
+        // questions did not actually return (e.g. one was unpublished
+        // but its package_questions row wasn't cleaned up server-side
+        // yet). Writing package_questions for an id with no local
+        // questions row would violate the FK; caught here explicitly
+        // rather than left to surface only as an FK failure inside the
+        // transaction.
+        const fetchedQuestionIds = new Set(questions.map((row) => row.id as string));
+        const missingQuestionIds = questionIds.filter((id) => !fetchedQuestionIds.has(id));
+        if (missingQuestionIds.length > 0) {
+          questionsResult.failed++;
+          questionsResult.errors.push(
+            new SyncRowError(
+              'questions',
+              pkg.id,
+              new Error(
+                `Package ${pkg.id}: package_questions referenced ${questionIds.length} question id(s), ${missingQuestionIds.length} did not come back from questions`,
+              ),
+            ),
+          );
+          continue;
+        }
+
+        let optionsChunkError: unknown = null;
+        for (const idChunk of idChunks) {
+          const { data: optionsData, error: optionsError } = await this.fetchAllPages((from, to) =>
+            client
+              .from('question_options')
+              .select('*')
+              .in('question_id', idChunk)
+              .order('id', { ascending: true })
+              .range(from, to),
+          );
+          if (optionsError) {
+            optionsChunkError = optionsError;
+            break;
+          }
+          options.push(...(optionsData ?? []));
+        }
+        if (optionsChunkError) {
+          // Same as above: a failed chunk fails the whole package before
+          // the transaction starts, so content_sync_state is not written.
+          optionsResult.failed++;
+          optionsResult.errors.push(new SyncRowError('question_options', pkg.id, optionsChunkError));
+          continue;
+        }
+
+        // Every fetched question must have at least 2 option rows and
+        // exactly 1 marked correct before this package can be marked
+        // synced — catches a question whose options are missing or
+        // malformed, the same class of problem the questionIds mismatch
+        // check above catches for questions themselves. Deliberately not
+        // an exact count (not "must have 4" or "must have 5"): smoke
+        // data uses 4 options, real imported content may use 5 — the
+        // only invariant that must hold either way is >= 2 options with
+        // exactly 1 correct.
+        const optionsByQuestionForCheck = new Map<string, typeof options>();
+        for (const row of options) {
+          const list = optionsByQuestionForCheck.get(row.question_id) ?? [];
+          list.push(row);
+          optionsByQuestionForCheck.set(row.question_id, list);
+        }
+        const incompleteQuestionIds = questionIds.filter((id) => {
+          const questionOptions = optionsByQuestionForCheck.get(id) ?? [];
+          const correctCount = questionOptions.filter((row) => Boolean(row.is_correct)).length;
+          return questionOptions.length < 2 || correctCount !== 1;
+        });
+        if (incompleteQuestionIds.length > 0) {
+          optionsResult.failed++;
+          optionsResult.errors.push(
+            new SyncRowError(
+              'question_options',
+              pkg.id,
+              new Error(
+                `Package ${pkg.id}: ${incompleteQuestionIds.length} question(s) have incomplete options (need >= 2 options and exactly 1 correct)`,
+              ),
+            ),
+          );
+          continue;
+        }
+      }
 
       try {
         await this.db.transaction(async (tx) => {
-          await tx.execute(`UPDATE question_options SET is_correct = 0 WHERE question_id = ?;`, [
-            questionId,
-          ]);
+          // FK-safe order: questions before question_options (options
+          // reference questions(id)) and before package_questions
+          // (package_questions.question_id also references questions(id)
+          // — on a fresh device with no local rows yet, inserting
+          // package_questions first would fail before the question row
+          // exists). content_sync_state last, since it is the record
+          // that this package's content landed successfully.
+          for (const row of questions) {
+            await tx.execute(
+              `INSERT INTO questions (id, exam_id, topic_id, question_type, body, revision, status, created_at, updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+               ON CONFLICT (id) DO UPDATE SET
+                 exam_id = excluded.exam_id,
+                 topic_id = excluded.topic_id,
+                 question_type = excluded.question_type,
+                 body = excluded.body,
+                 revision = excluded.revision,
+                 status = excluded.status,
+                 updated_at = excluded.updated_at;`,
+              [
+                row.id,
+                row.exam_id,
+                row.topic_id,
+                row.question_type,
+                row.body,
+                row.revision,
+                row.status,
+                row.created_at,
+                row.updated_at,
+              ],
+            );
+          }
 
-          for (const row of questionOptions) {
-            try {
+          const optionsByQuestionId = new Map<string, typeof options>();
+          for (const row of options) {
+            const list = optionsByQuestionId.get(row.question_id) ?? [];
+            list.push(row);
+            optionsByQuestionId.set(row.question_id, list);
+          }
+          for (const [questionId, questionOptions] of optionsByQuestionId) {
+            await tx.execute(`UPDATE question_options SET is_correct = 0 WHERE question_id = ?;`, [
+              questionId,
+            ]);
+            for (const row of questionOptions) {
               await tx.execute(
                 `INSERT INTO question_options (id, question_id, label, body, is_correct, display_order, created_at)
                  VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -556,67 +873,45 @@ export class SupabasePullSync implements PullSync {
                   row.created_at,
                 ],
               );
-            } catch (cause) {
-              // Identify which row triggered the failure before
-              // re-throwing — re-throwing is what makes op-sqlite roll
-              // back this question's entire transaction, including the
-              // clear step above.
-              failedRowId = row.id;
-              throw cause;
             }
           }
+
+          for (const row of packageQuestions) {
+            await tx.execute(
+              `INSERT INTO package_questions (package_id, question_id, display_order, created_at)
+               VALUES (?, ?, ?, ?)
+               ON CONFLICT (package_id, question_id) DO UPDATE SET
+                 display_order = excluded.display_order;`,
+              [row.package_id, row.question_id, row.display_order, row.created_at],
+            );
+          }
+
+          await tx.execute(
+            `INSERT INTO content_sync_state (package_id, synced_version, synced_checksum, question_count, synced_at)
+             VALUES (?, ?, ?, ?, ?)
+             ON CONFLICT (package_id) DO UPDATE SET
+               synced_version = excluded.synced_version,
+               synced_checksum = excluded.synced_checksum,
+               question_count = excluded.question_count,
+               synced_at = excluded.synced_at;`,
+            [pkg.id, pkg.version, pkg.checksum, questions.length, new Date().toISOString()],
+          );
         });
 
-        succeeded += questionOptions.length;
+        packageQuestionsResult.succeeded += packageQuestions.length;
+        questionsResult.succeeded += questions.length;
+        optionsResult.succeeded += options.length;
       } catch (cause) {
-        errors.push(new SyncRowError('question_options', failedRowId ?? questionId, cause));
+        // Whichever table's row data caused the throw, the entire
+        // package's transaction rolled back together — reported against
+        // package_questions since that is this package's anchor query,
+        // not split across all three tables for one shared cause.
+        packageQuestionsResult.failed++;
+        packageQuestionsResult.errors.push(new SyncRowError('package_questions', pkg.id, cause));
       }
     }
 
-    return { table: 'question_options', succeeded, failed: errors.length, errors };
-  }
-
-  // RLS (package_questions_select_entitled / _select_free_tier) is the
-  // only authorization layer. Composite-keyed (package_id, question_id),
-  // no id/updated_at column of its own.
-  private async pullPackageQuestions(client: SupabaseClient): Promise<TableSyncResult> {
-    const { data, error } = await this.fetchAllPages((from, to) =>
-      client
-        .from('package_questions')
-        .select('*')
-        .order('package_id', { ascending: true })
-        .order('question_id', { ascending: true })
-        .range(from, to),
-    );
-    if (error) {
-      return {
-        table: 'package_questions',
-        succeeded: 0,
-        failed: 1,
-        errors: [new SyncRowError('package_questions', '(all)', error)],
-      };
-    }
-
-    let succeeded = 0;
-    const errors: SyncRowError[] = [];
-    for (const row of data ?? []) {
-      try {
-        await this.db.execute(
-          `INSERT INTO package_questions (package_id, question_id, display_order, created_at)
-           VALUES (?, ?, ?, ?)
-           ON CONFLICT (package_id, question_id) DO UPDATE SET
-             display_order = excluded.display_order;`,
-          [row.package_id, row.question_id, row.display_order, row.created_at],
-        );
-        succeeded++;
-      } catch (cause) {
-        errors.push(
-          new SyncRowError('package_questions', `${row.package_id}:${row.question_id}`, cause),
-        );
-      }
-    }
-
-    return { table: 'package_questions', succeeded, failed: errors.length, errors };
+    return [questionsResult, optionsResult, packageQuestionsResult];
   }
 
   // trial_access (Phase 2B.4) — scoped to this user's own rows, same
