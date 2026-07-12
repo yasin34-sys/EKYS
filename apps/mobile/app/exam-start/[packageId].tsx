@@ -204,7 +204,7 @@ export default function ExamStartScreen() {
               />
               <View style={styles.titleTextWrap}>
                 <AppText variant="title2">
-                  {packageTypeLabel[packageQuery.data.packageType] ?? packageQuery.data.packageType}
+                  {packageQuery.data.title ?? packageTypeLabel[packageQuery.data.packageType] ?? packageQuery.data.packageType}
                 </AppText>
                 <AppText variant="subhead" color="secondary" style={styles.metaLine}>
                   {difficultyLabel[packageQuery.data.difficultyLevel] ?? packageQuery.data.difficultyLevel}

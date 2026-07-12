@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "content:validate": "node tools/content/validate-question-json.mjs",
-    "content:convert-legacy": "node tools/content/convert-legacy-question-json.mjs"
+    "content:convert-legacy": "node tools/content/convert-legacy-question-json.mjs",
+    "content:generate-import-sql": "node tools/content/generate-question-import-sql.mjs"
   }
 }

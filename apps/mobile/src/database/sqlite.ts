@@ -49,13 +49,43 @@ function splitSqlStatements(sql: string): string[] {
 }
 
 /**
+ * Additive local schema upgrade guard for packages.title/description
+ * (Phase 7A.3.2.1). CREATE TABLE IF NOT EXISTS never alters a table
+ * that already exists, so a device that installed the app before
+ * these columns were added would otherwise keep an old `packages`
+ * table forever and fail on the first INSERT that names them (see
+ * SupabasePullSync.pullPackages). PRAGMA table_info makes the check
+ * (and therefore the whole guard) safe to run unconditionally on every
+ * launch, against both fresh and pre-existing databases: ADD COLUMN
+ * only runs when the column is actually missing.
+ *
+ * Deliberately narrow and column-specific rather than a general
+ * migration framework — see initializeDatabase()'s own comment for why
+ * that's still the right call.
+ */
+async function upgradePackagesTableColumns(database: DB): Promise<void> {
+  const result = await database.execute('PRAGMA table_info(packages);');
+  const existingColumns = new Set((result.rows ?? []).map((row) => row.name as string));
+
+  if (!existingColumns.has('title')) {
+    await database.execute('ALTER TABLE packages ADD COLUMN title TEXT;');
+  }
+  if (!existingColumns.has('description')) {
+    await database.execute('ALTER TABLE packages ADD COLUMN description TEXT;');
+  }
+}
+
+/**
  * Opens the local database connection and applies the schema.
  *
  * Every statement in SQLITE_SCHEMA_SQL uses CREATE ... IF NOT EXISTS,
  * so re-running the whole script on every launch is safe and
- * idempotent. There is only one schema version so far, so a versioned
- * migration runner is not built yet — that is speculative until a
- * second version actually exists (YAGNI).
+ * idempotent — that part still needs no versioned migration runner
+ * (YAGNI). Columns added to an already-shipped table are a different
+ * case CREATE ... IF NOT EXISTS can't cover on its own, so those get a
+ * small additive upgrade guard run right after (see
+ * upgradePackagesTableColumns above) instead of a full migration
+ * framework.
  */
 export async function initializeDatabase(): Promise<DB> {
   db = open({ name: DATABASE_NAME });
@@ -68,6 +98,8 @@ export async function initializeDatabase(): Promise<DB> {
   for (const statement of splitSqlStatements(SQLITE_SCHEMA_SQL)) {
     await db.execute(statement);
   }
+
+  await upgradePackagesTableColumns(db);
 
   return db;
 }

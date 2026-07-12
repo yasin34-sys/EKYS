@@ -11,6 +11,8 @@ interface PackageRow {
   checksum: string | null;
   is_free_tier: number;
   status: PackageStatus;
+  title: string | null;
+  description: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -25,6 +27,12 @@ function mapPackageRow(row: PackageRow): Package {
     checksum: row.checksum,
     isFreeTier: row.is_free_tier === 1,
     status: row.status,
+    // `?? null` (Phase 7A.3.2.1): defensive against a row object that
+    // ever lacks these keys entirely (e.g. `SELECT *` against a device
+    // whose local upgrade guard — see sqlite.ts — hasn't run for some
+    // reason), where they'd read back as `undefined` rather than `null`.
+    title: row.title ?? null,
+    description: row.description ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

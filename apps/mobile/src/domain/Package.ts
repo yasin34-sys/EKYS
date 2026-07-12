@@ -16,6 +16,11 @@ export interface Package {
   // a study-mode descriptor.
   isFreeTier: boolean;
   status: PackageStatus;
+  // Optional user-facing display fields (Phase 7A.3.2). null means "no
+  // curated title/description yet" — callers must fall back to a
+  // package_type-derived label, never render null/blank text directly.
+  title: string | null;
+  description: string | null;
   createdAt: string;
   updatedAt: string;
 }

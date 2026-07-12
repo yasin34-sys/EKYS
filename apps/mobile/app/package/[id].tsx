@@ -41,10 +41,12 @@ const difficultyLabel: Record<string, string> = {
   ZOR: 'Zor',
 };
 
-// Package has no stored description (see PHYSICAL_DATABASE_SCHEMA.md) —
-// package_type + difficulty_level already fully determine a short, honest
-// one-line framing, generated client-side the same way Exam Detail's stats
-// card narrative is generated rather than stored.
+// Fallback narrative for packages with no curated description (Phase
+// 7A.3.2 added packages.title/description, but they're optional — most
+// packages still have none). package_type + difficulty_level already
+// determine a short, honest one-line framing, generated client-side the
+// same way Exam Detail's stats card narrative is generated rather than
+// stored.
 const packageTypeNarrative: Record<string, string> = {
   TEMEL_CALISMA: 'Temel kavramları düzenli ve sakin bir tempoda çalışman için hazırlandı.',
   YOGUN_TEKRAR: 'Bildiklerini pekiştirmek ve zayıf noktalarını tekrar etmek için yoğun bir set.',
@@ -218,7 +220,7 @@ export default function PackageDetailScreen() {
             />
             <View style={styles.titleTextWrap}>
               <AppText variant="title2">
-                {packageTypeLabel[packageQuery.data.packageType] ?? packageQuery.data.packageType}
+                {packageQuery.data.title ?? packageTypeLabel[packageQuery.data.packageType] ?? packageQuery.data.packageType}
               </AppText>
               <AppText variant="subhead" color="secondary" style={styles.metaLine}>
                 {difficultyLabel[packageQuery.data.difficultyLevel] ?? packageQuery.data.difficultyLevel}
@@ -231,8 +233,13 @@ export default function PackageDetailScreen() {
             <AccessTag isFreeTier={packageQuery.data.isFreeTier} accessStatus={accessStatus} />
           ) : null}
 
+          {/* Curated description (Phase 7A.3.2) takes priority over the
+              generic package_type narrative when present -- showing both
+              would be redundant. Every existing package has
+              description === null, so this falls back to the exact old
+              narrative text. */}
           <AppText variant="body" color="secondary" style={styles.narrative}>
-            {packageTypeNarrative[packageQuery.data.packageType] ?? ''}
+            {packageQuery.data.description ?? packageTypeNarrative[packageQuery.data.packageType] ?? ''}
           </AppText>
 
           {accessStatus === null ? (

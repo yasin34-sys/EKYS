@@ -69,13 +69,16 @@ export function PackageList({ isLoading, packages }: PackageListProps) {
 function PackageRow({ entry }: { entry: PackageWithAccess }) {
   const { package: pkg, accessStatus } = entry;
   const icon = packageTypeIcon[pkg.packageType] ?? 'albums-outline';
+  // Curated title (Phase 7A.3.2) takes priority; every existing package
+  // has title === null, so this falls back to the exact old label.
+  const displayTitle = pkg.title ?? packageTypeLabel[pkg.packageType] ?? pkg.packageType;
 
   return (
     <Pressable
       onPress={() => router.push(`/package/${pkg.id}`)}
       style={({ pressed }) => pressed && styles.pressed}
       accessibilityRole="button"
-      accessibilityLabel={`${packageTypeLabel[pkg.packageType] ?? pkg.packageType}, ${difficultyLabel[pkg.difficultyLevel] ?? pkg.difficultyLevel}${pkg.isFreeTier ? ', ücretsiz' : ''}`}
+      accessibilityLabel={`${displayTitle}, ${difficultyLabel[pkg.difficultyLevel] ?? pkg.difficultyLevel}${pkg.isFreeTier ? ', ücretsiz' : ''}`}
     >
       <Card style={styles.packageCard}>
         <View style={styles.row}>
@@ -83,7 +86,7 @@ function PackageRow({ entry }: { entry: PackageWithAccess }) {
           <View style={styles.rowBody}>
             <View style={styles.packageHeader}>
               <AppText variant="headline" numberOfLines={1} style={styles.titleText}>
-                {packageTypeLabel[pkg.packageType] ?? pkg.packageType}
+                {displayTitle}
               </AppText>
               <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
             </View>

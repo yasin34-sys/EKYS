@@ -16,7 +16,11 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve, extname } from 'node:path';
 
-const REQUIRED_TOP_LEVEL_FIELDS = ['package', 'type', 'topic', 'question_count', 'questions'];
+// "topic" is required only for type="topic_pack" -- see the type-specific
+// check in validateDocument(). type="mock_exam" files carry topic per
+// question instead (questions may span several topics).
+const REQUIRED_TOP_LEVEL_FIELDS = ['package', 'type', 'question_count', 'questions'];
+const VALID_TOP_LEVEL_TYPES = ['topic_pack', 'mock_exam'];
 const REQUIRED_QUESTION_FIELDS = [
   'id',
   'topic',
@@ -234,16 +238,28 @@ function validateDocument(doc) {
     errors.push(`"package" must be a non-empty string, got ${JSON.stringify(doc.package)}`);
   }
 
-  if ('topic' in doc && (typeof doc.topic !== 'string' || doc.topic.trim().length === 0)) {
-    errors.push(`"topic" must be a non-empty string, got ${JSON.stringify(doc.topic)}`);
-  }
-
   if ('type' in doc) {
     if (typeof doc.type !== 'string' || doc.type.trim().length === 0) {
       errors.push(`"type" must be a non-empty string, got ${JSON.stringify(doc.type)}`);
-    } else if (doc.type !== 'topic_pack') {
-      errors.push(`Unrecognized "type": ${JSON.stringify(doc.type)} (only "topic_pack" is recognized in v1)`);
+    } else if (!VALID_TOP_LEVEL_TYPES.includes(doc.type)) {
+      errors.push(`Unrecognized "type": ${JSON.stringify(doc.type)} (must be one of ${VALID_TOP_LEVEL_TYPES.join('/')})`);
     }
+  }
+
+  const isTopicPack = doc.type === 'topic_pack';
+  const isMockExam = doc.type === 'mock_exam';
+
+  if (isTopicPack) {
+    if (!('topic' in doc)) {
+      errors.push('Missing required top-level field(s): topic (required when "type" is "topic_pack")');
+    } else if (typeof doc.topic !== 'string' || doc.topic.trim().length === 0) {
+      errors.push(`"topic" must be a non-empty string, got ${JSON.stringify(doc.topic)}`);
+    }
+  } else if ('topic' in doc && (typeof doc.topic !== 'string' || doc.topic.trim().length === 0)) {
+    // Top-level "topic" is optional for mock_exam (and for an unrecognized
+    // type, which already errors above), but if present it must still be
+    // well-formed -- no silently-accepted garbage.
+    errors.push(`"topic" must be a non-empty string, got ${JSON.stringify(doc.topic)}`);
   }
 
   if ('status' in doc) {
@@ -288,11 +304,17 @@ function validateDocument(doc) {
       errors.push(`question[${index}]: "id" must be a non-empty string`);
     }
 
-    if ('topic' in q && q.topic !== doc.topic) {
-      errors.push(
-        `question[${index}] (${label}): question.topic (${JSON.stringify(q.topic)}) does not match ` +
-          `top-level topic (${JSON.stringify(doc.topic)})`
-      );
+    if (isTopicPack) {
+      if ('topic' in q && q.topic !== doc.topic) {
+        errors.push(
+          `question[${index}] (${label}): question.topic (${JSON.stringify(q.topic)}) does not match ` +
+            `top-level topic (${JSON.stringify(doc.topic)})`
+        );
+      }
+    } else if (isMockExam) {
+      if ('topic' in q && (typeof q.topic !== 'string' || q.topic.trim().length === 0)) {
+        errors.push(`question[${index}] (${label}): "topic" must be a non-empty string`);
+      }
     }
 
     if ('choices' in q) {

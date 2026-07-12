@@ -1,0 +1,38 @@
+{
+  "_notice": "EXAMPLE / FIXTURE PLAN ONLY. Not a real production import plan and not consumed by anything except the fixture verification run described in docs/content/QUESTION_JSON_FORMAT.md. It demonstrates the shape tools/content/generate-question-import-sql.mjs expects, and points at tools/content/fixtures/valid-v1.json (a small Turkish-text fixture, not real question content).",
+  "exam": {
+    "mode": "new",
+    "key": "EXAMPLE-EXAM-FIXTURE-V1",
+    "name": "Example Fixture Exam",
+    "status": "DRAFT",
+    "duration_minutes": 60,
+    "passing_score": 50,
+    "question_count": 2
+  },
+  "topic_mapping": {
+    "policy": "EXACT_NAME_MATCH",
+    "topics": [
+      { "name": "Örnek Konu", "display_order": 1, "status": "DRAFT" }
+    ]
+  },
+  "packages": [
+    {
+      "id": "c8806eec-6382-4486-865d-896ec8805ce2",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ORTA",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": null,
+      "status": "DRAFT",
+      "title": "Örnek Paket",
+      "description": "Fixture verification package -- demonstrates optional packages.title/description (Phase 7A.3.2)."
+    }
+  ],
+  "source_packages": [
+    {
+      "file": "valid-v1.json",
+      "package_label": "FIX-001",
+      "target_package_id": "c8806eec-6382-4486-865d-896ec8805ce2"
+    }
+  ]
+}

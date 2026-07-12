@@ -6,9 +6,10 @@ Not the final Editorial CMS (ADR-006) — this is the safe bridge until that exi
 ## Scope
 
 This document describes the **source JSON shape** authors use to prepare question
-content. It does not describe a database schema or an import mechanism — see
-Phase 4A.0/4A.0.1 audits for the surrounding pipeline design. As of this phase,
-there is no importer yet: only documentation and a validator exist.
+content. It does not describe the database schema in detail — see
+Phase 4A.0/4A.0.1 audits for the surrounding pipeline design. A SQL generator
+exists (`tools/content/generate-question-import-sql.mjs`) — see "The SQL
+generator" below.
 
 ## Canonical v1 shape
 
@@ -17,18 +18,36 @@ Top-level object:
 | Field | Type | Required | Notes |
 |---|---|---|---|
 | `package` | string | yes | Human batch/authoring label (e.g. `"TYMM-001"`). Not a database `packages` row — see "package" vs `packages` below. |
-| `type` | string | yes | Must be `"topic_pack"` in v1. Unrecognized values are rejected, not silently accepted. |
-| `topic` | string | yes | Pedagogical topic name. Every question's own `topic` field must match this exactly. |
+| `type` | string | yes | `"topic_pack"` or `"mock_exam"` — see "Two top-level types" below. Unrecognized values are rejected, not silently accepted. |
+| `topic` | string | required for `type: "topic_pack"`; not required for `type: "mock_exam"` | Pedagogical topic name. For `topic_pack`, every question's own `topic` field must match this exactly. `mock_exam` has no single top-level topic — see below. |
 | `question_count` | integer | yes | Must equal `questions.length`. |
 | `status` | string | no | One of `DRAFT` / `PUBLISHED` / `ARCHIVED`. **Absent means `DRAFT`** — see below. |
 | `questions` | array | yes | Array of question objects, shape below. |
+
+## Two top-level types
+
+- **`topic_pack`** — a study package scoped to one pedagogical topic. All
+  behavior described elsewhere in this document (single top-level `topic`,
+  every question's `topic` must match it exactly) applies unchanged.
+- **`mock_exam`** — a full practice exam ("Deneme") whose questions
+  deliberately span several topics in one file (e.g. one 80-question file
+  mixing `Genel Kültür`, `Mevzuat`, `Eğitim Bilimleri`, etc.). There is no
+  top-level `topic` field; each question's own `topic` is required and
+  validated individually instead. Everything else — `package`, `type`,
+  `question_count`, `questions`, per-question required fields, id
+  uniqueness, UTF-8/mojibake checks — is identical to `topic_pack`.
+  `tools/content/generate-question-import-sql.mjs` additionally requires
+  that a `mock_exam` source file's target `packages` row have
+  `package_type = "ZORLAYICI_DENEME"` — a mock exam can only ever be sold
+  as a "challenging practice exam" package, never `TEMEL_CALISMA` or
+  `YOGUN_TEKRAR`.
 
 Each entry in `questions[]`:
 
 | Field | Type | Required | Notes |
 |---|---|---|---|
 | `id` | string | yes | Stable, permanent identifier (e.g. `"TYMM-000001"`). Must be globally unique across the entire content tree, not just within one file — the user's existing files already share a single running counter across topics (e.g. `TYMM-000001..000020`, then `GK-000021..`). Never renumber an `id` once it has been used. |
-| `topic` | string | yes | Must equal the batch's top-level `topic`. |
+| `topic` | string | yes | For `topic_pack`, must equal the batch's top-level `topic`. For `mock_exam`, this is the question's own topic and is validated independently per question (no top-level value to compare against). |
 | `subtopic` | string | yes | Pedagogical metadata. |
 | `learning_outcome` | string | yes | Pedagogical metadata. |
 | `difficulty` | integer | yes | Positive integer. |
@@ -147,6 +166,39 @@ needs to separately enforce beyond validating `answer` is a real label.
 - A standalone validator (`tools/content/validate-question-json.mjs`) that
   checks the rules above against v1 files and rejects/flags legacy files.
 - Test fixtures under `tools/content/fixtures/`.
+- A standalone SQL generator (`tools/content/generate-question-import-sql.mjs`,
+  also runnable as `npm run content:generate-import-sql --`) — see below.
 
-No importer, no SQL generator, no Supabase writes, and no migrations exist
-yet — those remain future phases.
+No Supabase writes and no real migrations exist yet — those remain future,
+explicit, human-reviewed phases.
+
+## The SQL generator (Phase 7A.3)
+
+`tools/content/generate-question-import-sql.mjs` reads validated v1 source
+JSON plus a small **import plan** JSON file, and writes plain, reviewable
+PostgreSQL SQL (`BEGIN; ... COMMIT;`, `INSERT ... ON CONFLICT ... DO
+UPDATE`) to a local output path. It never applies SQL, never writes to
+`supabase/migrations`, never touches a live database, uses no Supabase
+client, no env vars, and no network access — run `node
+tools/content/generate-question-import-sql.mjs` with no arguments for full
+usage text, including the import plan's JSON shape. A documented, non-
+production example plan lives at `content/import-plans/example-plan.json`.
+
+Two points worth calling out explicitly:
+
+- **Source `id` values (e.g. `"GK-001-01"`) are never inserted as a
+  Postgres `uuid` directly.** The generator derives a stable UUIDv5-style
+  id from `(source package label, source question id)` (and similarly for
+  topics and options) using a hand-rolled deterministic UUID helper over
+  `node:crypto`'s SHA-1 — no external `uuid` package. The same source
+  input always produces the same UUID, so re-running the generator on
+  unchanged content produces byte-for-byte-identical id columns.
+- **Which app `packages` row question content is assigned to remains an
+  explicit, human-authored decision in the import plan** — the generator
+  never infers `package_type`, `difficulty_level`, or `is_free_tier` from
+  a file name or any other heuristic.
+- **`type: "mock_exam"` files are supported** (Phase 7A.3.1): topics are
+  resolved per question instead of once per file, and a `mock_exam` source
+  file's `target_package_id` must resolve to a `package_type:
+  "ZORLAYICI_DENEME"` package in the plan — the generator rejects the plan
+  otherwise.

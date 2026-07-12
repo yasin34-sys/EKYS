@@ -131,6 +131,8 @@ CREATE TABLE IF NOT EXISTS packages (
   is_free_tier INTEGER NOT NULL DEFAULT 0 CHECK (is_free_tier IN (0,1)),
   status TEXT NOT NULL DEFAULT 'DRAFT'
     CHECK (status IN ('DRAFT','PUBLISHED','ARCHIVED')),
+  title TEXT,
+  description TEXT,
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
   updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
@@ -139,6 +141,10 @@ CREATE TABLE IF NOT EXISTS packages (
 -- been downloaded and imported.
 -- is_free_tier: policy decision, not a license — mirrors the
 -- PostgreSQL packages.is_free_tier column, independent of Entitlement.
+-- title/description: optional user-facing display fields (Phase 7A.3.2,
+-- see supabase/migrations/20260713000001_package_title_description.sql).
+-- Nullable, no default -- null means "fall back to the package_type
+-- label," same as every existing row.
 
 CREATE INDEX IF NOT EXISTS idx_packages_exam_id ON packages(exam_id);
 CREATE INDEX IF NOT EXISTS idx_packages_exam_type_difficulty
