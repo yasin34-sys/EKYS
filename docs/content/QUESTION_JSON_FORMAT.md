@@ -71,6 +71,19 @@ the source file. This matches the project's conservative-by-default posture
 (the question bank is still draft/preparation material, not final production
 content).
 
+This source-JSON-level default is what a file means in isolation. At import
+time, `tools/content/generate-question-import-sql.mjs` additionally supports
+an *explicit* import-plan override: a top-level `"question_status"` field on
+the import plan (not the source JSON) forces every question the plan
+generates SQL for to that status, regardless of each source file's own
+`status` (or its absent-means-`DRAFT` default). `content/import-plans/
+production-v1.json` sets `"question_status": "PUBLISHED"` — this is how the
+production import ships 640 questions as `PUBLISHED` without editing 26
+source JSON files to add a `status` field to each one. This is still an
+explicit, human-authored decision written into the plan, not a new implicit
+default: a plan that omits `question_status` falls back to the original
+per-file rule (source JSON `status` if present, otherwise `DRAFT`) unchanged.
+
 ## `"package"` (JSON) vs. `packages` (database table)
 
 The JSON top-level `package` field (e.g. `"TYMM-001"`) is a **human authoring
@@ -202,3 +215,23 @@ Two points worth calling out explicitly:
   file's `target_package_id` must resolve to a `package_type:
   "ZORLAYICI_DENEME"` package in the plan — the generator rejects the plan
   otherwise.
+- **An import plan may map the same source file into more than one target
+  package** (Phase 7A.4) — e.g. every `topic_pack` file assigned into both a
+  free "Temel Çalışma" package and a paid "Yoğun Tekrar" package, via two
+  separate `source_packages[]` entries with the same `file` but different
+  `target_package_id`. What must stay unique is the **`(file,
+  target_package_id)` pair**, not the file alone; a duplicate pair is
+  rejected as a plan error, but the same file appearing once per distinct
+  target package is expected and supported.
+- **Questions and options are deduplicated by their deterministic id, not
+  emitted once per package assignment.** Because `questionUuid`/`optionUuid`
+  are derived from `(package_label, source question id[, label])`, the same
+  physical question maps to the same id no matter how many packages its
+  source file is assigned into. The generator keys its in-memory question
+  and option collections by that id, so a question assigned to two packages
+  still produces exactly one `INSERT INTO questions` / `INSERT INTO
+  question_options` each — not a duplicate per assignment. `package_questions`
+  is the one table that intentionally gets a separate row per assignment
+  (one `(package_id, question_id)` pair for each package the question was
+  mapped into), since that is exactly what records the many-to-many
+  membership.

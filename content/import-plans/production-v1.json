@@ -1,0 +1,341 @@
+{
+  "_notice": "PRODUCTION IMPORT PLAN (Phase 7A.4, checksums/status fixed in 7A.4.1) -- first real content import plan for the 26 validated draft JSON files under content/questions/draft/. Generates reviewable SQL only; see content/generated/production-v1-import.sql. Not applied to any database by this plan file alone -- applying it is a separate, explicit, future step. question_status forces every question PUBLISHED without editing source JSON; package checksums are auto-computed (see generate-question-import-sql.mjs).",
+  "exam": {
+    "mode": "new",
+    "key": "EKYS-SINAVI-V1",
+    "name": "EKYS Sınavı",
+    "status": "PUBLISHED",
+    "duration_minutes": 30,
+    "passing_score": 50,
+    "question_count": 640
+  },
+  "question_status": "PUBLISHED",
+  "topic_mapping": {
+    "policy": "EXACT_NAME_MATCH",
+    "topics": [
+      {
+        "name": "Türkiye Yüzyılı Maarif Modeli",
+        "display_order": 1,
+        "status": "PUBLISHED"
+      },
+      {
+        "name": "Genel Kültür",
+        "display_order": 2,
+        "status": "PUBLISHED"
+      },
+      {
+        "name": "Mevzuat",
+        "display_order": 3,
+        "status": "PUBLISHED"
+      },
+      {
+        "name": "T.C. İnkılap Tarihi ve Atatürkçülük",
+        "display_order": 4,
+        "status": "PUBLISHED"
+      },
+      {
+        "name": "Eğitim Bilimleri",
+        "display_order": 5,
+        "status": "PUBLISHED"
+      }
+    ]
+  },
+  "packages": [
+    {
+      "id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "KOLAY",
+      "is_free_tier": true,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Temel Çalışma Paketi",
+      "description": "Tüm konulardan temel düzey sorularla düzenli çalışma paketi."
+    },
+    {
+      "id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98",
+      "package_type": "YOGUN_TEKRAR",
+      "difficulty_level": "ORTA",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Yoğun Tekrar Paketi",
+      "description": "Tüm konuları kapsayan, tekrar ve pekiştirme amaçlı orta düzey soru paketi."
+    },
+    {
+      "id": "efc92aef-6cc6-4a90-b81e-cbc297233eef",
+      "package_type": "ZORLAYICI_DENEME",
+      "difficulty_level": "ZOR",
+      "is_free_tier": true,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Deneme Sınavı 1",
+      "description": "Gerçek sınav formatında, zamanlı ilk deneme sınavı."
+    },
+    {
+      "id": "6d61f487-456e-4565-bfcd-9cda131497ba",
+      "package_type": "ZORLAYICI_DENEME",
+      "difficulty_level": "ZOR",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Deneme Sınavı 2",
+      "description": "Gerçek sınav formatında, zamanlı ikinci deneme sınavı."
+    }
+  ],
+  "source_packages": [
+    {
+      "file": "DEN-001 Deneme Paketi.json",
+      "package_label": "DENEME-001",
+      "target_package_id": "efc92aef-6cc6-4a90-b81e-cbc297233eef"
+    },
+    {
+      "file": "DEN-002 Deneme Paketi.json",
+      "package_label": "DENEME-002",
+      "target_package_id": "6d61f487-456e-4565-bfcd-9cda131497ba"
+    },
+    {
+      "file": "EB-001 Soru Paketi.json",
+      "package_label": "EB-001",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "EB-001 Soru Paketi.json",
+      "package_label": "EB-001",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "EB-002 Soru Paketi.json",
+      "package_label": "EB-002",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "EB-002 Soru Paketi.json",
+      "package_label": "EB-002",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "EB-004 Soru Paketi.json",
+      "package_label": "EB-004",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "EB-004 Soru Paketi.json",
+      "package_label": "EB-004",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "EB-005 Soru Paketi.json",
+      "package_label": "EB-005",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "EB-005 Soru Paketi.json",
+      "package_label": "EB-005",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "EB-006 Soru Paketi.json",
+      "package_label": "EB-006",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "EB-006 Soru Paketi.json",
+      "package_label": "EB-006",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "GK-001 Soru Paketi.json",
+      "package_label": "GK-001",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "GK-001 Soru Paketi.json",
+      "package_label": "GK-001",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "GK-002 Soru Paketi.json",
+      "package_label": "GK-002",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "GK-002 Soru Paketi.json",
+      "package_label": "GK-002",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "GK-003 Soru Paketi.json",
+      "package_label": "GK-003",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "GK-003 Soru Paketi.json",
+      "package_label": "GK-003",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "GK-004 Soru Paketi.json",
+      "package_label": "GK-004",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "GK-004 Soru Paketi.json",
+      "package_label": "GK-004",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "GK-005 Soru Paketi.json",
+      "package_label": "GK-005",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "GK-005 Soru Paketi.json",
+      "package_label": "GK-005",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "GK-006 Soru Paketi.json",
+      "package_label": "GK-006",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "GK-006 Soru Paketi.json",
+      "package_label": "GK-006",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "ITA-001 Soru Paketi.json",
+      "package_label": "ITA-001",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "ITA-001 Soru Paketi.json",
+      "package_label": "ITA-001",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "ITA-002 Soru Paketi.json",
+      "package_label": "ITA-002",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "ITA-002 Soru Paketi.json",
+      "package_label": "ITA-002",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "ITA-003 Soru Paketi.json",
+      "package_label": "ITA-003",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "ITA-003 Soru Paketi.json",
+      "package_label": "ITA-003",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "ITA-004 Soru Paketi.json",
+      "package_label": "ITA-004",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "ITA-004 Soru Paketi.json",
+      "package_label": "ITA-004",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "MEV-001 Soru Paketi.json",
+      "package_label": "MEV-001",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "MEV-001 Soru Paketi.json",
+      "package_label": "MEV-001",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "MEV-002 Soru Paketi.json",
+      "package_label": "MEV-002",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "MEV-002 Soru Paketi.json",
+      "package_label": "MEV-002",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "MEV-003 Soru Paketi.json",
+      "package_label": "MEV-003",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "MEV-003 Soru Paketi.json",
+      "package_label": "MEV-003",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "TYMM-001 Konu Paketi.json",
+      "package_label": "TYMM-001",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "TYMM-001 Konu Paketi.json",
+      "package_label": "TYMM-001",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "TYMM-002 Konu Paketi.json",
+      "package_label": "TYMM-002",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "TYMM-002 Konu Paketi.json",
+      "package_label": "TYMM-002",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "TYMM-003 Konu Paketi.json",
+      "package_label": "TYMM-003",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "TYMM-003 Konu Paketi.json",
+      "package_label": "TYMM-003",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "TYMM-004 Konu Paketi.json",
+      "package_label": "TYMM-004",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "TYMM-004 Konu Paketi.json",
+      "package_label": "TYMM-004",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "TYMM-005 Konu Paketi.json",
+      "package_label": "TYMM-005",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "TYMM-005 Konu Paketi.json",
+      "package_label": "TYMM-005",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    },
+    {
+      "file": "TYMM-006 Konu Paketi.json",
+      "package_label": "TYMM-006",
+      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
+    },
+    {
+      "file": "TYMM-006 Konu Paketi.json",
+      "package_label": "TYMM-006",
+      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
+    }
+  ]
+}

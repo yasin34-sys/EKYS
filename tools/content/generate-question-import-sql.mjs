@@ -72,6 +72,11 @@ fully worked, documented fixture example):
     // --- required when mode is "existing" ---
     "id": "<uuid-of-existing-exams-row>"
   },
+  "question_status": "PUBLISHED",  // optional (Phase 7A.4.1) -- DRAFT|PUBLISHED|ARCHIVED,
+                                    // forces every emitted question to this status regardless
+                                    // of each source file's own "status". Omit to keep the
+                                    // old per-file behavior: source JSON "status" if present,
+                                    // otherwise DRAFT.
   "topic_mapping": {
     "policy": "EXACT_NAME_MATCH",  // the only policy this tool supports today
     "topics": [
@@ -85,7 +90,10 @@ fully worked, documented fixture example):
       "difficulty_level": "ORTA",        // KOLAY|ORTA|ZOR
       "is_free_tier": false,
       "version": 1,
-      "checksum": null,            // string or null -- never computed by this tool
+      "checksum": "auto",          // string, null, or the literal "auto" (Phase 7A.4.1) --
+                                    // "auto" computes a deterministic SHA-256 hex digest from
+                                    // this package's own content (see computePackageChecksum);
+                                    // any other string is used verbatim; null stays NULL.
       "status": "DRAFT",           // DRAFT|PUBLISHED|ARCHIVED
       "title": null,               // optional -- non-empty string or null/absent (defaults to null)
       "description": null          // optional -- non-empty string or null/absent (defaults to null)
@@ -100,10 +108,13 @@ fully worked, documented fixture example):
   ]
 }
 
-Every JSON file found under --input must be covered by exactly one
+Every JSON file found under --input must be covered by at least one
 source_packages[] entry, and every source_packages[] entry must resolve to
 a file that was actually found -- this tool never silently skips or infers
-a mapping either direction.
+a mapping either direction. A file may appear in more than one
+source_packages[] entry (each with a different target_package_id) when the
+same content is deliberately assigned into more than one package -- what
+must stay unique is the (file, target_package_id) pair, not the file alone.
 
 Source files with top-level "type": "mock_exam" (see
 docs/content/QUESTION_JSON_FORMAT.md) are supported alongside "topic_pack":
@@ -121,6 +132,18 @@ user-facing display fields, independent of package_type/difficulty_level.
 They are never inferred from a source file name or any other heuristic --
 if omitted, they are written as SQL NULL and the client falls back to its
 existing package_type-derived label, exactly as before this field existed.
+
+packages[].checksum: "auto" (Phase 7A.4.1) computes a deterministic
+SHA-256 hex digest over that package's own id/type/difficulty/
+is_free_tier/title/description/version/status, plus every
+package_question (display_order) and, for each of its questions,
+id/topic_id/body/status and every option's id/label/body/is_correct/
+display_order -- all in a fixed, sorted order, so the same package
+content always produces the same checksum no matter what order the
+plan lists things in. This is what apps/mobile's local content-sync
+cache (content_sync_state) compares against to decide whether a
+package's content needs re-downloading -- see
+apps/mobile/src/sync/SupabasePullSync.ts.
 `.trim();
   console.error(usage);
   process.exit(code);
@@ -325,6 +348,17 @@ function validatePlanShape(plan) {
     errors.push(`exam.mode must be "new" or "existing", got ${JSON.stringify(exam?.mode)}`);
   }
 
+  // --- question_status (optional, Phase 7A.4.1) ---
+  // Forces every emitted question to this status, overriding each source
+  // file's own "status" (or its DRAFT default). Absent means: keep the
+  // old per-file behavior untouched -- this is additive, not a new
+  // default.
+  if ('question_status' in plan && !QUESTION_STATUSES.includes(plan.question_status)) {
+    errors.push(
+      `"question_status" must be one of ${QUESTION_STATUSES.join('/')}, got ${JSON.stringify(plan.question_status)}`
+    );
+  }
+
   // --- topic_mapping ---
   const topicMapping = plan.topic_mapping;
   if (!isPlainObject(topicMapping)) {
@@ -419,7 +453,13 @@ function validatePlanShape(plan) {
   if (!Array.isArray(sourcePackages) || sourcePackages.length === 0) {
     errors.push('"source_packages" must be a non-empty array');
   } else {
-    const seenFiles = new Set();
+    // A single source file may deliberately appear more than once here --
+    // e.g. every topic_pack file assigned into both a free "Temel
+    // Çalışma" package and a "Yoğun Tekrar" package (Phase 7A.4). What
+    // must stay unique is the (file, target_package_id) *pair*: two
+    // identical entries would just be a copy-paste mistake, not a second
+    // real assignment.
+    const seenFileTargetPairs = new Set();
     sourcePackages.forEach((s, i) => {
       if (!isPlainObject(s)) {
         errors.push(`source_packages[${i}] must be an object`);
@@ -427,10 +467,15 @@ function validatePlanShape(plan) {
       }
       if (typeof s.file !== 'string' || s.file.trim().length === 0) {
         errors.push(`source_packages[${i}].file must be a non-empty string`);
-      } else if (seenFiles.has(s.file)) {
-        errors.push(`source_packages[${i}].file is a duplicate: ${s.file}`);
       } else {
-        seenFiles.add(s.file);
+        const pairKey = `${s.file} ${s.target_package_id}`;
+        if (seenFileTargetPairs.has(pairKey)) {
+          errors.push(
+            `source_packages[${i}] is a duplicate (file, target_package_id) pair: ${s.file} -> ${s.target_package_id}`
+          );
+        } else {
+          seenFileTargetPairs.add(pairKey);
+        }
       }
       if (typeof s.package_label !== 'string' || s.package_label.trim().length === 0) {
         errors.push(`source_packages[${i}].package_label must be a non-empty string`);
@@ -444,6 +489,76 @@ function validatePlanShape(plan) {
   }
 
   return errors;
+}
+
+// ---------------------------------------------------------------------------
+// Automatic package checksums (Phase 7A.4.1)
+// ---------------------------------------------------------------------------
+
+// Field separator that can't appear in any of the plain-text values being
+// hashed (question/option body text, titles, etc.) -- ASCII Unit
+// Separator, not a printable character a human author could type.
+const CHECKSUM_FIELD_SEP = '';
+
+/**
+ * Computes a deterministic SHA-256 hex digest over one package's own
+ * content: the package row's own display fields, plus every
+ * package_question (in display_order), and for each of those questions
+ * its own fields and every one of its options (in display_order).
+ *
+ * Deterministic by construction, not by luck: every list involved is
+ * explicitly sorted by a stable key before hashing (package_questions and
+ * options by display_order), and every row is serialized as a fixed,
+ * ordered tuple of fields (not a JSON object, whose key order is an
+ * implementation detail not worth depending on for a checksum). Two runs
+ * over the same package content -- regardless of what order the plan
+ * happened to list source_packages entries in -- always produce the same
+ * digest.
+ */
+function computePackageChecksum(pkg, packageQuestionsForPkg, questionsById, optionsByQuestionId) {
+  const lines = [];
+
+  lines.push(
+    [
+      'package',
+      pkg.id,
+      pkg.packageType,
+      pkg.difficultyLevel,
+      String(pkg.isFreeTier),
+      pkg.title ?? '',
+      pkg.description ?? '',
+      String(pkg.version),
+      pkg.status,
+    ].join(CHECKSUM_FIELD_SEP)
+  );
+
+  const sortedPackageQuestions = [...packageQuestionsForPkg].sort((a, b) => a.displayOrder - b.displayOrder);
+  for (const pq of sortedPackageQuestions) {
+    lines.push(['package_question', pq.questionId, String(pq.displayOrder)].join(CHECKSUM_FIELD_SEP));
+
+    const question = questionsById.get(pq.questionId);
+    lines.push(
+      ['question', question.id, question.topicId, question.body, question.status].join(CHECKSUM_FIELD_SEP)
+    );
+
+    const options = (optionsByQuestionId.get(question.id) ?? [])
+      .slice()
+      .sort((a, b) => a.displayOrder - b.displayOrder);
+    for (const option of options) {
+      lines.push(
+        [
+          'option',
+          option.id,
+          option.label,
+          option.body,
+          String(option.isCorrect),
+          String(option.displayOrder),
+        ].join(CHECKSUM_FIELD_SEP)
+      );
+    }
+  }
+
+  return createHash('sha256').update(lines.join('\n'), 'utf8').digest('hex');
 }
 
 // ---------------------------------------------------------------------------
@@ -462,8 +577,11 @@ function buildModel(plan, inputFiles) {
 
   const packageById = new Map(plan.packages.map((p) => [p.id, p]));
 
-  // Match every discovered input file to exactly one source_packages entry
-  // by basename, and vice versa -- no silent skips either direction.
+  // Match every discovered input file to at least one source_packages
+  // entry by basename, and vice versa -- no silent skips either
+  // direction. A file may legitimately match more than one entry (see
+  // the (file, target_package_id) pair-uniqueness note above) -- this
+  // membership check only needs "at least one," not "exactly one."
   const sourceByBasename = new Map(plan.source_packages.map((s) => [basename(s.file), s]));
   const fileBasenames = new Set(inputFiles.map((f) => basename(f)));
 
@@ -510,10 +628,20 @@ function buildModel(plan, inputFiles) {
     description: 'description' in p ? p.description : null,
   }));
 
-  const questionsOut = [];
-  const optionsOut = [];
+  // Keyed by id, not pushed to a plain array: the same physical question
+  // (and its options) can legitimately be visited more than once when a
+  // single source file is assigned into multiple packages (Phase 7A.4,
+  // e.g. every topic_pack file going into both "Temel Çalışma" and
+  // "Yoğun Tekrar"). Deriving the same deterministic id both times and
+  // keying on it here means the generated SQL emits exactly one INSERT
+  // per question/option no matter how many packages reference it,
+  // instead of a redundant (harmless, but bloated and confusing to
+  // review) duplicate INSERT per assignment. package_questions has no
+  // such dedup -- one row per (package, question) pair is exactly what's
+  // wanted there.
+  const questionsById = new Map();
+  const optionsById = new Map();
   const packageQuestionsOut = [];
-  let totalQuestionsImported = 0;
 
   for (const sourceEntry of plan.source_packages) {
     const filePath = inputFiles.find((f) => basename(f) === basename(sourceEntry.file));
@@ -562,7 +690,12 @@ function buildModel(plan, inputFiles) {
       continue;
     }
 
-    const status = 'status' in doc ? doc.status : 'DRAFT';
+    // plan.question_status (Phase 7A.4.1), when present, overrides every
+    // source file's own status uniformly -- e.g. a production import that
+    // wants everything PUBLISHED without editing 26 source JSON files
+    // just to add a "status" field to each. Backward compatible: a plan
+    // without question_status falls back to the original per-file rule.
+    const status = 'question_status' in plan ? plan.question_status : 'status' in doc ? doc.status : 'DRAFT';
     if (!QUESTION_STATUSES.includes(status)) {
       errors.push(`${filePath}: resolved question status ${JSON.stringify(status)} is not valid`);
       continue;
@@ -582,25 +715,30 @@ function buildModel(plan, inputFiles) {
       const topicId = topicIdByName.get(questionTopic);
 
       const qId = questionUuid(sourceEntry.package_label, q.id);
-      questionsOut.push({
-        id: qId,
-        examId,
-        topicId,
-        body: q.question,
-        status,
-        sourceFile: filePath,
-        sourceId: q.id,
-      });
+      if (!questionsById.has(qId)) {
+        questionsById.set(qId, {
+          id: qId,
+          examId,
+          topicId,
+          body: q.question,
+          status,
+          sourceFile: filePath,
+          sourceId: q.id,
+        });
+      }
 
       for (const label of CHOICE_LABELS) {
-        optionsOut.push({
-          id: optionUuid(sourceEntry.package_label, q.id, label),
-          questionId: qId,
-          label,
-          body: q.choices[label],
-          isCorrect: q.answer === label,
-          displayOrder: CHOICE_LABELS.indexOf(label) + 1,
-        });
+        const optId = optionUuid(sourceEntry.package_label, q.id, label);
+        if (!optionsById.has(optId)) {
+          optionsById.set(optId, {
+            id: optId,
+            questionId: qId,
+            label,
+            body: q.choices[label],
+            isCorrect: q.answer === label,
+            displayOrder: CHOICE_LABELS.indexOf(label) + 1,
+          });
+        }
       }
 
       const nextOrder = displayOrderCounter.get(targetPackage.id);
@@ -610,8 +748,6 @@ function buildModel(plan, inputFiles) {
         displayOrder: nextOrder,
       });
       displayOrderCounter.set(targetPackage.id, nextOrder + 1);
-
-      totalQuestionsImported++;
     }
   }
 
@@ -619,6 +755,7 @@ function buildModel(plan, inputFiles) {
     return { errors };
   }
 
+  const totalQuestionsImported = questionsById.size;
   if (plan.exam.mode === 'new' && plan.exam.question_count !== totalQuestionsImported) {
     console.warn(
       `(warn) exam.question_count in the plan is ${plan.exam.question_count}, but this run is importing ` +
@@ -627,14 +764,39 @@ function buildModel(plan, inputFiles) {
     );
   }
 
+  // Resolve packages[].checksum: "auto" (Phase 7A.4.1) now that every
+  // question/option/package_question this package references has been
+  // fully collected above. Anything other than the literal string "auto"
+  // (including null) is left exactly as the plan specified it.
+  const packageQuestionsByPackageId = new Map();
+  for (const pq of packageQuestionsOut) {
+    if (!packageQuestionsByPackageId.has(pq.packageId)) packageQuestionsByPackageId.set(pq.packageId, []);
+    packageQuestionsByPackageId.get(pq.packageId).push(pq);
+  }
+  const optionsByQuestionId = new Map();
+  for (const option of optionsById.values()) {
+    if (!optionsByQuestionId.has(option.questionId)) optionsByQuestionId.set(option.questionId, []);
+    optionsByQuestionId.get(option.questionId).push(option);
+  }
+  for (const pkg of packagesOut) {
+    if (pkg.checksum === 'auto') {
+      pkg.checksum = computePackageChecksum(
+        pkg,
+        packageQuestionsByPackageId.get(pkg.id) ?? [],
+        questionsById,
+        optionsByQuestionId
+      );
+    }
+  }
+
   return {
     errors: [],
     examInsert: plan.exam.mode === 'new' ? { id: examId, ...plan.exam } : null,
     examId,
     topics: topicsOut,
     packages: packagesOut,
-    questions: questionsOut,
-    options: optionsOut,
+    questions: [...questionsById.values()],
+    options: [...optionsById.values()],
     packageQuestions: packageQuestionsOut,
   };
 }
