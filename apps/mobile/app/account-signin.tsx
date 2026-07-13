@@ -5,8 +5,24 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthService, useUserProfileRepository } from '../src/services/hooks';
 import { SignInWithPasswordUseCase } from '../src/application/SignInWithPasswordUseCase';
-import { AppText, BackButton, Card, PrimaryButton, ScreenContainer } from '../src/components';
+import { APPLE_SIGN_IN_ENABLED, GOOGLE_OAUTH_ENABLED } from '../src/auth/oauthConfig';
+import {
+  AppText,
+  BackButton,
+  Card,
+  PrimaryButton,
+  ScreenContainer,
+  SecondaryButton,
+} from '../src/components';
 import { colors, radii, spacing } from '../src/theme';
+
+// Google must never be the only third-party login on iOS without Sign
+// in with Apple alongside it (App Store Review Guideline 4.8) — so on
+// iOS this additionally requires APPLE_SIGN_IN_ENABLED, which isn't
+// implemented yet. Android has no such parity rule. Both flags default
+// to false (see oauthConfig.ts), so today this is hidden everywhere.
+const SHOW_GOOGLE_SIGN_IN =
+  GOOGLE_OAUTH_ENABLED && (Platform.OS === 'android' || APPLE_SIGN_IN_ENABLED);
 
 function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
@@ -47,6 +63,17 @@ export default function AccountSignInScreen() {
       Alert.alert('Giriş yapılamadı', 'E-posta veya şifreyi kontrol edip tekrar dene.');
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  // Only starts the browser redirect — does not itself navigate away.
+  // Completion happens in app/auth-callback.tsx once the provider
+  // redirects back into the app.
+  async function handleGoogleSignIn() {
+    try {
+      await authService.signInWithOAuthProvider('google');
+    } catch {
+      Alert.alert('Giriş başlatılamadı', 'Lütfen bağlantını kontrol edip tekrar dene.');
     }
   }
 
@@ -119,6 +146,12 @@ export default function AccountSignInScreen() {
             </View>
           </View>
         </Card>
+
+        {SHOW_GOOGLE_SIGN_IN ? (
+          <View style={styles.googleWrap}>
+            <SecondaryButton label="Google ile Giriş Yap" onPress={handleGoogleSignIn} />
+          </View>
+        ) : null}
       </KeyboardAvoidingView>
     </ScreenContainer>
   );
@@ -161,4 +194,5 @@ const styles = StyleSheet.create({
     borderRadius: radii.full,
     backgroundColor: colors.surfaceSecondary,
   },
+  googleWrap: { marginTop: spacing.md },
 });

@@ -293,6 +293,7 @@ export default function RootLayout() {
             <Stack.Screen name="account-password" />
             <Stack.Screen name="account-name" />
             <Stack.Screen name="account-delete-request" />
+            <Stack.Screen name="auth-callback" />
             <Stack.Screen name="about" />
           </Stack>
           <StatusBar style="dark" />

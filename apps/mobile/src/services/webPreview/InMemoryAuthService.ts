@@ -5,6 +5,8 @@
 import type {
   AuthService,
   AuthSession,
+  CompleteOAuthSessionParams,
+  OAuthProvider,
   RequestEmailRegistrationParams,
   SignInWithPasswordParams,
 } from '../../auth/AuthService';
@@ -47,5 +49,12 @@ export class InMemoryAuthService implements AuthService {
   }
   async updateDisplayName(fullName: string): Promise<void> {
     this.displayName = fullName;
+  }
+  // Unreachable in practice: the Google button is config-gated off
+  // (see oauthConfig.ts) and this harness has no real Supabase project
+  // to redirect to anyway.
+  async signInWithOAuthProvider(_provider: OAuthProvider): Promise<void> {}
+  async completeOAuthSession(_params: CompleteOAuthSessionParams): Promise<AuthSession> {
+    return { userId: SEED_USER_ID, isAnonymous: false };
   }
 }

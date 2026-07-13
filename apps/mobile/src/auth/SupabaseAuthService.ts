@@ -1,7 +1,11 @@
+import { Linking } from 'react-native';
+import * as ExpoLinking from 'expo-linking';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type {
   AuthService,
   AuthSession,
+  CompleteOAuthSessionParams,
+  OAuthProvider,
   RequestEmailRegistrationParams,
   SignInWithPasswordParams,
 } from './AuthService';
@@ -232,5 +236,45 @@ export class SupabaseAuthService implements AuthService {
     if (error) {
       throw new AuthSessionError(error.message, error);
     }
+  }
+
+  // System-browser flow only (react-native's Linking.openURL hands off
+  // to Chrome/Safari, never an in-app webview) — this app's code never
+  // sees the provider's login page or the password typed into it.
+  // skipBrowserRedirect: true is required so supabase-js just returns
+  // the provider URL instead of trying (and failing, in a non-web
+  // React Native runtime) to redirect the current page itself.
+  async signInWithOAuthProvider(provider: OAuthProvider): Promise<void> {
+    const client = this.requireClient();
+
+    const redirectTo = ExpoLinking.createURL('auth-callback');
+    const { data, error } = await client.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo, skipBrowserRedirect: true },
+    });
+
+    if (error || !data.url) {
+      throw new AuthSessionError(`Failed to start ${provider} sign-in`, error);
+    }
+
+    await Linking.openURL(data.url);
+  }
+
+  async completeOAuthSession(params: CompleteOAuthSessionParams): Promise<AuthSession> {
+    const client = this.requireClient();
+
+    const { data, error } = await client.auth.setSession({
+      access_token: params.accessToken,
+      refresh_token: params.refreshToken,
+    });
+
+    if (error || !data.session) {
+      throw new AuthSessionError('Failed to complete OAuth sign-in', error);
+    }
+
+    return {
+      userId: data.session.user.id,
+      isAnonymous: data.session.user.is_anonymous ?? false,
+    };
   }
 }

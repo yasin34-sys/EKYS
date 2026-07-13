@@ -16,6 +16,16 @@ export interface SignInWithPasswordParams {
   password: string;
 }
 
+// Only 'google' exists today — see oauthConfig.ts. Kept as a union
+// (rather than a bare string) so a future provider is a type-checked
+// addition here, not a silent typo at call sites.
+export type OAuthProvider = 'google';
+
+export interface CompleteOAuthSessionParams {
+  accessToken: string;
+  refreshToken: string;
+}
+
 export interface AuthService {
   // Returns the existing session if one is active, otherwise creates a
   // new anonymous session. Never fabricates a local id — the returned
@@ -82,4 +92,21 @@ export interface AuthService {
   // Writes the current user's display name to Supabase auth user
   // metadata. Same non-migration rationale as getDisplayName.
   updateDisplayName(fullName: string): Promise<void>;
+
+  // Starts a browser-based OAuth sign-in: opens the provider's real
+  // consent screen in the system browser (never an in-app webview, so
+  // there is no way for this app's code to observe the password being
+  // typed) and returns once that browser has been launched — it does
+  // NOT return a session. The provider redirects back to this app via
+  // the `ekyscepte://` deep link scheme (see app/auth-callback.tsx),
+  // which is what actually completes the sign-in via
+  // completeOAuthSession(). Callers must gate this behind the relevant
+  // oauthConfig.ts flag — calling it with no provider configured in the
+  // Supabase Dashboard fails at the provider's end, not silently.
+  signInWithOAuthProvider(provider: OAuthProvider): Promise<void>;
+
+  // Finishes the redirect started by signInWithOAuthProvider(): takes
+  // the access/refresh token pair parsed from the deep-link callback
+  // URL's fragment and establishes them as the active Supabase session.
+  completeOAuthSession(params: CompleteOAuthSessionParams): Promise<AuthSession>;
 }
