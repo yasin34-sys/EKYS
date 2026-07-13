@@ -26,7 +26,7 @@ const pages: OnboardingPage[] = [
   },
   {
     icon: 'book-outline',
-    title: 'Ders paketleri ve denemeler',
+    title: 'Konu sınavları ve denemeler',
     message: 'Konulara göre çalış, gerçek sınav formatında zamanlı denemeler çöz.',
   },
   {

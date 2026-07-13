@@ -57,7 +57,7 @@ function ActionInfoCard({
 
 export default function AccountManagementScreen() {
   const { data: userProfile } = useCurrentUserProfile();
-  const statusLabel = userProfile?.accountStatus === 'REGISTERED' ? 'Kayıtlı hesap' : 'Misafir oturum';
+  const statusLabel = userProfile?.accountStatus === 'REGISTERED' ? 'Kayıtlı hesap' : 'Hesap bağlanmadı';
 
   function openSupportEmail() {
     const subject = encodeURIComponent('EKYS CEPTE hesap desteği');

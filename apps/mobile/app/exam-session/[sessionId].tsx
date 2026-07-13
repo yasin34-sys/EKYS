@@ -291,7 +291,7 @@ export default function ExamSessionScreen() {
           <EmptyState
             icon="document-text-outline"
             title="Sınav başlatılamadı"
-            message="Bu paket için henüz soru eklenmedi."
+            message="Bu sınav için henüz soru eklenmedi."
           />
         </View>
       ) : currentQuestion ? (

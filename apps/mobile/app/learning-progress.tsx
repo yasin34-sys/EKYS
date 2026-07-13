@@ -21,6 +21,7 @@ import {
   IconChip,
   TopicMasteryChip,
   ProgressBar,
+  AccountRequiredState,
   topicIcon,
 } from '../src/components';
 import { colors, spacing } from '../src/theme';
@@ -35,7 +36,8 @@ export default function LearningProgressScreen() {
   const topicRepository = useTopicRepository();
   const learningMetricsRepository = useLearningMetricsRepository();
 
-  const { data: userProfile } = useCurrentUserProfile();
+  const { data: userProfile, isLoading: isUserProfileLoading } = useCurrentUserProfile();
+  const isRegistered = userProfile?.accountStatus === 'REGISTERED';
 
   const examsQuery = useQuery({
     queryKey: ['exams', 'published'],
@@ -46,7 +48,7 @@ export default function LearningProgressScreen() {
   const topicsQuery = useQuery({
     queryKey: ['topics', 'byExam', examId],
     queryFn: () => new GetTopicsByExamUseCase({ topicRepository }).execute(examId as string),
-    enabled: Boolean(examId),
+    enabled: Boolean(examId) && isRegistered,
   });
 
   const metricsQuery = useQuery({
@@ -56,17 +58,18 @@ export default function LearningProgressScreen() {
         userProfile!.id,
         examId as string,
       ),
-    enabled: Boolean(userProfile) && Boolean(examId),
+    enabled: isRegistered && Boolean(examId),
   });
 
   useFocusEffect(
     useCallback(() => {
+      if (!isRegistered || !examId) return;
       metricsQuery.refetch();
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []),
+    }, [isRegistered, examId]),
   );
 
-  const isLoading = examsQuery.isLoading || topicsQuery.isLoading || metricsQuery.isLoading || !userProfile;
+  const isLoading = isUserProfileLoading || examsQuery.isLoading || topicsQuery.isLoading || metricsQuery.isLoading;
 
   // Leaf topics only — Topic Progress rows track masterable study units,
   // not the parent grouping labels already shown on Exam Detail (§6).
@@ -99,7 +102,9 @@ export default function LearningProgressScreen() {
         ) : null}
       </View>
 
-      {isLoading ? (
+      {!isUserProfileLoading && !isRegistered ? (
+        <AccountRequiredState message="Konu ilerlemeni görmek için hesabını e-posta ile bağla." />
+      ) : isLoading ? (
         <Card>
           <Skeleton width="80%" height={16} style={styles.skeletonRow} />
           <Skeleton width="60%" height={16} style={styles.skeletonRow} />
@@ -108,7 +113,7 @@ export default function LearningProgressScreen() {
       ) : leafTopics.length === 0 ? (
         <Card>
           <AppText variant="subhead" color="tertiary">
-            Henüz konu ilerlemesi yok — bir paketle çalışmaya başla.
+            Henüz konu ilerlemesi yok — bir konu sınavıyla çalışmaya başla.
           </AppText>
         </Card>
       ) : (

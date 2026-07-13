@@ -24,6 +24,7 @@ import {
   BackButton,
   IconChip,
   AccessTag,
+  AccountRequiredState,
   packageTypeIcon,
 } from '../../src/components';
 import { colors, radii, spacing } from '../../src/theme';
@@ -84,12 +85,13 @@ export default function PackageDetailScreen() {
   const questionRepository = useQuestionRepository();
   const topicRepository = useTopicRepository();
 
-  const { data: userProfile } = useCurrentUserProfile();
+  const { data: userProfile, isLoading: isUserProfileLoading } = useCurrentUserProfile();
+  const isRegistered = userProfile?.accountStatus === 'REGISTERED';
 
   const packageQuery = useQuery({
     queryKey: ['package', id],
     queryFn: () => new GetPackageByIdUseCase({ packageRepository }).execute(id as string),
-    enabled: Boolean(id),
+    enabled: Boolean(id) && isRegistered,
   });
 
   // Real question count, same use case Exam Start already uses for
@@ -99,7 +101,7 @@ export default function PackageDetailScreen() {
   const questionsQuery = useQuery({
     queryKey: ['questions', 'byPackage', id],
     queryFn: () => new GetQuestionsByPackageUseCase({ questionRepository }).execute(id as string),
-    enabled: Boolean(id),
+    enabled: Boolean(id) && isRegistered,
   });
   const questionCount = questionsQuery.data?.length;
   const visibleQuestionCount = questionCount && questionCount > 0 ? questionCount : null;
@@ -112,7 +114,7 @@ export default function PackageDetailScreen() {
   const topicsQuery = useQuery({
     queryKey: ['topics', 'byExam', packageQuery.data?.examId],
     queryFn: () => new GetTopicsByExamUseCase({ topicRepository }).execute(packageQuery.data!.examId),
-    enabled: Boolean(packageQuery.data),
+    enabled: isRegistered && Boolean(packageQuery.data),
   });
 
   const topicDistribution = useMemo(() => {
@@ -135,7 +137,7 @@ export default function PackageDetailScreen() {
         packageRepository,
         entitlementRepository,
       }).execute(userProfile!.id, packageQuery.data!.examId),
-    enabled: Boolean(packageQuery.data) && Boolean(userProfile),
+    enabled: isRegistered && Boolean(packageQuery.data),
   });
 
   const accessEntry = accessQuery.data?.find((entry) => entry.package.id === id);
@@ -176,7 +178,9 @@ export default function PackageDetailScreen() {
         <BackButton />
       </View>
 
-      {packageQuery.isLoading ? (
+      {!isUserProfileLoading && !isRegistered ? (
+        <AccountRequiredState message="Konu sınavını görüntülemek için hesabını e-posta ile bağla." />
+      ) : isUserProfileLoading || packageQuery.isLoading ? (
         <Card variant="hero">
           <Skeleton width="60%" height={22} style={styles.skeletonLine} />
           <Skeleton width="40%" height={16} style={styles.skeletonLine} />
@@ -186,8 +190,8 @@ export default function PackageDetailScreen() {
         <View style={styles.centerFill}>
           <EmptyState
             icon="alert-circle-outline"
-            title="Paket bulunamadı"
-            message="Bu paket artık mevcut olmayabilir."
+            title="Sınav bulunamadı"
+            message="Bu sınav artık mevcut olmayabilir."
           />
         </View>
       ) : (
@@ -239,14 +243,14 @@ export default function PackageDetailScreen() {
           ) : accessStatus === 'FULL' ? (
             <>
               <AppText variant="subhead" color="success" style={styles.accessNote}>
-                Bu pakete erişimin var
+                Bu sınava erişimin var
               </AppText>
               <PrimaryButton label="Başla" onPress={handleStart} />
             </>
           ) : accessStatus === 'PREMIUM' ? (
             <>
               <AppText variant="subhead" color="secondary" style={styles.accessNote}>
-                Bu paket Premium üyelikle açılır.
+                Bu sınav Premium üyelikle açılır.
               </AppText>
               <PrimaryButton label="Premium’a Geç" onPress={handleOpenPremium} />
               <AppText variant="footnote" color="tertiary" style={styles.premiumNote}>
@@ -260,7 +264,7 @@ export default function PackageDetailScreen() {
             // since there is no purchase flow to route into yet.
             <View style={styles.lockedNotice}>
               <AppText variant="subhead" color="secondary" style={styles.accessNote}>
-                Bu paket şu anda kilitli
+                Bu sınav şu anda kilitli
               </AppText>
               <View style={styles.comingSoonTag}>
                 <AppText variant="caption" color="tertiary">

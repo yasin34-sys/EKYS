@@ -16,7 +16,7 @@ export interface CardProps extends ViewProps {
 // "highlighted card" mechanic outside the pricing screen's badge treatment
 // (handled separately, contextually, where that's built), so here it's
 // modeled simply as an accent-colored border + a slightly stronger shadow,
-// closest to stitch's "Yoğun Tekrar Paketi" highlighted-card border.
+// closest to stitch's highlighted-card border treatment.
 export function Card({ variant = 'standard', style, ...props }: CardProps) {
   return <View style={[styles.card, variant === 'hero' && styles.hero, style]} {...props} />;
 }

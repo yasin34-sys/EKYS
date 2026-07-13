@@ -24,6 +24,7 @@ import {
   PackageList,
   TopicMasteryChip,
   ProgressBar,
+  AccountRequiredState,
   topicIcon,
   collectTopicAndDescendantIds,
 } from '../../src/components';
@@ -42,7 +43,8 @@ export default function TopicDetailScreen() {
   const entitlementRepository = useEntitlementRepository();
   const learningMetricsRepository = useLearningMetricsRepository();
 
-  const { data: userProfile } = useCurrentUserProfile();
+  const { data: userProfile, isLoading: isUserProfileLoading } = useCurrentUserProfile();
+  const isRegistered = userProfile?.accountStatus === 'REGISTERED';
 
   // Same queryKey Dersler already populated (['topics', 'byExam', examId])
   // — arriving here from a topic card tap is an instant cache hit, not a
@@ -50,7 +52,7 @@ export default function TopicDetailScreen() {
   const topicsQuery = useQuery({
     queryKey: ['topics', 'byExam', examId],
     queryFn: () => new GetTopicsByExamUseCase({ topicRepository }).execute(examId as string),
-    enabled: Boolean(examId),
+    enabled: Boolean(examId) && isRegistered,
   });
 
   const topic = topicsQuery.data?.find((t) => t.id === topicId);
@@ -69,7 +71,7 @@ export default function TopicDetailScreen() {
         userProfile!.id,
         examId as string,
       ),
-    enabled: Boolean(userProfile) && Boolean(examId),
+    enabled: isRegistered && Boolean(examId),
   });
   // Never fabricated: a topic missing from the map (no attempts yet)
   // reads as 0 accuracy, matching Dersler/Learning Progress's existing
@@ -104,13 +106,13 @@ export default function TopicDetailScreen() {
         packageRepository,
         entitlementRepository,
       }).execute(userProfile!.id, topicIds),
-    enabled: Boolean(userProfile) && Boolean(topicsQuery.data) && Boolean(topicId),
+    enabled: isRegistered && Boolean(topicsQuery.data) && Boolean(topicId),
   });
   const studyPackages = packagesQuery.data?.filter(
     (entry) => entry.package.packageType !== 'ZORLAYICI_DENEME',
   );
 
-  const isLoading = topicsQuery.isLoading;
+  const isLoading = isUserProfileLoading || topicsQuery.isLoading;
 
   return (
     <ScreenContainer scroll>
@@ -118,7 +120,9 @@ export default function TopicDetailScreen() {
         <BackButton />
       </View>
 
-      {isLoading ? (
+      {!isUserProfileLoading && !isRegistered ? (
+        <AccountRequiredState message="Konu sınavlarını görüntülemek için hesabını e-posta ile bağla." />
+      ) : isLoading ? (
         <Card variant="hero">
           <View style={styles.titleRow}>
             <Skeleton width={44} height={44} borderRadius={radii.sm} />

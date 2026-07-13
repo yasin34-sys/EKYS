@@ -32,8 +32,8 @@ export interface PackageListProps {
 export function PackageList({
   isLoading,
   packages,
-  sectionTitle = 'Paketler',
-  emptyTitle = 'Henüz paket yayınlanmadı',
+  sectionTitle = 'Konu Sınavları',
+  emptyTitle = 'Henüz sınav yayınlanmadı',
   emptyMessage = 'Yayınlandığında burada görünecek.',
 }: PackageListProps) {
   return (

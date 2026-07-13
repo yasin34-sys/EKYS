@@ -19,3 +19,4 @@ export * from './FadeInUp';
 export * from './TopicMasteryChip';
 export * from './TopAppBar';
 export * from './IconChip';
+export * from './AccountRequiredState';

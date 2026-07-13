@@ -296,11 +296,11 @@ export default function QuestionScreen() {
         <View style={styles.centerFill}>
           <EmptyState
             icon="document-text-outline"
-            title={isRepeatMode ? 'Tekrar edilecek soru yok' : 'Bu pakette soru bulunamadı'}
+            title={isRepeatMode ? 'Tekrar edilecek soru yok' : 'Bu sınavda soru bulunamadı'}
             message={
               isRepeatMode
                 ? 'Tekrar havuzunda bekleyen bir soru kalmadı.'
-                : 'Bu paket için henüz soru eklenmedi.'
+                : 'Bu sınav için henüz soru eklenmedi.'
             }
           />
         </View>
@@ -334,7 +334,7 @@ export default function QuestionScreen() {
           ) : null}
           <View style={styles.secondaryButtonWrap}>
             <SecondaryButton
-              label={isRepeatMode ? 'Tekrar Havuzuna Dön' : 'Paketlere Dön'}
+              label={isRepeatMode ? 'Tekrar Havuzuna Dön' : 'Konu Sınavlarına Dön'}
               onPress={() => router.dismissTo(isRepeatMode ? '/repeat-pool' : '/packages')}
             />
           </View>
@@ -408,8 +408,8 @@ function renderTrialIssue(result: TrialIssueResult) {
       return (
         <EmptyState
           icon="document-text-outline"
-          title="Bu pakette soru bulunamadı"
-          message="Bu paket için henüz soru eklenmedi."
+          title="Bu sınavda soru bulunamadı"
+          message="Bu sınav için henüz soru eklenmedi."
         />
       );
     case 'CAP_REACHED':
@@ -418,7 +418,7 @@ function renderTrialIssue(result: TrialIssueResult) {
           icon="lock-closed-outline"
           tone="info"
           title="Ücretsiz deneme hakkın doldu"
-          message="Bu paketin tamamına erişmek için premium gerekiyor."
+          message="Bu sınavın tamamına erişmek için premium gerekiyor."
         />
       );
     case 'OFFLINE':

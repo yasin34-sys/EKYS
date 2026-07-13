@@ -20,6 +20,7 @@ import {
   TopicMasteryChip,
   ProgressBar,
   TopAppBar,
+  AccountRequiredState,
 } from '../../src/components';
 import { colors, spacing } from '../../src/theme';
 
@@ -37,7 +38,8 @@ export default function StatisticsTabScreen() {
   const topicRepository = useTopicRepository();
   const learningMetricsRepository = useLearningMetricsRepository();
 
-  const { data: userProfile } = useCurrentUserProfile();
+  const { data: userProfile, isLoading: isUserProfileLoading } = useCurrentUserProfile();
+  const isRegistered = userProfile?.accountStatus === 'REGISTERED';
 
   const examsQuery = useQuery({
     queryKey: ['exams', 'published'],
@@ -48,7 +50,7 @@ export default function StatisticsTabScreen() {
   const topicsQuery = useQuery({
     queryKey: ['topics', 'byExam', examId],
     queryFn: () => new GetTopicsByExamUseCase({ topicRepository }).execute(examId as string),
-    enabled: Boolean(examId),
+    enabled: Boolean(examId) && isRegistered,
   });
 
   const metricsQuery = useQuery({
@@ -58,7 +60,7 @@ export default function StatisticsTabScreen() {
         userProfile!.id,
         examId as string,
       ),
-    enabled: Boolean(userProfile) && Boolean(examId),
+    enabled: isRegistered && Boolean(examId),
   });
 
   // Returning here after completing a Practice/Deneme session should
@@ -68,16 +70,16 @@ export default function StatisticsTabScreen() {
   // resolve would fire the query with a missing id.
   useFocusEffect(
     useCallback(() => {
-      if (!userProfile || !examId) return;
+      if (!isRegistered || !examId) return;
       metricsQuery.refetch();
       // metricsQuery itself changes identity every render and is
       // deliberately left out of the deps array — only re-running on
       // focus or when the guard's own ids change is intended here.
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [userProfile, examId]),
+    }, [isRegistered, examId]),
   );
 
-  const isLoading = examsQuery.isLoading || topicsQuery.isLoading || metricsQuery.isLoading || !userProfile;
+  const isLoading = isUserProfileLoading || examsQuery.isLoading || topicsQuery.isLoading || metricsQuery.isLoading;
   const topicMetrics = metricsQuery.data?.topicMetrics ?? [];
   const topicsById = new Map((topicsQuery.data ?? []).map((t) => [t.id, t]));
 
@@ -98,7 +100,9 @@ export default function StatisticsTabScreen() {
         <AppText variant="largeTitle">İstatistikler</AppText>
       </View>
 
-      {isLoading ? (
+      {!isUserProfileLoading && !isRegistered ? (
+        <AccountRequiredState message="İstatistiklerini görmek için hesabını e-posta ile bağla." />
+      ) : isLoading ? (
         <>
           <Card variant="hero" style={styles.heroSkeleton}>
             <Skeleton width="60%" height={20} style={styles.skeletonLine} />
@@ -117,7 +121,7 @@ export default function StatisticsTabScreen() {
         <Card variant="hero">
           <AppText variant="title2">Henüz istatistik yok</AppText>
           <AppText variant="subhead" color="secondary" style={styles.emptyMessage}>
-            İlk paketini tamamladığında burada göreceksin.
+            İlk konu sınavını tamamladığında burada göreceksin.
           </AppText>
         </Card>
       ) : (

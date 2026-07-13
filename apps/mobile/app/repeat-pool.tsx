@@ -21,6 +21,7 @@ import {
   BackButton,
   IconChip,
   PrimaryButton,
+  AccountRequiredState,
   topicIcon,
 } from '../src/components';
 import { colors, spacing } from '../src/theme';
@@ -34,7 +35,8 @@ export default function RepeatPoolScreen() {
   const repeatPoolRepository = useRepeatPoolRepository();
   const questionRepository = useQuestionRepository();
 
-  const { data: userProfile } = useCurrentUserProfile();
+  const { data: userProfile, isLoading: isUserProfileLoading } = useCurrentUserProfile();
+  const isRegistered = userProfile?.accountStatus === 'REGISTERED';
 
   const examsQuery = useQuery({
     queryKey: ['exams', 'published'],
@@ -50,7 +52,7 @@ export default function RepeatPoolScreen() {
         userProfile!.id,
         examId!,
       ),
-    enabled: Boolean(userProfile) && Boolean(examId),
+    enabled: isRegistered && Boolean(examId),
   });
 
   // Topic name per preview row — same GetTopicsByExamUseCase every other
@@ -61,7 +63,7 @@ export default function RepeatPoolScreen() {
   const topicsQuery = useQuery({
     queryKey: ['topics', 'byExam', examId],
     queryFn: () => new GetTopicsByExamUseCase({ topicRepository }).execute(examId as string),
-    enabled: Boolean(examId),
+    enabled: Boolean(examId) && isRegistered,
   });
   const topicNameById = new Map((topicsQuery.data ?? []).map((topic) => [topic.id, topic.name]));
 
@@ -72,16 +74,16 @@ export default function RepeatPoolScreen() {
   // examId resolve would fire the query with a missing id.
   useFocusEffect(
     useCallback(() => {
-      if (!userProfile || !examId) return;
+      if (!isRegistered || !examId) return;
       poolQuery.refetch();
       // poolQuery itself changes identity every render and is
       // deliberately left out of the deps array — only re-running on
       // focus or when the guard's own ids change is intended here.
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [userProfile, examId]),
+    }, [isRegistered, examId]),
   );
 
-  const isLoading = examsQuery.isLoading || poolQuery.isLoading || !userProfile;
+  const isLoading = isUserProfileLoading || examsQuery.isLoading || poolQuery.isLoading;
   const questions = poolQuery.data;
   const poolCount = questions?.length ?? 0;
 
@@ -105,7 +107,9 @@ export default function RepeatPoolScreen() {
         Yanlış yaptığın sorular burada birikir; doğru çözdüğünde havuzdan çıkar.
       </AppText>
 
-      {isLoading ? (
+      {!isUserProfileLoading && !isRegistered ? (
+        <AccountRequiredState message="Tekrar havuzunu kullanmak için hesabını e-posta ile bağla." />
+      ) : isLoading ? (
         <>
           <Card variant="hero" style={styles.heroSkeleton}>
             <Skeleton width="70%" height={20} style={styles.skeletonLine} />

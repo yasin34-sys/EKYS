@@ -11,15 +11,8 @@ import {
 } from '../../src/services/hooks';
 import { GetPublishedExamsUseCase } from '../../src/application/GetPublishedExamsUseCase';
 import { GetDashboardMetricsUseCase } from '../../src/application/GetDashboardMetricsUseCase';
-import { ScreenContainer, AppText, Card, Skeleton, TopAppBar, IconChip } from '../../src/components';
+import { ScreenContainer, AppText, Card, Skeleton, TopAppBar, IconChip, AccountRequiredState } from '../../src/components';
 import { colors, radii, spacing } from '../../src/theme';
-import type { AccountStatus } from '../../src/domain';
-
-const accountStatusLabel: Record<AccountStatus, string> = {
-  ANONYMOUS: 'Misafir',
-  REGISTERED: 'Kayıtlı',
-};
-
 interface NavRow {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
@@ -59,6 +52,7 @@ export default function ProfileScreen() {
   const learningMetricsRepository = useLearningMetricsRepository();
 
   const { data: userProfile, isLoading } = useCurrentUserProfile();
+  const isRegistered = userProfile?.accountStatus === 'REGISTERED';
   const version = Constants.expoConfig?.version ?? '—';
 
   // Same real overall-accuracy figure Statistics already computes from
@@ -80,18 +74,18 @@ export default function ProfileScreen() {
         userProfile!.id,
         examId as string,
       ),
-    enabled: Boolean(userProfile) && Boolean(examId),
+    enabled: isRegistered && Boolean(examId),
   });
 
   useFocusEffect(
     useCallback(() => {
-      if (!userProfile || !examId) return;
+      if (!isRegistered || !examId) return;
       metricsQuery.refetch();
       // metricsQuery itself changes identity every render and is
       // deliberately left out of the deps array — only re-running on
       // focus or when the guard's own ids change is intended here.
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [userProfile, examId]),
+    }, [isRegistered, examId]),
   );
 
   const progressLoading = isLoading || examsQuery.isLoading || (Boolean(examId) && metricsQuery.isLoading);
@@ -102,6 +96,17 @@ export default function ProfileScreen() {
     accuracyMetrics.length > 0
       ? accuracyMetrics.reduce((sum, m) => sum + m.value, 0) / accuracyMetrics.length
       : null;
+
+  if (!isLoading && !isRegistered) {
+    return (
+      <ScreenContainer scroll topBar={<TopAppBar />}>
+        <View style={styles.header}>
+          <AppText variant="largeTitle">Profil</AppText>
+        </View>
+        <AccountRequiredState message="Profil, çıkış ve hesap ayarları için hesabını e-posta ile bağla." />
+      </ScreenContainer>
+    );
+  }
 
   return (
     <ScreenContainer scroll topBar={<TopAppBar />}>
@@ -117,13 +122,9 @@ export default function ProfileScreen() {
           <Skeleton width={90} height={22} borderRadius={radii.full} />
         ) : (
           <View style={styles.statusPill}>
-            <Ionicons
-              name={userProfile?.accountStatus === 'REGISTERED' ? 'checkmark-circle' : 'person-outline'}
-              size={14}
-              color={colors.textSecondary}
-            />
+            <Ionicons name="checkmark-circle" size={14} color={colors.textSecondary} />
             <AppText variant="caption" color="secondary">
-              {userProfile ? accountStatusLabel[userProfile.accountStatus] : 'Bilinmiyor'}
+              Kayıtlı
             </AppText>
           </View>
         )}
@@ -151,31 +152,6 @@ export default function ProfileScreen() {
       <AppText variant="footnote" color="tertiary" style={styles.sectionEyebrow}>
         HESAP
       </AppText>
-
-      {userProfile?.accountStatus === 'ANONYMOUS' ? (
-        <Pressable
-          onPress={() => router.push('/account-register')}
-          accessibilityRole="button"
-          accessibilityLabel="Hesabını kaydet"
-          style={({ pressed }) => pressed && styles.accountCardPressed}
-        >
-          <Card style={styles.accountCard}>
-            <View style={styles.accountCardLeft}>
-              <IconChip
-                icon={<Ionicons name="shield-checkmark-outline" size={20} color={colors.accent} />}
-                size={40}
-              />
-              <View style={styles.accountCardText}>
-                <AppText variant="headline">Hesabını Kaydet</AppText>
-                <AppText variant="footnote" color="secondary" style={styles.accountCardCopy}>
-                  Premium erişim ve ilerleme bu hesaba bağlanır.
-                </AppText>
-              </View>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
-          </Card>
-        </Pressable>
-      ) : null}
 
       <Card style={styles.accountActionCard}>
         {accountRows.map((row, index) => (
@@ -270,17 +246,6 @@ const styles = StyleSheet.create({
   progressCard: { alignItems: 'flex-start', marginBottom: spacing.xl },
   progressSkeletonLine: { marginBottom: spacing.sm },
   progressHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.sm },
-  accountCard: {
-    marginBottom: spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-  },
-  accountCardPressed: { opacity: 0.86 },
-  accountCardLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, flex: 1 },
-  accountCardText: { flex: 1 },
-  accountCardCopy: { marginTop: spacing.xs / 2 },
   accountActionCard: { paddingVertical: spacing.xs, marginBottom: spacing.xl },
   sectionEyebrow: { marginBottom: spacing.sm, marginLeft: spacing.xs },
   navCard: { paddingVertical: spacing.xs },

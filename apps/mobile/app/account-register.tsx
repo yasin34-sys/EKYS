@@ -48,14 +48,14 @@ export default function AccountRegisterScreen() {
       await queryClient.invalidateQueries({ queryKey: ['userProfile', 'current'] });
 
       if (result.status === 'REGISTERED') {
-        Alert.alert('Hesap kaydedildi', 'Hesabın artık bu e-posta ile bağlı.');
+        Alert.alert('Hesap bağlandı', 'Hesabın artık bu e-posta ile bağlı.');
         router.back();
       } else {
         setVerificationSent(true);
       }
     } catch (error) {
       Alert.alert(
-        'Hesap kaydedilemedi',
+        'İşlem tamamlanamadı',
         error instanceof Error
           ? error.message
           : 'Lütfen bağlantını kontrol edip tekrar dene.',
@@ -74,7 +74,7 @@ export default function AccountRegisterScreen() {
         <InfoState
           icon="checkmark-circle-outline"
           tone="info"
-          title="Hesabın kayıtlı"
+          title="Hesabın bağlı"
           message="Bu cihazdaki çalışma ilerlemen kayıtlı hesabınla eşleşiyor."
         />
       </ScreenContainer>
@@ -94,9 +94,9 @@ export default function AccountRegisterScreen() {
               <Ionicons name="shield-checkmark-outline" size={26} color={colors.accent} />
             </View>
             <View style={styles.heroText}>
-              <AppText variant="title2">Hesabını Kaydet</AppText>
+              <AppText variant="title2">Giriş Yap / Kayıt Ol</AppText>
               <AppText variant="subhead" color="secondary" style={styles.heroCopy}>
-                İlerlemen, premium erişimin ve satın alma geçmişin bu e-posta hesabına bağlanır.
+                İlerlemen, premium erişimin ve satın alma geçmişin e-posta hesabına bağlanır.
               </AppText>
             </View>
           </View>
@@ -127,13 +127,13 @@ export default function AccountRegisterScreen() {
             <View style={styles.noteBox}>
               <Ionicons name="information-circle-outline" size={18} color={colors.textSecondary} />
               <AppText variant="footnote" color="secondary" style={styles.noteText}>
-                Supabase güvenlik akışında önce e-posta doğrulanır. Şifre belirleme adımı
-                doğrulamadan sonra bağlanacak; şu anda sahte bir şifre kaydı yapılmaz.
+                Önce e-posta doğrulanır. Şifreyle giriş ve güvenli çıkış akışı tamamlanana kadar
+                sahte bir hesap işlemi yapılmaz.
               </AppText>
             </View>
 
             <PrimaryButton
-              label={submitting ? 'Gönderiliyor...' : 'Doğrulama E-postası Gönder'}
+              label={submitting ? 'Gönderiliyor...' : 'Devam E-postası Gönder'}
               onPress={handleSubmit}
               disabled={!canSubmit}
             />

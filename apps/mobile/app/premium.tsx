@@ -8,6 +8,7 @@ import {
   AppText,
   BackButton,
   Card,
+  AccountRequiredState,
   PrimaryButton,
 } from '../src/components';
 import {
@@ -20,7 +21,8 @@ import { colors, radii, spacing } from '../src/theme';
 
 export default function PremiumScreen() {
   const { packageId } = useLocalSearchParams<{ packageId?: string; examId?: string }>();
-  const { data: userProfile } = useCurrentUserProfile();
+  const { data: userProfile, isLoading: isUserProfileLoading } = useCurrentUserProfile();
+  const isRegistered = userProfile?.accountStatus === 'REGISTERED';
   const [selectedPlanId, setSelectedPlanId] =
     useState<PremiumPlanId>(DEFAULT_PREMIUM_PLAN_ID);
 
@@ -30,9 +32,20 @@ export default function PremiumScreen() {
   );
 
   const accountNote =
-    userProfile?.accountStatus === 'REGISTERED'
+    isRegistered
       ? 'Satın alma bu hesaba bağlanacak.'
       : 'Satın alma açılmadan önce hesabını kaydetmen gerekecek.';
+
+  if (!isUserProfileLoading && !isRegistered) {
+    return (
+      <ScreenContainer scroll>
+        <View style={styles.headerRow}>
+          <BackButton />
+        </View>
+        <AccountRequiredState message="Premium planları görüntülemek için hesabını e-posta ile bağla." />
+      </ScreenContainer>
+    );
+  }
 
   return (
     <ScreenContainer scroll>
@@ -48,13 +61,13 @@ export default function PremiumScreen() {
           <View style={styles.heroText}>
             <AppText variant="title2">Premium Süreli Erişim</AppText>
             <AppText variant="subhead" color="secondary" style={styles.heroSubtitle}>
-              Konu paketlerini ve ücretli denemeleri seçtiğin süre boyunca aç.
+              Konu sınavlarını ve ücretli denemeleri seçtiğin süre boyunca aç.
             </AppText>
           </View>
         </View>
 
         <View style={styles.promiseList}>
-          <PromiseRow icon="albums-outline" text="Tüm premium konu paketlerine erişim" />
+          <PromiseRow icon="albums-outline" text="Tüm premium konu sınavlarına erişim" />
           <PromiseRow icon="timer-outline" text="Ücretli deneme sınavlarını çözme hakkı" />
           <PromiseRow icon="cloud-done-outline" text="Erişim sunucuda doğrulanır, cihazda sadece kopyası tutulur" />
         </View>
@@ -62,7 +75,7 @@ export default function PremiumScreen() {
 
       <View style={styles.section}>
         <AppText variant="title3" style={styles.sectionTitle}>
-          Paketini Seç
+          Planını Seç
         </AppText>
         {PREMIUM_PLANS.map((plan) => (
           <PlanCard
@@ -91,7 +104,7 @@ export default function PremiumScreen() {
         </AppText>
         {packageId ? (
           <AppText variant="footnote" color="tertiary" style={styles.checkoutCopy}>
-            Satın alma tamamlandığında geldiğin paket otomatik açılacak.
+            Satın alma tamamlandığında geldiğin sınav otomatik açılacak.
           </AppText>
         ) : null}
         <PrimaryButton label="Satın alma yakında" disabled />

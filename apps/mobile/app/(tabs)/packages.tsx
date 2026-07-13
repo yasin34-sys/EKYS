@@ -18,6 +18,7 @@ import {
   TopAppBar,
   IconChip,
   AccessTag,
+  AccountRequiredState,
 } from '../../src/components';
 import { colors, spacing } from '../../src/theme';
 
@@ -31,7 +32,8 @@ export default function PackagesScreen() {
   const packageRepository = usePackageRepository();
   const entitlementRepository = useEntitlementRepository();
 
-  const { data: userProfile } = useCurrentUserProfile();
+  const { data: userProfile, isLoading: isUserProfileLoading } = useCurrentUserProfile();
+  const isRegistered = userProfile?.accountStatus === 'REGISTERED';
 
   const {
     data: packages,
@@ -44,7 +46,7 @@ export default function PackagesScreen() {
         packageRepository,
         entitlementRepository,
       }).execute(userProfile!.id),
-    enabled: Boolean(userProfile),
+    enabled: isRegistered,
   });
 
   // "Denemeler" is the mock-exam tab — filtered locally after the same
@@ -71,7 +73,9 @@ export default function PackagesScreen() {
         </AppText>
       </View>
 
-      {isLoading || !userProfile ? (
+      {!isUserProfileLoading && !isRegistered ? (
+        <AccountRequiredState message="Deneme sınavlarını görüntülemek için hesabını e-posta ile bağla." />
+      ) : isLoading || isUserProfileLoading ? (
         <View>
           {[0, 1, 2].map((key) => (
             <Card key={key} style={styles.packageCard}>

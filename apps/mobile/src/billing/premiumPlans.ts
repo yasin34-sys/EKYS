@@ -17,7 +17,7 @@ export const PREMIUM_PLANS: PremiumPlan[] = [
     duration: 'Kısa dönem hazırlık',
     durationMonths: 3,
     price: '499 TL',
-    note: 'Premium konu paketleri ve ücretli denemeler açılır.',
+    note: 'Premium konu sınavları ve ücretli denemeler açılır.',
   },
   {
     id: 'premium_6m',

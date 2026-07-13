@@ -107,6 +107,7 @@ export default function HomeScreen() {
   const attemptRepository = useAttemptRepository();
 
   const { data: userProfile } = useCurrentUserProfile();
+  const isRegistered = userProfile?.accountStatus === 'REGISTERED';
 
   const examsQuery = useQuery({
     queryKey: ['exams', 'published'],
@@ -118,13 +119,13 @@ export default function HomeScreen() {
   const activeSessionQuery = useQuery({
     queryKey: ['examSession', 'active', userProfile?.id, examId],
     queryFn: () => examSessionRepository.getActive(userProfile!.id, examId!),
-    enabled: Boolean(userProfile) && Boolean(examId),
+    enabled: isRegistered && Boolean(examId),
   });
 
   const repeatPoolQuery = useQuery({
     queryKey: ['repeatPool', 'count', userProfile?.id, examId],
     queryFn: () => repeatPoolRepository.getForUser(userProfile!.id, examId!),
-    enabled: Boolean(userProfile) && Boolean(examId) && activeSessionQuery.data === null,
+    enabled: isRegistered && Boolean(examId) && activeSessionQuery.data === null,
   });
 
   // "Odaklanılacak Konular" (weak-topics) section below the hero — same
@@ -135,7 +136,7 @@ export default function HomeScreen() {
   const topicsQuery = useQuery({
     queryKey: ['topics', 'byExam', examId],
     queryFn: () => new GetTopicsByExamUseCase({ topicRepository }).execute(examId as string),
-    enabled: Boolean(examId),
+    enabled: Boolean(examId) && isRegistered,
   });
 
   const dashboardMetricsQuery = useQuery({
@@ -145,7 +146,7 @@ export default function HomeScreen() {
         userProfile!.id,
         examId as string,
       ),
-    enabled: Boolean(userProfile) && Boolean(examId),
+    enabled: isRegistered && Boolean(examId),
   });
 
   // "Son Aktivite" — real completed Denemeler + standalone practice/
@@ -157,7 +158,7 @@ export default function HomeScreen() {
       new GetRecentActivityUseCase({ examSessionRepository, attemptRepository }).execute(
         userProfile!.id,
       ),
-    enabled: Boolean(userProfile),
+    enabled: isRegistered,
   });
 
   // The Hero Card's priority tier (ADR-010's event-driven principle: "app
@@ -175,7 +176,7 @@ export default function HomeScreen() {
   // Statistics/learning-progress already apply to this exact query).
   useFocusEffect(
     useCallback(() => {
-      if (!userProfile || !examId) return;
+      if (!isRegistered || !examId) return;
       activeSessionQuery.refetch();
       repeatPoolQuery.refetch();
       dashboardMetricsQuery.refetch();
@@ -184,7 +185,7 @@ export default function HomeScreen() {
       // are deliberately left out of the deps array — only re-running
       // on focus or when the guard's own ids change is intended here.
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [userProfile, examId]),
+    }, [isRegistered, examId]),
   );
 
   const isLoading = examsQuery.isLoading || !userProfile;
@@ -220,7 +221,19 @@ export default function HomeScreen() {
 
   const recentActivity = recentActivityQuery.data ?? [];
 
+  function openProtectedRoute(path: '/exams' | '/packages' | '/repeat-pool' | '/learning-progress') {
+    if (!isRegistered) {
+      router.push('/account-register');
+      return;
+    }
+    router.push(path);
+  }
+
   function handleHeroPress() {
+    if (!isRegistered) {
+      router.push('/account-register');
+      return;
+    }
     if (activeSession) {
       router.push({
         pathname: '/exam-session/[sessionId]',
@@ -244,7 +257,13 @@ export default function HomeScreen() {
   let heroIcon: keyof typeof Ionicons.glyphMap = 'arrow-forward-circle-outline';
   let heroAccessibilityLabel = 'Derslere göz at';
 
-  if (activeSession) {
+  if (!isRegistered) {
+    heroPillLabel = 'Giriş';
+    heroHeadline = 'Çalışmaya başlamak için hesabını bağla';
+    heroBody = 'Dersler, denemeler ve tekrar havuzu kayıtlı hesapla açılır.';
+    heroIcon = 'shield-checkmark-outline';
+    heroAccessibilityLabel = 'Giriş yap veya kayıt ol';
+  } else if (activeSession) {
     heroPillLabel = 'Devam Et';
     heroHeadline = 'Kaldığın yerden devam et';
     heroBody = 'Yarım kalan sınavın seni bekliyor.';
@@ -329,17 +348,17 @@ export default function HomeScreen() {
         <QuickActionTile
           icon="book-outline"
           label="Dersler"
-          onPress={() => router.push('/exams')}
+          onPress={() => openProtectedRoute('/exams')}
         />
         <QuickActionTile
           icon="document-text-outline"
           label="Denemeler"
-          onPress={() => router.push('/packages')}
+          onPress={() => openProtectedRoute('/packages')}
         />
         <QuickActionTile
           icon="refresh-outline"
           label="Tekrar"
-          onPress={() => router.push('/repeat-pool')}
+          onPress={() => openProtectedRoute('/repeat-pool')}
         />
       </View>
 
@@ -348,7 +367,7 @@ export default function HomeScreen() {
           <View style={styles.weakTopicsHeader}>
             <AppText variant="title3">Odaklanılacak Konular</AppText>
             <Pressable
-              onPress={() => router.push('/learning-progress')}
+              onPress={() => openProtectedRoute('/learning-progress')}
               accessibilityRole="button"
               accessibilityLabel="Tüm konuları gör"
               hitSlop={8}

@@ -5,29 +5,19 @@ import { useQuery } from '@tanstack/react-query';
 import {
   useExamRepository,
   useTopicRepository,
-  usePackageRepository,
-  useEntitlementRepository,
   useLearningMetricsRepository,
   useCurrentUserProfile,
 } from '../../src/services/hooks';
 import { GetPublishedExamsUseCase } from '../../src/application/GetPublishedExamsUseCase';
 import { GetTopicsByExamUseCase } from '../../src/application/GetTopicsByExamUseCase';
-import { GetPackagesByExamUseCase } from '../../src/application/GetPackagesByExamUseCase';
 import { GetDashboardMetricsUseCase } from '../../src/application/GetDashboardMetricsUseCase';
-import { ScreenContainer, AppText, EmptyState, TopicList, PackageList, TopAppBar } from '../../src/components';
+import { ScreenContainer, AppText, EmptyState, TopicList, TopAppBar, AccountRequiredState } from '../../src/components';
 import { spacing } from '../../src/theme';
 import type { Topic } from '../../src/domain';
 
-// "Dersler" tab (Phase 2A, extended Phase 2B.4C.2, Phase 8A.1): topic/
-// lesson browsing, both lists reusing use cases already built for Exam
-// Detail:
-// - TopicList is driven by GetTopicsByExamUseCase.
-// - PackageList is driven by GetPackagesByExamUseCase, with
-//   packageRepository and entitlementRepository as its dependencies.
-// PackageList's result is filtered here to exclude ZORLAYICI_DENEME, so
-// Deneme packages are removed from Dersler and stay exclusively in the
-// Denemeler tab (packages.tsx applies the complementary filter, keeping
-// only ZORLAYICI_DENEME).
+// "Dersler" tab: topics are the only entry point here. Per-topic
+// "Konu Sınavı 1/2/..." cards live inside Topic Detail, so this screen
+// no longer repeats the same list underneath the topic cards.
 // Single-exam MVP: both scoped to the first published exam, matching
 // the same simplification already used on Home/Statistics/Repeat Pool.
 // Top-level topics are now pressable (Phase 8A.1), opening
@@ -37,11 +27,10 @@ import type { Topic } from '../../src/domain';
 export default function LessonsScreen() {
   const examRepository = useExamRepository();
   const topicRepository = useTopicRepository();
-  const packageRepository = usePackageRepository();
-  const entitlementRepository = useEntitlementRepository();
   const learningMetricsRepository = useLearningMetricsRepository();
 
-  const { data: userProfile } = useCurrentUserProfile();
+  const { data: userProfile, isLoading: isUserProfileLoading } = useCurrentUserProfile();
+  const isRegistered = userProfile?.accountStatus === 'REGISTERED';
 
   const examsQuery = useQuery({
     queryKey: ['exams', 'published'],
@@ -53,22 +42,8 @@ export default function LessonsScreen() {
   const topicsQuery = useQuery({
     queryKey: ['topics', 'byExam', examId],
     queryFn: () => new GetTopicsByExamUseCase({ topicRepository }).execute(examId as string),
-    enabled: Boolean(examId),
+    enabled: Boolean(examId) && isRegistered,
   });
-
-  const packagesQuery = useQuery({
-    queryKey: ['packages', 'byExam', examId, userProfile?.id],
-    queryFn: () =>
-      new GetPackagesByExamUseCase({
-        packageRepository,
-        entitlementRepository,
-      }).execute(userProfile!.id, examId as string),
-    enabled: Boolean(examId) && Boolean(userProfile),
-  });
-
-  const studyPackages = packagesQuery.data?.filter(
-    (entry) => entry.package.packageType !== 'ZORLAYICI_DENEME',
-  );
 
   // Real TOPIC_ACCURACY values (same use case Statistics/Learning
   // Progress/Home already trust) — passed to TopicList so topic rows can
@@ -83,7 +58,7 @@ export default function LessonsScreen() {
         userProfile!.id,
         examId as string,
       ),
-    enabled: Boolean(userProfile) && Boolean(examId),
+    enabled: isRegistered && Boolean(examId),
   });
   const accuracyByTopicId = new Map(
     (dashboardMetricsQuery.data?.topicMetrics ?? [])
@@ -99,13 +74,13 @@ export default function LessonsScreen() {
   // refetched here — no existing behavior on this screen did that either.
   useFocusEffect(
     useCallback(() => {
-      if (!userProfile || !examId) return;
+      if (!isRegistered || !examId) return;
       dashboardMetricsQuery.refetch();
       // dashboardMetricsQuery itself changes identity every render and is
       // deliberately left out of the deps array — only re-running on
       // focus or when the guard's own ids change is intended here.
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [userProfile, examId]),
+    }, [isRegistered, examId]),
   );
 
   // examId is always defined by the time TopicList can render a topic to
@@ -126,7 +101,9 @@ export default function LessonsScreen() {
         </AppText>
       </View>
 
-      {examsQuery.error ? (
+      {!isUserProfileLoading && !isRegistered ? (
+        <AccountRequiredState message="Ders konuları ve konu sınavları için hesabını e-posta ile bağla." />
+      ) : examsQuery.error ? (
         <View style={styles.centerFill}>
           <EmptyState
             icon="alert-circle-outline"
@@ -143,18 +120,12 @@ export default function LessonsScreen() {
           />
         </View>
       ) : (
-        <>
-          <TopicList
-            isLoading={examsQuery.isLoading || topicsQuery.isLoading}
-            topics={topicsQuery.data}
-            accuracyByTopicId={dashboardMetricsQuery.data ? accuracyByTopicId : undefined}
-            onTopicPress={handleTopicPress}
-          />
-          <PackageList
-            isLoading={examsQuery.isLoading || packagesQuery.isLoading || !userProfile}
-            packages={studyPackages}
-          />
-        </>
+        <TopicList
+          isLoading={isUserProfileLoading || examsQuery.isLoading || topicsQuery.isLoading}
+          topics={topicsQuery.data}
+          accuracyByTopicId={dashboardMetricsQuery.data ? accuracyByTopicId : undefined}
+          onTopicPress={handleTopicPress}
+        />
       )}
     </ScreenContainer>
   );
