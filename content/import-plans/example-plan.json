@@ -25,7 +25,8 @@
       "checksum": null,
       "status": "DRAFT",
       "title": "Örnek Paket",
-      "description": "Fixture verification package -- demonstrates optional packages.title/description (Phase 7A.3.2)."
+      "description": "Fixture verification package -- demonstrates optional packages.title/description (Phase 7A.3.2).",
+      "topic": "Örnek Konu"
     }
   ],
   "source_packages": [

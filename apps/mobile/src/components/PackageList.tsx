@@ -33,6 +33,13 @@ const difficultyLabel: Record<string, string> = {
 export interface PackageListProps {
   isLoading: boolean;
   packages: PackageWithAccess[] | undefined;
+  // Optional (Phase 8A.1): lets a caller with more specific context (e.g.
+  // Topic Detail, where "no packages" means "none reference this topic
+  // yet" rather than "nothing published anywhere") override the default
+  // empty-state copy. Omitted by every existing call site, which keeps
+  // the original wording unchanged.
+  emptyTitle?: string;
+  emptyMessage?: string;
 }
 
 // Extracted from Exam Detail — same loading/empty/loaded branching and
@@ -40,7 +47,12 @@ export interface PackageListProps {
 // Deliberately not shared with (tabs)/packages.tsx's own card, which
 // has slightly different context (cross-exam listing) — unifying them
 // wasn't part of this refactor's scope.
-export function PackageList({ isLoading, packages }: PackageListProps) {
+export function PackageList({
+  isLoading,
+  packages,
+  emptyTitle = 'Henüz paket yayınlanmadı',
+  emptyMessage = 'Yayınlandığında burada görünecek.',
+}: PackageListProps) {
   return (
     <View style={styles.section}>
       <AppText variant="title3" style={styles.sectionTitle}>
@@ -55,11 +67,7 @@ export function PackageList({ isLoading, packages }: PackageListProps) {
         packages.map((entry) => <PackageRow key={entry.package.id} entry={entry} />)
       ) : (
         <Card>
-          <EmptyState
-            icon="albums-outline"
-            title="Henüz paket yayınlanmadı"
-            message="Yayınlandığında burada görünecek."
-          />
+          <EmptyState icon="albums-outline" title={emptyTitle} message={emptyMessage} />
         </Card>
       )}
     </View>
@@ -85,7 +93,7 @@ function PackageRow({ entry }: { entry: PackageWithAccess }) {
           <IconChip icon={<Ionicons name={icon} size={20} color={colors.accent} />} size={40} />
           <View style={styles.rowBody}>
             <View style={styles.packageHeader}>
-              <AppText variant="headline" numberOfLines={1} style={styles.titleText}>
+              <AppText variant="headline" numberOfLines={2} style={styles.titleText}>
                 {displayTitle}
               </AppText>
               <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />

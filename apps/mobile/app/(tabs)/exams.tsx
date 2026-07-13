@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import {
   useExamRepository,
@@ -17,9 +17,11 @@ import { GetPackagesByExamUseCase } from '../../src/application/GetPackagesByExa
 import { GetDashboardMetricsUseCase } from '../../src/application/GetDashboardMetricsUseCase';
 import { ScreenContainer, AppText, EmptyState, TopicList, PackageList, TopAppBar } from '../../src/components';
 import { spacing } from '../../src/theme';
+import type { Topic } from '../../src/domain';
 
-// "Dersler" tab (Phase 2A, extended Phase 2B.4C.2): topic/lesson
-// browsing, both lists reusing use cases already built for Exam Detail:
+// "Dersler" tab (Phase 2A, extended Phase 2B.4C.2, Phase 8A.1): topic/
+// lesson browsing, both lists reusing use cases already built for Exam
+// Detail:
 // - TopicList is driven by GetTopicsByExamUseCase.
 // - PackageList is driven by GetPackagesByExamUseCase, with
 //   packageRepository, entitlementRepository, and trialAccessRepository
@@ -30,9 +32,10 @@ import { spacing } from '../../src/theme';
 // only ZORLAYICI_DENEME).
 // Single-exam MVP: both scoped to the first published exam, matching
 // the same simplification already used on Home/Statistics/Repeat Pool.
-// Topics remain informational only (non-interactive), the same
-// deliberate rule Exam Detail already applies — no per-topic
-// drill-down screen exists yet.
+// Top-level topics are now pressable (Phase 8A.1), opening
+// app/topic/[topicId].tsx — Exam Detail's own TopicList usage is
+// unaffected (it never passes onTopicPress, so it stays exactly as
+// informational as before).
 export default function LessonsScreen() {
   const examRepository = useExamRepository();
   const topicRepository = useTopicRepository();
@@ -109,6 +112,15 @@ export default function LessonsScreen() {
     }, [userProfile, examId]),
   );
 
+  // examId is always defined by the time TopicList can render a topic to
+  // tap (see the loaded branch below), so it's safe to close over here —
+  // Topic Detail needs it to re-run GetTopicsByExamUseCase/
+  // GetDashboardMetricsUseCase against the exact same query keys already
+  // warmed by this screen (instant cache hit, no extra fetch).
+  function handleTopicPress(topic: Topic) {
+    router.push({ pathname: '/topic/[topicId]', params: { topicId: topic.id, examId: examId as string } });
+  }
+
   return (
     <ScreenContainer scroll topBar={<TopAppBar />}>
       <View style={styles.header}>
@@ -140,6 +152,7 @@ export default function LessonsScreen() {
             isLoading={examsQuery.isLoading || topicsQuery.isLoading}
             topics={topicsQuery.data}
             accuracyByTopicId={dashboardMetricsQuery.data ? accuracyByTopicId : undefined}
+            onTopicPress={handleTopicPress}
           />
           <PackageList
             isLoading={examsQuery.isLoading || packagesQuery.isLoading || !userProfile}

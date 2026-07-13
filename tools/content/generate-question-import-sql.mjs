@@ -96,7 +96,13 @@ fully worked, documented fixture example):
                                     // any other string is used verbatim; null stays NULL.
       "status": "DRAFT",           // DRAFT|PUBLISHED|ARCHIVED
       "title": null,               // optional -- non-empty string or null/absent (defaults to null)
-      "description": null          // optional -- non-empty string or null/absent (defaults to null)
+      "description": null,         // optional -- non-empty string or null/absent (defaults to null)
+      "topic": null                // optional (Phase 8A.2) -- a topic_mapping.topics[].name, or
+                                    // null/absent (defaults to null). Resolved to a packages.topic_id
+                                    // the same way question topics are resolved. package_type
+                                    // "ZORLAYICI_DENEME" packages must NOT set this -- Deneme
+                                    // packages always get topic_id = null (they span every topic
+                                    // in the exam, not one).
     }
   ],
   "source_packages": [
@@ -133,9 +139,10 @@ They are never inferred from a source file name or any other heuristic --
 if omitted, they are written as SQL NULL and the client falls back to its
 existing package_type-derived label, exactly as before this field existed.
 
-packages[].checksum: "auto" (Phase 7A.4.1) computes a deterministic
-SHA-256 hex digest over that package's own id/type/difficulty/
-is_free_tier/title/description/version/status, plus every
+packages[].checksum: "auto" (Phase 7A.4.1, extended 8A.2 to topic_id)
+computes a deterministic SHA-256 hex digest over that package's own
+id/type/difficulty/is_free_tier/title/description/version/status/
+topic_id, plus every
 package_question (display_order) and, for each of its questions,
 id/topic_id/body/status and every option's id/label/body/is_correct/
 display_order -- all in a fixed, sorted order, so the same package
@@ -397,6 +404,11 @@ function validatePlanShape(plan) {
 
   // --- packages ---
   const packages = plan.packages;
+  const validTopicNames = new Set(
+    isPlainObject(topicMapping) && Array.isArray(topicMapping.topics)
+      ? topicMapping.topics.filter(isPlainObject).map((t) => t.name)
+      : [],
+  );
   if (!Array.isArray(packages) || packages.length === 0) {
     errors.push('"packages" must be a non-empty array');
   } else {
@@ -443,6 +455,20 @@ function validatePlanShape(plan) {
         (typeof p.description !== 'string' || p.description.trim().length === 0)
       ) {
         errors.push(`packages[${i}].description must be a non-empty string or null, got ${JSON.stringify(p.description)}`);
+      }
+      // topic (Phase 8A.2): optional, but if present must resolve to a
+      // real topic_mapping.topics[] name, and must never be set on a
+      // ZORLAYICI_DENEME package -- Deneme packages always get
+      // topic_id = null (enforced here, not left to plan-author memory).
+      if ('topic' in p && p.topic !== null) {
+        if (typeof p.topic !== 'string' || p.topic.trim().length === 0) {
+          errors.push(`packages[${i}].topic must be a non-empty string or null, got ${JSON.stringify(p.topic)}`);
+        } else if (!validTopicNames.has(p.topic)) {
+          errors.push(`packages[${i}].topic (${JSON.stringify(p.topic)}) is not present in topic_mapping.topics`);
+        }
+        if (p.package_type === 'ZORLAYICI_DENEME') {
+          errors.push(`packages[${i}] is package_type "ZORLAYICI_DENEME" and must not set "topic" (Deneme packages always use topic_id = null)`);
+        }
       }
     });
   }
@@ -502,7 +528,8 @@ const CHECKSUM_FIELD_SEP = '';
 
 /**
  * Computes a deterministic SHA-256 hex digest over one package's own
- * content: the package row's own display fields, plus every
+ * content: the package row's own display fields (including topic_id,
+ * Phase 8A.2), plus every
  * package_question (in display_order), and for each of those questions
  * its own fields and every one of its options (in display_order).
  *
@@ -529,6 +556,7 @@ function computePackageChecksum(pkg, packageQuestionsForPkg, questionsById, opti
       pkg.description ?? '',
       String(pkg.version),
       pkg.status,
+      pkg.topicId ?? '',
     ].join(CHECKSUM_FIELD_SEP)
   );
 
@@ -626,6 +654,11 @@ function buildModel(plan, inputFiles) {
     status: p.status,
     title: 'title' in p ? p.title : null,
     description: 'description' in p ? p.description : null,
+    // topic (Phase 8A.2): resolved via the same topicIdByName map
+    // questions use -- validatePlanShape already guarantees "topic",
+    // when present, names a real topic_mapping.topics[] entry and is
+    // never set on a ZORLAYICI_DENEME package.
+    topicId: 'topic' in p && p.topic !== null ? topicIdByName.get(p.topic) : null,
   }));
 
   // Keyed by id, not pushed to a plain array: the same physical question
@@ -861,16 +894,16 @@ function generateSql(model) {
   lines.push('-- Packages');
   for (const p of model.packages) {
     lines.push(
-      `INSERT INTO packages (id, exam_id, package_type, difficulty_level, version, checksum, is_free_tier, status, title, description) VALUES (` +
+      `INSERT INTO packages (id, exam_id, package_type, difficulty_level, version, checksum, is_free_tier, status, title, description, topic_id) VALUES (` +
         `${sqlString(p.id)}, ${sqlString(p.examId)}, ${sqlString(p.packageType)}, ${sqlString(p.difficultyLevel)}, ` +
         `${sqlInt(p.version)}, ${sqlString(p.checksum)}, ${sqlBool(p.isFreeTier)}, ${sqlString(p.status)}, ` +
-        `${sqlString(p.title)}, ${sqlString(p.description)})`
+        `${sqlString(p.title)}, ${sqlString(p.description)}, ${sqlString(p.topicId)})`
     );
     lines.push(
       `ON CONFLICT (id) DO UPDATE SET package_type = excluded.package_type, ` +
         `difficulty_level = excluded.difficulty_level, version = excluded.version, checksum = excluded.checksum, ` +
         `is_free_tier = excluded.is_free_tier, status = excluded.status, title = excluded.title, ` +
-        `description = excluded.description;`
+        `description = excluded.description, topic_id = excluded.topic_id;`
     );
   }
   lines.push('');

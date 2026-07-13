@@ -139,6 +139,7 @@ CREATE TABLE IF NOT EXISTS packages (
     CHECK (status IN ('DRAFT','PUBLISHED','ARCHIVED')),
   title TEXT,
   description TEXT,
+  topic_id TEXT REFERENCES topics(id) ON DELETE SET NULL,
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
   updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
@@ -151,15 +152,40 @@ CREATE TABLE IF NOT EXISTS packages (
 -- see supabase/migrations/20260713000001_package_title_description.sql).
 -- Nullable, no default -- null means "fall back to the package_type
 -- label," same as every existing row.
+-- topic_id: which topic this package belongs to (Phase 8A.2, see
+-- supabase/migrations/20260713000004_package_topic_id.sql). Nullable --
+-- ZORLAYICI_DENEME (Deneme) packages always use topic_id = null (a
+-- Deneme spans every topic in the exam, so no single topic owns it).
+-- Package-level metadata, not derived from package_questions/questions,
+-- so Topic Detail can show a topic's locked premium packages too, not
+-- only the ones whose content this device/user already has visibility
+-- into.
 
 CREATE INDEX IF NOT EXISTS idx_packages_exam_id ON packages(exam_id);
 CREATE INDEX IF NOT EXISTS idx_packages_exam_type_difficulty
   ON packages(exam_id, package_type, difficulty_level);
+CREATE INDEX IF NOT EXISTS idx_packages_topic_id ON packages(topic_id);
 
 CREATE TRIGGER IF NOT EXISTS trg_packages_set_updated_at
 AFTER UPDATE ON packages
 BEGIN
   UPDATE packages SET updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_packages_check_topic_same_exam
+BEFORE INSERT ON packages
+WHEN NEW.topic_id IS NOT NULL
+BEGIN
+  SELECT RAISE(ABORT, 'Package topic must belong to the same exam')
+  WHERE (SELECT exam_id FROM topics WHERE id = NEW.topic_id) != NEW.exam_id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_packages_check_topic_same_exam_update
+BEFORE UPDATE OF topic_id, exam_id ON packages
+WHEN NEW.topic_id IS NOT NULL
+BEGIN
+  SELECT RAISE(ABORT, 'Package topic must belong to the same exam')
+  WHERE (SELECT exam_id FROM topics WHERE id = NEW.topic_id) != NEW.exam_id;
 END;
 
 

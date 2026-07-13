@@ -343,6 +343,13 @@ export const seedPackages: Package[] = [
     status: 'PUBLISHED',
     title: null,
     description: null,
+    // Real value, not fabricated: this package's own questions (see
+    // seedPackageQuestions below) are entirely drawn from t-genel's two
+    // children (t-genel-turkce, t-genel-matematik), so the top-level
+    // parent topic honestly describes it (Topic Detail's
+    // collectTopicAndDescendantIds includes children when browsing the
+    // parent).
+    topicId: 't-genel',
     createdAt: now,
     updatedAt: now,
   },
@@ -357,6 +364,11 @@ export const seedPackages: Package[] = [
     status: 'PUBLISHED',
     title: null,
     description: null,
+    // null, not fabricated: this package's questions span two different
+    // top-level topics (t-mevzuat's children AND t-yonetim-lider under
+    // t-yonetim) — it genuinely doesn't belong to a single topic, so no
+    // single topicId would be honest here.
+    topicId: null,
     createdAt: now,
     updatedAt: now,
   },
@@ -371,6 +383,9 @@ export const seedPackages: Package[] = [
     status: 'PUBLISHED',
     title: null,
     description: null,
+    // Deneme packages always use topicId = null (Phase 8A.2) — they
+    // span every topic in the exam, not one.
+    topicId: null,
     createdAt: now,
     updatedAt: now,
   },
@@ -385,6 +400,7 @@ export const seedPackages: Package[] = [
     status: 'PUBLISHED',
     title: null,
     description: null,
+    topicId: null,
     createdAt: now,
     updatedAt: now,
   },

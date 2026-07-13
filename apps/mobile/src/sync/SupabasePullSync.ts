@@ -492,16 +492,16 @@ export class SupabasePullSync implements PullSync {
       try {
         // bundle_path deliberately not written — omitted from the
         // local schema by design (see sqlite_schema.sql).
-        // title/description (Phase 7A.3.2, hardened 7A.3.2.1): `?? null`
-        // guards against select('*') returning rows without these keys
-        // at all, which happens if this device's Supabase project
-        // hasn't had 20260713000001_package_title_description.sql
-        // applied yet — `row.title` would then be `undefined`, and
-        // op-sqlite has no defined binding behavior for that the way it
-        // does for `null`.
+        // title/description (Phase 7A.3.2, hardened 7A.3.2.1) and
+        // topic_id (Phase 8A.2): `?? null` guards against select('*')
+        // returning rows without these keys at all, which happens if
+        // this device's Supabase project hasn't had the corresponding
+        // migration applied yet — `row.title`/`row.topic_id` would then
+        // be `undefined`, and op-sqlite has no defined binding behavior
+        // for that the way it does for `null`.
         await this.db.execute(
-          `INSERT INTO packages (id, exam_id, package_type, difficulty_level, version, checksum, is_free_tier, status, title, description, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `INSERT INTO packages (id, exam_id, package_type, difficulty_level, version, checksum, is_free_tier, status, title, description, topic_id, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
            ON CONFLICT (id) DO UPDATE SET
              package_type = excluded.package_type,
              difficulty_level = excluded.difficulty_level,
@@ -511,6 +511,7 @@ export class SupabasePullSync implements PullSync {
              status = excluded.status,
              title = excluded.title,
              description = excluded.description,
+             topic_id = excluded.topic_id,
              updated_at = excluded.updated_at;`,
           [
             row.id,
@@ -523,6 +524,7 @@ export class SupabasePullSync implements PullSync {
             row.status,
             row.title ?? null,
             row.description ?? null,
+            row.topic_id ?? null,
             row.created_at,
             row.updated_at,
           ],

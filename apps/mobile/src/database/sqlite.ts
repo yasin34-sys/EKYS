@@ -50,14 +50,15 @@ function splitSqlStatements(sql: string): string[] {
 
 /**
  * Additive local schema upgrade guard for packages.title/description
- * (Phase 7A.3.2.1). CREATE TABLE IF NOT EXISTS never alters a table
- * that already exists, so a device that installed the app before
- * these columns were added would otherwise keep an old `packages`
- * table forever and fail on the first INSERT that names them (see
- * SupabasePullSync.pullPackages). PRAGMA table_info makes the check
- * (and therefore the whole guard) safe to run unconditionally on every
- * launch, against both fresh and pre-existing databases: ADD COLUMN
- * only runs when the column is actually missing.
+ * (Phase 7A.3.2.1) and packages.topic_id (Phase 8A.2). CREATE TABLE IF
+ * NOT EXISTS never alters a table that already exists, so a device
+ * that installed the app before these columns were added would
+ * otherwise keep an old `packages` table forever and fail on the
+ * first INSERT that names them (see SupabasePullSync.pullPackages).
+ * PRAGMA table_info makes the check (and therefore the whole guard)
+ * safe to run unconditionally on every launch, against both fresh and
+ * pre-existing databases: ADD COLUMN only runs when the column is
+ * actually missing.
  *
  * Deliberately narrow and column-specific rather than a general
  * migration framework — see initializeDatabase()'s own comment for why
@@ -72,6 +73,9 @@ async function upgradePackagesTableColumns(database: DB): Promise<void> {
   }
   if (!existingColumns.has('description')) {
     await database.execute('ALTER TABLE packages ADD COLUMN description TEXT;');
+  }
+  if (!existingColumns.has('topic_id')) {
+    await database.execute('ALTER TABLE packages ADD COLUMN topic_id TEXT REFERENCES topics(id) ON DELETE SET NULL;');
   }
 }
 

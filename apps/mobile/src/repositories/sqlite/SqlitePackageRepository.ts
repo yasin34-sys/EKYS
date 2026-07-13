@@ -13,6 +13,7 @@ interface PackageRow {
   status: PackageStatus;
   title: string | null;
   description: string | null;
+  topic_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -27,12 +28,14 @@ function mapPackageRow(row: PackageRow): Package {
     checksum: row.checksum,
     isFreeTier: row.is_free_tier === 1,
     status: row.status,
-    // `?? null` (Phase 7A.3.2.1): defensive against a row object that
-    // ever lacks these keys entirely (e.g. `SELECT *` against a device
-    // whose local upgrade guard — see sqlite.ts — hasn't run for some
-    // reason), where they'd read back as `undefined` rather than `null`.
+    // `?? null` (Phase 7A.3.2.1, extended 8A.2 to topic_id): defensive
+    // against a row object that ever lacks these keys entirely (e.g.
+    // `SELECT *` against a device whose local upgrade guard — see
+    // sqlite.ts — hasn't run for some reason), where they'd read back
+    // as `undefined` rather than `null`.
     title: row.title ?? null,
     description: row.description ?? null,
+    topicId: row.topic_id ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -58,6 +61,18 @@ export class SqlitePackageRepository implements PackageRepository {
   async getAll(): Promise<Package[]> {
     const result = await this.db.execute(
       `SELECT * FROM packages WHERE status = 'PUBLISHED' ORDER BY exam_id ASC, package_type ASC, difficulty_level ASC;`,
+    );
+    return (result.rows as unknown as PackageRow[]).map(mapPackageRow);
+  }
+
+  async getByTopicIds(topicIds: string[]): Promise<Package[]> {
+    if (topicIds.length === 0) return [];
+    const placeholders = topicIds.map(() => '?').join(', ');
+    const result = await this.db.execute(
+      `SELECT * FROM packages
+       WHERE topic_id IN (${placeholders})
+       ORDER BY package_type ASC, difficulty_level ASC;`,
+      topicIds,
     );
     return (result.rows as unknown as PackageRow[]).map(mapPackageRow);
   }

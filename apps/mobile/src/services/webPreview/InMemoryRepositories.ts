@@ -110,6 +110,10 @@ export class InMemoryPackageRepository implements PackageRepository {
   async getAll(): Promise<Package[]> {
     return webPreviewStore.packages.filter((p) => p.status === 'PUBLISHED');
   }
+  async getByTopicIds(topicIds: string[]): Promise<Package[]> {
+    const idSet = new Set(topicIds);
+    return webPreviewStore.packages.filter((p) => p.topicId !== null && idSet.has(p.topicId));
+  }
 }
 
 export class InMemoryUserProfileRepository implements UserProfileRepository {

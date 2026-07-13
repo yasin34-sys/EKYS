@@ -1,5 +1,5 @@
 {
-  "_notice": "PRODUCTION IMPORT PLAN (Phase 7A.4, checksums/status fixed in 7A.4.1) -- first real content import plan for the 26 validated draft JSON files under content/questions/draft/. Generates reviewable SQL only; see content/generated/production-v1-import.sql. Not applied to any database by this plan file alone -- applying it is a separate, explicit, future step. question_status forces every question PUBLISHED without editing source JSON; package checksums are auto-computed (see generate-question-import-sql.mjs).",
+  "_notice": "PRODUCTION IMPORT PLAN (Phase 7A.4, checksums/status fixed in 7A.4.1, rebuilt as per-topic packages in Phase 8A.0, packages tagged with their own topic in Phase 8A.2) -- first real content import plan for the 26 validated draft JSON files under content/questions/draft/. Generates reviewable SQL only; see content/generated/production-v1-import.sql. Not applied to any database by this plan file alone -- applying it is a separate, explicit, future step. question_status forces every question PUBLISHED without editing source JSON; package checksums are auto-computed (see generate-question-import-sql.mjs). Phase 8A.0: each topic_pack source file is now its own package under its topic (24 packages total), replacing the earlier two broad \"Temel Çalışma\"/\"Yoğun Tekrar\" groupings -- the first file in each topic (by file number) is the free package, the rest are premium. Phase 8A.2: every topic_pack package now also sets \"topic\" (resolved to packages.topic_id), so Topic Detail can list a topic's locked premium packages directly instead of deriving them from package_questions/questions, which hid content the requesting user had no RLS visibility into yet. Deneme packages deliberately have no \"topic\" -- topic_id stays null.",
   "exam": {
     "mode": "new",
     "key": "EKYS-SINAVI-V1",
@@ -42,26 +42,292 @@
   },
   "packages": [
     {
-      "id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d",
+      "id": "85ec947e-69e9-446c-9bf1-29a034e3ef6d",
       "package_type": "TEMEL_CALISMA",
       "difficulty_level": "KOLAY",
       "is_free_tier": true,
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Temel Çalışma Paketi",
-      "description": "Tüm konulardan temel düzey sorularla düzenli çalışma paketi."
+      "title": "Türkiye Yüzyılı Maarif Modeli - Paket 1",
+      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Türkiye Yüzyılı Maarif Modeli"
     },
     {
-      "id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98",
-      "package_type": "YOGUN_TEKRAR",
+      "id": "fb7c1e8e-80f7-4be3-ba7f-1f87f89a0859",
+      "package_type": "TEMEL_CALISMA",
       "difficulty_level": "ORTA",
       "is_free_tier": false,
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Yoğun Tekrar Paketi",
-      "description": "Tüm konuları kapsayan, tekrar ve pekiştirme amaçlı orta düzey soru paketi."
+      "title": "Türkiye Yüzyılı Maarif Modeli - Paket 2",
+      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Türkiye Yüzyılı Maarif Modeli"
+    },
+    {
+      "id": "cb519587-d79f-40f0-b3ba-ce0356b25d6a",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ORTA",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Türkiye Yüzyılı Maarif Modeli - Paket 3",
+      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Türkiye Yüzyılı Maarif Modeli"
+    },
+    {
+      "id": "ca78dcab-52d7-410a-aaae-5159a6b8d4d0",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ORTA",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Türkiye Yüzyılı Maarif Modeli - Paket 4",
+      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Türkiye Yüzyılı Maarif Modeli"
+    },
+    {
+      "id": "6912ddbc-b4ee-48ae-b980-cbf931fe029c",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ORTA",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Türkiye Yüzyılı Maarif Modeli - Paket 5",
+      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Türkiye Yüzyılı Maarif Modeli"
+    },
+    {
+      "id": "d37ae99b-6ff1-49e9-9279-d0004cd36cae",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ZOR",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Türkiye Yüzyılı Maarif Modeli - Paket 6",
+      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Türkiye Yüzyılı Maarif Modeli"
+    },
+    {
+      "id": "657611a2-59e3-47f0-82d5-c484afe560bd",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "KOLAY",
+      "is_free_tier": true,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Genel Kültür - Paket 1",
+      "description": "Genel Kültür konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Genel Kültür"
+    },
+    {
+      "id": "d8093084-ae44-4a75-b448-c4cc3bc54ce5",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ORTA",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Genel Kültür - Paket 2",
+      "description": "Genel Kültür konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Genel Kültür"
+    },
+    {
+      "id": "a7ea28dc-d6d8-4910-9afa-9858fc777300",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ORTA",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Genel Kültür - Paket 3",
+      "description": "Genel Kültür konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Genel Kültür"
+    },
+    {
+      "id": "e2ed507a-a290-4523-80fe-a1e9b0d3a16f",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ORTA",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Genel Kültür - Paket 4",
+      "description": "Genel Kültür konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Genel Kültür"
+    },
+    {
+      "id": "66192b8c-5fb0-4a39-bac7-3dfd1c0ebbce",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ORTA",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Genel Kültür - Paket 5",
+      "description": "Genel Kültür konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Genel Kültür"
+    },
+    {
+      "id": "bceb64b8-8976-4df4-8197-37badac7d5ef",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ZOR",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Genel Kültür - Paket 6",
+      "description": "Genel Kültür konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Genel Kültür"
+    },
+    {
+      "id": "1a37bb7c-0a10-4b32-a253-17293991a2de",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "KOLAY",
+      "is_free_tier": true,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Mevzuat - Paket 1",
+      "description": "Mevzuat konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Mevzuat"
+    },
+    {
+      "id": "3088dfce-fe0b-4eb0-be77-09dec2643aa8",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ORTA",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Mevzuat - Paket 2",
+      "description": "Mevzuat konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Mevzuat"
+    },
+    {
+      "id": "0b7f24e0-371a-42a6-a922-d452d5b39931",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ZOR",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Mevzuat - Paket 3",
+      "description": "Mevzuat konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Mevzuat"
+    },
+    {
+      "id": "4a7fb3a8-0aa2-48c4-8085-deb345bc54b5",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "KOLAY",
+      "is_free_tier": true,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "T.C. İnkılap Tarihi ve Atatürkçülük - Paket 1",
+      "description": "T.C. İnkılap Tarihi ve Atatürkçülük konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "T.C. İnkılap Tarihi ve Atatürkçülük"
+    },
+    {
+      "id": "c3acec5c-3be3-4f95-b201-d134882cc193",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ORTA",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "T.C. İnkılap Tarihi ve Atatürkçülük - Paket 2",
+      "description": "T.C. İnkılap Tarihi ve Atatürkçülük konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "T.C. İnkılap Tarihi ve Atatürkçülük"
+    },
+    {
+      "id": "a8e7cd53-dff4-4d14-9ba1-eae4d43a2142",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ORTA",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "T.C. İnkılap Tarihi ve Atatürkçülük - Paket 3",
+      "description": "T.C. İnkılap Tarihi ve Atatürkçülük konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "T.C. İnkılap Tarihi ve Atatürkçülük"
+    },
+    {
+      "id": "343e156f-8350-4b39-9ba1-99f1883fb837",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ZOR",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "T.C. İnkılap Tarihi ve Atatürkçülük - Paket 4",
+      "description": "T.C. İnkılap Tarihi ve Atatürkçülük konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "T.C. İnkılap Tarihi ve Atatürkçülük"
+    },
+    {
+      "id": "f2e5870a-3481-4a82-99e0-48aee4e6834b",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "KOLAY",
+      "is_free_tier": true,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Eğitim Bilimleri - Paket 1",
+      "description": "Eğitim Bilimleri konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Eğitim Bilimleri"
+    },
+    {
+      "id": "1d0dd31a-6a26-478b-bfee-70ed62511f05",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ORTA",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Eğitim Bilimleri - Paket 2",
+      "description": "Eğitim Bilimleri konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Eğitim Bilimleri"
+    },
+    {
+      "id": "e6de9cbe-93e2-4e55-987c-952c305bf14e",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ORTA",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Eğitim Bilimleri - Paket 3",
+      "description": "Eğitim Bilimleri konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Eğitim Bilimleri"
+    },
+    {
+      "id": "22b6664f-03f3-4a2e-87e3-93fa2e794f99",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ORTA",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Eğitim Bilimleri - Paket 4",
+      "description": "Eğitim Bilimleri konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Eğitim Bilimleri"
+    },
+    {
+      "id": "65e8ecfc-4248-44a9-b4b7-3f824e15343a",
+      "package_type": "TEMEL_CALISMA",
+      "difficulty_level": "ZOR",
+      "is_free_tier": false,
+      "version": 1,
+      "checksum": "auto",
+      "status": "PUBLISHED",
+      "title": "Eğitim Bilimleri - Paket 5",
+      "description": "Eğitim Bilimleri konusuna ait 20 soruluk çalışma paketi.",
+      "topic": "Eğitim Bilimleri"
     },
     {
       "id": "efc92aef-6cc6-4a90-b81e-cbc297233eef",
@@ -88,6 +354,126 @@
   ],
   "source_packages": [
     {
+      "file": "TYMM-001 Konu Paketi.json",
+      "package_label": "TYMM-001",
+      "target_package_id": "85ec947e-69e9-446c-9bf1-29a034e3ef6d"
+    },
+    {
+      "file": "TYMM-002 Konu Paketi.json",
+      "package_label": "TYMM-002",
+      "target_package_id": "fb7c1e8e-80f7-4be3-ba7f-1f87f89a0859"
+    },
+    {
+      "file": "TYMM-003 Konu Paketi.json",
+      "package_label": "TYMM-003",
+      "target_package_id": "cb519587-d79f-40f0-b3ba-ce0356b25d6a"
+    },
+    {
+      "file": "TYMM-004 Konu Paketi.json",
+      "package_label": "TYMM-004",
+      "target_package_id": "ca78dcab-52d7-410a-aaae-5159a6b8d4d0"
+    },
+    {
+      "file": "TYMM-005 Konu Paketi.json",
+      "package_label": "TYMM-005",
+      "target_package_id": "6912ddbc-b4ee-48ae-b980-cbf931fe029c"
+    },
+    {
+      "file": "TYMM-006 Konu Paketi.json",
+      "package_label": "TYMM-006",
+      "target_package_id": "d37ae99b-6ff1-49e9-9279-d0004cd36cae"
+    },
+    {
+      "file": "GK-001 Soru Paketi.json",
+      "package_label": "GK-001",
+      "target_package_id": "657611a2-59e3-47f0-82d5-c484afe560bd"
+    },
+    {
+      "file": "GK-002 Soru Paketi.json",
+      "package_label": "GK-002",
+      "target_package_id": "d8093084-ae44-4a75-b448-c4cc3bc54ce5"
+    },
+    {
+      "file": "GK-003 Soru Paketi.json",
+      "package_label": "GK-003",
+      "target_package_id": "a7ea28dc-d6d8-4910-9afa-9858fc777300"
+    },
+    {
+      "file": "GK-004 Soru Paketi.json",
+      "package_label": "GK-004",
+      "target_package_id": "e2ed507a-a290-4523-80fe-a1e9b0d3a16f"
+    },
+    {
+      "file": "GK-005 Soru Paketi.json",
+      "package_label": "GK-005",
+      "target_package_id": "66192b8c-5fb0-4a39-bac7-3dfd1c0ebbce"
+    },
+    {
+      "file": "GK-006 Soru Paketi.json",
+      "package_label": "GK-006",
+      "target_package_id": "bceb64b8-8976-4df4-8197-37badac7d5ef"
+    },
+    {
+      "file": "MEV-001 Soru Paketi.json",
+      "package_label": "MEV-001",
+      "target_package_id": "1a37bb7c-0a10-4b32-a253-17293991a2de"
+    },
+    {
+      "file": "MEV-002 Soru Paketi.json",
+      "package_label": "MEV-002",
+      "target_package_id": "3088dfce-fe0b-4eb0-be77-09dec2643aa8"
+    },
+    {
+      "file": "MEV-003 Soru Paketi.json",
+      "package_label": "MEV-003",
+      "target_package_id": "0b7f24e0-371a-42a6-a922-d452d5b39931"
+    },
+    {
+      "file": "ITA-001 Soru Paketi.json",
+      "package_label": "ITA-001",
+      "target_package_id": "4a7fb3a8-0aa2-48c4-8085-deb345bc54b5"
+    },
+    {
+      "file": "ITA-002 Soru Paketi.json",
+      "package_label": "ITA-002",
+      "target_package_id": "c3acec5c-3be3-4f95-b201-d134882cc193"
+    },
+    {
+      "file": "ITA-003 Soru Paketi.json",
+      "package_label": "ITA-003",
+      "target_package_id": "a8e7cd53-dff4-4d14-9ba1-eae4d43a2142"
+    },
+    {
+      "file": "ITA-004 Soru Paketi.json",
+      "package_label": "ITA-004",
+      "target_package_id": "343e156f-8350-4b39-9ba1-99f1883fb837"
+    },
+    {
+      "file": "EB-001 Soru Paketi.json",
+      "package_label": "EB-001",
+      "target_package_id": "f2e5870a-3481-4a82-99e0-48aee4e6834b"
+    },
+    {
+      "file": "EB-002 Soru Paketi.json",
+      "package_label": "EB-002",
+      "target_package_id": "1d0dd31a-6a26-478b-bfee-70ed62511f05"
+    },
+    {
+      "file": "EB-004 Soru Paketi.json",
+      "package_label": "EB-004",
+      "target_package_id": "e6de9cbe-93e2-4e55-987c-952c305bf14e"
+    },
+    {
+      "file": "EB-005 Soru Paketi.json",
+      "package_label": "EB-005",
+      "target_package_id": "22b6664f-03f3-4a2e-87e3-93fa2e794f99"
+    },
+    {
+      "file": "EB-006 Soru Paketi.json",
+      "package_label": "EB-006",
+      "target_package_id": "65e8ecfc-4248-44a9-b4b7-3f824e15343a"
+    },
+    {
       "file": "DEN-001 Deneme Paketi.json",
       "package_label": "DENEME-001",
       "target_package_id": "efc92aef-6cc6-4a90-b81e-cbc297233eef"
@@ -96,246 +482,6 @@
       "file": "DEN-002 Deneme Paketi.json",
       "package_label": "DENEME-002",
       "target_package_id": "6d61f487-456e-4565-bfcd-9cda131497ba"
-    },
-    {
-      "file": "EB-001 Soru Paketi.json",
-      "package_label": "EB-001",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "EB-001 Soru Paketi.json",
-      "package_label": "EB-001",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "EB-002 Soru Paketi.json",
-      "package_label": "EB-002",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "EB-002 Soru Paketi.json",
-      "package_label": "EB-002",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "EB-004 Soru Paketi.json",
-      "package_label": "EB-004",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "EB-004 Soru Paketi.json",
-      "package_label": "EB-004",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "EB-005 Soru Paketi.json",
-      "package_label": "EB-005",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "EB-005 Soru Paketi.json",
-      "package_label": "EB-005",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "EB-006 Soru Paketi.json",
-      "package_label": "EB-006",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "EB-006 Soru Paketi.json",
-      "package_label": "EB-006",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "GK-001 Soru Paketi.json",
-      "package_label": "GK-001",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "GK-001 Soru Paketi.json",
-      "package_label": "GK-001",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "GK-002 Soru Paketi.json",
-      "package_label": "GK-002",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "GK-002 Soru Paketi.json",
-      "package_label": "GK-002",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "GK-003 Soru Paketi.json",
-      "package_label": "GK-003",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "GK-003 Soru Paketi.json",
-      "package_label": "GK-003",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "GK-004 Soru Paketi.json",
-      "package_label": "GK-004",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "GK-004 Soru Paketi.json",
-      "package_label": "GK-004",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "GK-005 Soru Paketi.json",
-      "package_label": "GK-005",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "GK-005 Soru Paketi.json",
-      "package_label": "GK-005",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "GK-006 Soru Paketi.json",
-      "package_label": "GK-006",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "GK-006 Soru Paketi.json",
-      "package_label": "GK-006",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "ITA-001 Soru Paketi.json",
-      "package_label": "ITA-001",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "ITA-001 Soru Paketi.json",
-      "package_label": "ITA-001",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "ITA-002 Soru Paketi.json",
-      "package_label": "ITA-002",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "ITA-002 Soru Paketi.json",
-      "package_label": "ITA-002",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "ITA-003 Soru Paketi.json",
-      "package_label": "ITA-003",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "ITA-003 Soru Paketi.json",
-      "package_label": "ITA-003",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "ITA-004 Soru Paketi.json",
-      "package_label": "ITA-004",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "ITA-004 Soru Paketi.json",
-      "package_label": "ITA-004",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "MEV-001 Soru Paketi.json",
-      "package_label": "MEV-001",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "MEV-001 Soru Paketi.json",
-      "package_label": "MEV-001",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "MEV-002 Soru Paketi.json",
-      "package_label": "MEV-002",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "MEV-002 Soru Paketi.json",
-      "package_label": "MEV-002",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "MEV-003 Soru Paketi.json",
-      "package_label": "MEV-003",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "MEV-003 Soru Paketi.json",
-      "package_label": "MEV-003",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "TYMM-001 Konu Paketi.json",
-      "package_label": "TYMM-001",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "TYMM-001 Konu Paketi.json",
-      "package_label": "TYMM-001",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "TYMM-002 Konu Paketi.json",
-      "package_label": "TYMM-002",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "TYMM-002 Konu Paketi.json",
-      "package_label": "TYMM-002",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "TYMM-003 Konu Paketi.json",
-      "package_label": "TYMM-003",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "TYMM-003 Konu Paketi.json",
-      "package_label": "TYMM-003",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "TYMM-004 Konu Paketi.json",
-      "package_label": "TYMM-004",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "TYMM-004 Konu Paketi.json",
-      "package_label": "TYMM-004",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "TYMM-005 Konu Paketi.json",
-      "package_label": "TYMM-005",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "TYMM-005 Konu Paketi.json",
-      "package_label": "TYMM-005",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
-    },
-    {
-      "file": "TYMM-006 Konu Paketi.json",
-      "package_label": "TYMM-006",
-      "target_package_id": "eb5c8f05-a9ba-44a9-a844-2f4587ce417d"
-    },
-    {
-      "file": "TYMM-006 Konu Paketi.json",
-      "package_label": "TYMM-006",
-      "target_package_id": "ace2c247-f6ed-48a3-9ebf-57b84055ac98"
     }
   ]
 }
