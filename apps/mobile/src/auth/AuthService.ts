@@ -32,4 +32,12 @@ export interface AuthService {
   // Idempotent: safe to call every bootstrap, never overwrites an
   // already-upgraded account's status.
   ensureServerUserProfile(): Promise<void>;
+
+  // Ends only this device's local Supabase session (clears the persisted
+  // session from AsyncStorage) — not a global account logout. Other
+  // sessions for the same user on other devices are left signed in.
+  // Does not touch local SQLite — callers that need the device's local
+  // user-scoped data cleared alongside sign-out (see LogoutUseCase) must
+  // do that separately.
+  signOut(): Promise<void>;
 }

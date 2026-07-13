@@ -133,6 +133,21 @@ export class InMemoryUserProfileRepository implements UserProfileRepository {
       updatedAt: nowIso(),
     };
   }
+  // Mirrors SqliteUserProfileRepository.clearLocalUserData's scope
+  // (attempts/learningMetrics/entitlements/examSessions/userProfile) —
+  // trial_access/package_access have no equivalent in this harness's
+  // store, so there's nothing to clear for them here.
+  async clearLocalUserData(userId: string): Promise<void> {
+    webPreviewStore.attempts = webPreviewStore.attempts.filter((a) => a.userId !== userId);
+    webPreviewStore.learningMetrics = webPreviewStore.learningMetrics.filter(
+      (m) => m.userId !== userId,
+    );
+    webPreviewStore.entitlements = webPreviewStore.entitlements.filter((e) => e.userId !== userId);
+    webPreviewStore.examSessions = webPreviewStore.examSessions.filter((s) => s.userId !== userId);
+    if (webPreviewStore.userProfile?.id === userId) {
+      webPreviewStore.userProfile = null;
+    }
+  }
 }
 
 export class InMemoryEntitlementRepository implements EntitlementRepository {

@@ -18,4 +18,8 @@ export class InMemoryAuthService implements AuthService {
   // No-op: the web-preview harness has no real Supabase project to
   // provision a server-side row against.
   async ensureServerUserProfile(): Promise<void> {}
+  // No-op: no real Supabase session to end. LogoutUseCase's local-clear
+  // step (InMemoryUserProfileRepository.clearLocalUserData) still runs
+  // against the in-memory store.
+  async signOut(): Promise<void> {}
 }

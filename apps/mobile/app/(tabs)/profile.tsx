@@ -33,7 +33,6 @@ const accountRows: NavRow[] = [
     icon: 'log-out-outline',
     label: 'Çıkış Yap',
     href: '/account-management',
-    status: 'Hazırlanıyor',
   },
 ];
 

@@ -1,6 +1,14 @@
-import { Linking, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Alert, Linking, StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
-import { useCurrentUserProfile } from '../src/services/hooks';
+import {
+  useAuthService,
+  useCurrentUserProfile,
+  useUserProfileRepository,
+} from '../src/services/hooks';
+import { LogoutUseCase } from '../src/application/LogoutUseCase';
 import {
   AppText,
   BackButton,
@@ -56,12 +64,53 @@ function ActionInfoCard({
 }
 
 export default function AccountManagementScreen() {
+  const authService = useAuthService();
+  const userProfileRepository = useUserProfileRepository();
+  const queryClient = useQueryClient();
   const { data: userProfile } = useCurrentUserProfile();
-  const statusLabel = userProfile?.accountStatus === 'REGISTERED' ? 'Kayıtlı hesap' : 'Hesap bağlanmadı';
+  const isRegistered = userProfile?.accountStatus === 'REGISTERED';
+  const statusLabel = isRegistered ? 'Kayıtlı hesap' : 'Hesap bağlanmadı';
+
+  const [loggingOut, setLoggingOut] = useState(false);
 
   function openSupportEmail() {
     const subject = encodeURIComponent('EKYS CEPTE hesap desteği');
     Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=${subject}`).catch(() => {});
+  }
+
+  async function performLogout() {
+    if (!userProfile) return;
+    setLoggingOut(true);
+    try {
+      await new LogoutUseCase({ authService, userProfileRepository }).execute({
+        userId: userProfile.id,
+      });
+      // Broad clear, not a narrow invalidation: the cache may hold
+      // REGISTERED-user data (profile, dashboard metrics, exam sessions,
+      // entitlements) keyed by the just-cleared user id. A targeted
+      // invalidate list would need updating every time a screen adds a
+      // new user-scoped query, and a missed key would let stale data
+      // flash for the new anonymous session. clear() is the same
+      // "err on the broad side" choice _layout.tsx already makes for
+      // post-bootstrap sync.
+      queryClient.clear();
+      router.replace('/');
+    } catch (error) {
+      Alert.alert('İşlem tamamlanamadı', 'Çıkış yapılamadı. Lütfen tekrar dene.');
+    } finally {
+      setLoggingOut(false);
+    }
+  }
+
+  function handleLogoutPress() {
+    Alert.alert(
+      'Çıkış Yap',
+      'Bu cihazdaki oturumun kapatılacak ve yerel ilerleme verilerin bu cihazdan silinecek. Hesabın ve sunucudaki verilerin korunur. Devam etmek istiyor musun?',
+      [
+        { text: 'Vazgeç', style: 'cancel' },
+        { text: 'Çıkış Yap', style: 'destructive', onPress: performLogout },
+      ],
+    );
   }
 
   return (
@@ -89,12 +138,30 @@ export default function AccountManagementScreen() {
         </View>
       </Card>
 
-      <ActionInfoCard
-        icon="log-out-outline"
-        title="Çıkış Yap"
-        status="Hazırlanıyor"
-        message="Güvenli çıkış için doğrulanmış giriş ekranı ve yerel SQLite verisini tutarlı sıfırlama akışı birlikte tamamlanmalı. Sadece Supabase oturumunu kapatmak bu cihazdaki ilerleme verisini boşa düşürebilir."
-      />
+      {isRegistered ? (
+        <Card style={styles.actionCard}>
+          <View style={styles.actionHeader}>
+            <IconChip
+              icon={<Ionicons name="log-out-outline" size={18} color={colors.accent} />}
+              size={36}
+            />
+            <View style={styles.actionText}>
+              <AppText variant="headline">Çıkış Yap</AppText>
+              <AppText variant="footnote" color="secondary" style={styles.actionMessage}>
+                Bu cihazdaki oturumun kapatılır ve yerel ilerleme verilerin bu cihazdan silinir.
+                Hesabın ve sunucudaki verilerin korunur.
+              </AppText>
+            </View>
+          </View>
+          <View style={styles.actionButtonWrap}>
+            <SecondaryButton
+              label={loggingOut ? 'Çıkış yapılıyor...' : 'Çıkış Yap'}
+              onPress={handleLogoutPress}
+              disabled={loggingOut}
+            />
+          </View>
+        </Card>
+      ) : null}
 
       <ActionInfoCard
         icon="trash-outline"
@@ -140,6 +207,7 @@ const styles = StyleSheet.create({
   actionHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
   actionText: { flex: 1 },
   actionMessage: { marginTop: spacing.xs },
+  actionButtonWrap: { marginTop: spacing.md },
   statusTag: {
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs / 2,

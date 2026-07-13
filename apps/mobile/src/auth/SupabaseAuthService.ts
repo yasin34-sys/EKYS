@@ -133,4 +133,16 @@ export class SupabaseAuthService implements AuthService {
       throw new AuthSessionError('Failed to ensure server user profile', error);
     }
   }
+
+  async signOut(): Promise<void> {
+    const client = this.requireClient();
+
+    // scope: 'local' — ends only this device's session. The default
+    // ('global') signs out every session for this user on every device,
+    // which is not what "Çıkış Yap" means here (see AuthService.ts).
+    const { error } = await client.auth.signOut({ scope: 'local' });
+    if (error) {
+      throw new AuthSessionError('Failed to sign out', error);
+    }
+  }
 }
