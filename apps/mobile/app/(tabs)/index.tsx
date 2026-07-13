@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { ImageBackground, View, StyleSheet, Pressable } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
@@ -28,6 +28,8 @@ import {
   ProgressBar,
 } from '../../src/components';
 import { colors, radii, spacing } from '../../src/theme';
+
+const studyDeskImage = require('../../assets/illustrations/study-desk.jpg');
 
 // Real device time only — user_profiles has no name/photo field to greet
 // by (see Phase 3A audit), so this is the honest version of
@@ -291,19 +293,29 @@ export default function HomeScreen() {
         <Pressable onPress={handleHeroPress} accessibilityRole="button" accessibilityLabel={heroAccessibilityLabel}>
           {({ pressed }) => (
             <Card variant="hero" style={[styles.heroCard, pressed && styles.heroPressed]}>
-              <View style={styles.heroPill}>
-                <AppText variant="caption" style={styles.heroPillText}>
-                  {heroPillLabel}
+              <ImageBackground
+                source={studyDeskImage}
+                resizeMode="cover"
+                style={styles.heroImage}
+                imageStyle={styles.heroImageAsset}
+              >
+                <View style={styles.heroImageOverlay} />
+              </ImageBackground>
+              <View style={styles.heroContent}>
+                <View style={styles.heroPill}>
+                  <AppText variant="caption" style={styles.heroPillText}>
+                    {heroPillLabel}
+                  </AppText>
+                </View>
+                <AppText variant="title2" style={styles.heroHeadline}>
+                  {heroHeadline}
                 </AppText>
-              </View>
-              <AppText variant="title2" style={styles.heroHeadline}>
-                {heroHeadline}
-              </AppText>
-              <AppText variant="subhead" style={styles.heroBody}>
-                {heroBody}
-              </AppText>
-              <View style={styles.heroFooter}>
-                <Ionicons name={heroIcon} size={28} color={colors.textOnAccent} />
+                <AppText variant="subhead" style={styles.heroBody}>
+                  {heroBody}
+                </AppText>
+                <View style={styles.heroFooter}>
+                  <Ionicons name={heroIcon} size={28} color={colors.textOnAccent} />
+                </View>
               </View>
             </Card>
           )}
@@ -447,8 +459,25 @@ const styles = StyleSheet.create({
   subtitle: { marginTop: spacing.xs },
   cardBody: { marginTop: spacing.xs },
   skeletonLine: { marginBottom: spacing.sm },
-  heroCard: { backgroundColor: colors.accent, borderColor: colors.accentPressed },
+  heroCard: {
+    backgroundColor: colors.accent,
+    borderColor: colors.accentPressed,
+    overflow: 'hidden',
+  },
   heroPressed: { opacity: 0.92 },
+  heroImage: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
+  heroImageAsset: { opacity: 0.55 },
+  heroImageOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(53,37,205,0.72)',
+  },
+  heroContent: { position: 'relative' },
   heroPill: {
     alignSelf: 'flex-start',
     backgroundColor: 'rgba(255,255,255,0.18)',
