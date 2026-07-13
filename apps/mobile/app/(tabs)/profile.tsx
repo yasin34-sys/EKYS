@@ -23,19 +23,25 @@ const accountStatusLabel: Record<AccountStatus, string> = {
 interface NavRow {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
-  href: '/settings' | '/about';
+  href: '/settings' | '/about' | '/account-management';
+  status?: string;
 }
 
 // "İstatistikler" row removed — Statistics is now its own tab (Phase 2A's
 // 5-tab restructuring), so linking to it here would be a redundant,
-// confusing second path to the same screen. "Çıkış Yap" (sign out) is
-// deliberately not present either — no sign-out mechanism exists
-// anywhere in AuthService yet, and this is an anonymous-first app with
-// no login screen to sign back in through, so a logout button here
-// would be a dead end at best and destructive at worst.
+// confusing second path to the same screen.
 const navRows: NavRow[] = [
   { icon: 'settings-outline', label: 'Ayarlar', href: '/settings' },
   { icon: 'information-circle-outline', label: 'Hakkında', href: '/about' },
+];
+
+const accountRows: NavRow[] = [
+  {
+    icon: 'log-out-outline',
+    label: 'Çıkış Yap',
+    href: '/account-management',
+    status: 'Hazırlanıyor',
+  },
 ];
 
 // ekranlar/profil_ayarlar shows a photo avatar, a real name, a "PRO"
@@ -142,6 +148,10 @@ export default function ProfileScreen() {
         </Card>
       ) : null}
 
+      <AppText variant="footnote" color="tertiary" style={styles.sectionEyebrow}>
+        HESAP
+      </AppText>
+
       {userProfile?.accountStatus === 'ANONYMOUS' ? (
         <Pressable
           onPress={() => router.push('/account-register')}
@@ -166,6 +176,42 @@ export default function ProfileScreen() {
           </Card>
         </Pressable>
       ) : null}
+
+      <Card style={styles.accountActionCard}>
+        {accountRows.map((row, index) => (
+          <Pressable
+            key={row.label}
+            onPress={() => router.push(row.href)}
+            accessibilityRole="button"
+            accessibilityLabel={row.label}
+            style={({ pressed }) => [
+              styles.navRow,
+              index !== accountRows.length - 1 && styles.navRowDivider,
+              pressed && styles.navRowPressed,
+            ]}
+          >
+            <View style={styles.navRowLeft}>
+              <IconChip icon={<Ionicons name={row.icon} size={18} color={colors.accent} />} size={32} />
+              <View style={styles.navLabelWrap}>
+                <AppText variant="body">{row.label}</AppText>
+                <AppText variant="caption" color="tertiary">
+                  Güvenli oturum yönetimi
+                </AppText>
+              </View>
+            </View>
+            <View style={styles.rowRight}>
+              {row.status ? (
+                <View style={styles.statusTag}>
+                  <AppText variant="caption" color="tertiary">
+                    {row.status}
+                  </AppText>
+                </View>
+              ) : null}
+              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+            </View>
+          </Pressable>
+        ))}
+      </Card>
 
       <AppText variant="footnote" color="tertiary" style={styles.sectionEyebrow}>
         UYGULAMA
@@ -225,7 +271,7 @@ const styles = StyleSheet.create({
   progressSkeletonLine: { marginBottom: spacing.sm },
   progressHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.sm },
   accountCard: {
-    marginBottom: spacing.xl,
+    marginBottom: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -235,6 +281,7 @@ const styles = StyleSheet.create({
   accountCardLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, flex: 1 },
   accountCardText: { flex: 1 },
   accountCardCopy: { marginTop: spacing.xs / 2 },
+  accountActionCard: { paddingVertical: spacing.xs, marginBottom: spacing.xl },
   sectionEyebrow: { marginBottom: spacing.sm, marginLeft: spacing.xs },
   navCard: { paddingVertical: spacing.xs },
   navRow: {
@@ -245,6 +292,14 @@ const styles = StyleSheet.create({
   },
   navRowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
   navRowPressed: { backgroundColor: colors.background },
-  navRowLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  navRowLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, flex: 1 },
+  navLabelWrap: { flex: 1, gap: spacing.xs / 2 },
+  rowRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  statusTag: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+    borderRadius: radii.full,
+    backgroundColor: colors.surfaceSecondary,
+  },
   footer: { alignItems: 'center', marginTop: spacing.xl },
 });

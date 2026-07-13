@@ -286,6 +286,9 @@ export default function RootLayout() {
             <Stack.Screen name="repeat-pool" />
             <Stack.Screen name="learning-progress" />
             <Stack.Screen name="settings" />
+            <Stack.Screen name="settings-appearance" />
+            <Stack.Screen name="settings-notifications" />
+            <Stack.Screen name="account-management" />
             <Stack.Screen name="about" />
           </Stack>
           <StatusBar style="dark" />

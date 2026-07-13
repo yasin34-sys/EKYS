@@ -1,4 +1,5 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
+import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { ScreenContainer, AppText, Card, BackButton } from '../src/components';
 import { colors, radii, spacing } from '../src/theme';
@@ -6,13 +7,16 @@ import { colors, radii, spacing } from '../src/theme';
 interface SettingsRow {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
+  detail: string;
+  status: string;
+  href: '/settings-appearance' | '/settings-notifications' | '/account-management';
 }
 
 // Every row here is a documented, currently-unbuilt dependency per
 // SCREEN_SPECIFICATIONS.md §18 (dark mode needs Design System §34's
 // ThemeProvider; notifications need a push system; data/privacy controls
-// have no flow yet) — rendered disabled with an honest "Yakında" tag
-// rather than a toggle that would silently do nothing.
+// have no flow yet) — routed to detail screens instead of pretending to
+// be working toggles.
 //
 // Store-readiness TODO: "Hesabı Sil" must become a real, working
 // in-app account-deletion flow before any account-creation feature ships
@@ -24,15 +28,39 @@ interface SettingsRow {
 const groups: { title: string; rows: SettingsRow[] }[] = [
   {
     title: 'Görünüm',
-    rows: [{ icon: 'moon-outline', label: 'Koyu Mod' }],
+    rows: [
+      {
+        icon: 'moon-outline',
+        label: 'Koyu Mod',
+        detail: 'Tema altyapısı hazır olunca açılacak.',
+        status: 'Planlandı',
+        href: '/settings-appearance',
+      },
+    ],
   },
   {
     title: 'Bildirimler',
-    rows: [{ icon: 'notifications-outline', label: 'Bildirim Tercihleri' }],
+    rows: [
+      {
+        icon: 'notifications-outline',
+        label: 'Bildirim Tercihleri',
+        detail: 'Hatırlatma tercihleri için hazırlık ekranı.',
+        status: 'Planlandı',
+        href: '/settings-notifications',
+      },
+    ],
   },
   {
     title: 'Hesap',
-    rows: [{ icon: 'trash-outline', label: 'Hesabı Sil' }],
+    rows: [
+      {
+        icon: 'trash-outline',
+        label: 'Hesabı Sil',
+        detail: 'Mağaza yayını öncesi gerçek silme akışı gerekiyor.',
+        status: 'Gerekli',
+        href: '/account-management',
+      },
+    ],
   },
 ];
 
@@ -46,7 +74,7 @@ export default function SettingsScreen() {
         Ayarlar
       </AppText>
       <AppText variant="subhead" color="secondary" style={styles.subtitle}>
-        Bu seçenekler üzerinde çalışıyoruz; sırayla aktif olacaklar.
+        Satırlara dokunarak her ayarın durumunu ve eksik altyapısını görebilirsin.
       </AppText>
 
       {groups.map((group) => (
@@ -56,22 +84,33 @@ export default function SettingsScreen() {
           </AppText>
           <Card style={styles.groupCard}>
             {group.rows.map((row, index) => (
-              <View
+              <Pressable
                 key={row.label}
+                onPress={() => router.push(row.href)}
+                accessibilityRole="button"
+                accessibilityLabel={row.label}
                 style={[styles.row, index !== group.rows.length - 1 && styles.rowDivider]}
               >
                 <View style={styles.rowLeft}>
-                  <Ionicons name={row.icon} size={20} color={colors.textTertiary} />
-                  <AppText variant="body" color="tertiary">
-                    {row.label}
-                  </AppText>
+                  <View style={styles.iconBubble}>
+                    <Ionicons name={row.icon} size={18} color={colors.accent} />
+                  </View>
+                  <View style={styles.rowText}>
+                    <AppText variant="body">{row.label}</AppText>
+                    <AppText variant="caption" color="tertiary" numberOfLines={2}>
+                      {row.detail}
+                    </AppText>
+                  </View>
                 </View>
-                <View style={styles.comingSoonTag}>
-                  <AppText variant="caption" color="tertiary">
-                    Yakında
-                  </AppText>
+                <View style={styles.rowRight}>
+                  <View style={styles.comingSoonTag}>
+                    <AppText variant="caption" color="tertiary">
+                      {row.status}
+                    </AppText>
+                  </View>
+                  <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
                 </View>
-              </View>
+              </Pressable>
             ))}
           </Card>
         </View>
@@ -91,14 +130,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: spacing.sm,
+    gap: spacing.md,
+    paddingVertical: spacing.md,
   },
   rowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
-  rowLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  rowLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flex: 1 },
+  iconBubble: {
+    width: 34,
+    height: 34,
+    borderRadius: radii.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.accentMuted,
+  },
+  rowText: { flex: 1, gap: spacing.xs / 2 },
+  rowRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexShrink: 0 },
   comingSoonTag: {
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs / 2,
     borderRadius: radii.full,
-    backgroundColor: colors.border,
+    backgroundColor: colors.surfaceSecondary,
   },
 });
