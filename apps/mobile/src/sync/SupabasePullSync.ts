@@ -488,6 +488,7 @@ export class SupabasePullSync implements PullSync {
 
     let succeeded = 0;
     const errors: SyncRowError[] = [];
+    const publishedPackageIds: string[] = [];
     for (const row of data ?? []) {
       try {
         // bundle_path deliberately not written — omitted from the
@@ -529,9 +530,40 @@ export class SupabasePullSync implements PullSync {
             row.updated_at,
           ],
         );
+        publishedPackageIds.push(row.id);
         succeeded++;
       } catch (cause) {
         errors.push(new SyncRowError('packages', row.id, cause));
+      }
+    }
+
+    // Stale package cleanup (Phase 8A.3): packages_select_published only
+    // exposes currently published packages, so archived/removed server
+    // packages never arrive as rows that can update local status. Mark
+    // any previously-cached published package not present in this
+    // successful pull as ARCHIVED locally, rather than deleting it. That
+    // keeps historical package_access/trial_access/exam_session FKs valid
+    // while removing stale packages from all repository browse queries
+    // (which now filter status = 'PUBLISHED').
+    if (errors.length === 0) {
+      try {
+        if (publishedPackageIds.length > 0) {
+          const placeholders = publishedPackageIds.map(() => '?').join(', ');
+          await this.db.execute(
+            `UPDATE packages
+             SET status = 'ARCHIVED', updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now')
+             WHERE status = 'PUBLISHED' AND id NOT IN (${placeholders});`,
+            publishedPackageIds,
+          );
+        } else {
+          await this.db.execute(
+            `UPDATE packages
+             SET status = 'ARCHIVED', updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now')
+             WHERE status = 'PUBLISHED';`,
+          );
+        }
+      } catch (cause) {
+        errors.push(new SyncRowError('packages', '(stale-cleanup)', cause));
       }
     }
 

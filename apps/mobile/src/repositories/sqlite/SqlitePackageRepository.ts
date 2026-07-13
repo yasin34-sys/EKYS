@@ -46,14 +46,16 @@ export class SqlitePackageRepository implements PackageRepository {
 
   async getByExam(examId: string): Promise<Package[]> {
     const result = await this.db.execute(
-      `SELECT * FROM packages WHERE exam_id = ? ORDER BY package_type ASC, difficulty_level ASC;`,
+      `SELECT * FROM packages
+       WHERE exam_id = ? AND status = 'PUBLISHED'
+       ORDER BY package_type ASC, difficulty_level ASC;`,
       [examId],
     );
     return (result.rows as unknown as PackageRow[]).map(mapPackageRow);
   }
 
   async getById(id: string): Promise<Package | null> {
-    const result = await this.db.execute(`SELECT * FROM packages WHERE id = ? LIMIT 1;`, [id]);
+    const result = await this.db.execute(`SELECT * FROM packages WHERE id = ? AND status = 'PUBLISHED' LIMIT 1;`, [id]);
     const row = (result.rows as unknown as PackageRow[])[0];
     return row ? mapPackageRow(row) : null;
   }
@@ -70,7 +72,7 @@ export class SqlitePackageRepository implements PackageRepository {
     const placeholders = topicIds.map(() => '?').join(', ');
     const result = await this.db.execute(
       `SELECT * FROM packages
-       WHERE topic_id IN (${placeholders})
+       WHERE topic_id IN (${placeholders}) AND status = 'PUBLISHED'
        ORDER BY package_type ASC, difficulty_level ASC;`,
       topicIds,
     );
