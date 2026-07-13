@@ -99,11 +99,25 @@ export async function initializeDatabase(): Promise<DB> {
   // depends on this being explicitly enabled here.
   await db.execute('PRAGMA foreign_keys = ON;');
 
-  for (const statement of splitSqlStatements(SQLITE_SCHEMA_SQL)) {
+  const statements = splitSqlStatements(SQLITE_SCHEMA_SQL);
+  const createTableStatements = statements.filter((statement) =>
+    /^CREATE TABLE\b/i.test(statement.trim()),
+  );
+  const nonTableStatements = statements.filter(
+    (statement) => !/^CREATE TABLE\b/i.test(statement.trim()),
+  );
+
+  for (const statement of createTableStatements) {
     await db.execute(statement);
   }
 
+  // Existing installs need new package columns before later schema
+  // statements can reference them in indexes/triggers.
   await upgradePackagesTableColumns(db);
+
+  for (const statement of nonTableStatements) {
+    await db.execute(statement);
+  }
 
   return db;
 }

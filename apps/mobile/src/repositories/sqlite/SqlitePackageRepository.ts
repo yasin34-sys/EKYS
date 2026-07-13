@@ -73,7 +73,7 @@ export class SqlitePackageRepository implements PackageRepository {
     const result = await this.db.execute(
       `SELECT * FROM packages
        WHERE topic_id IN (${placeholders}) AND status = 'PUBLISHED'
-       ORDER BY package_type ASC, difficulty_level ASC;`,
+       ORDER BY is_free_tier DESC, title ASC, package_type ASC, difficulty_level ASC;`,
       topicIds,
     );
     return (result.rows as unknown as PackageRow[]).map(mapPackageRow);
