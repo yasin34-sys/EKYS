@@ -103,13 +103,14 @@ export default function PackageDetailScreen() {
   // Real question count, same use case Exam Start already uses for
   // Deneme packages — shown here too so practice packages aren't the
   // only ones missing it. Never fabricated: appended to the meta line
-  // only once this query actually resolves (see render below).
+  // only when the local cache actually has visible package content.
   const questionsQuery = useQuery({
     queryKey: ['questions', 'byPackage', id],
     queryFn: () => new GetQuestionsByPackageUseCase({ questionRepository }).execute(id as string),
     enabled: Boolean(id),
   });
   const questionCount = questionsQuery.data?.length;
+  const visibleQuestionCount = questionCount && questionCount > 0 ? questionCount : null;
 
   // Real per-topic question counts within this package — grouped from
   // the same questions already fetched above, names resolved from the
@@ -224,7 +225,7 @@ export default function PackageDetailScreen() {
               </AppText>
               <AppText variant="subhead" color="secondary" style={styles.metaLine}>
                 {difficultyLabel[packageQuery.data.difficultyLevel] ?? packageQuery.data.difficultyLevel}
-                {questionCount !== undefined ? ` · ${questionCount} Soru` : ''}
+                {visibleQuestionCount ? ` · ${visibleQuestionCount} Soru` : ''}
               </AppText>
             </View>
           </View>
