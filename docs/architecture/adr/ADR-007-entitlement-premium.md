@@ -6,6 +6,7 @@ Accepted
 ## Update 2026-07-13: Timed Premium Access
 - The MVP premium offer is now a prepaid/sureli access model, not lifetime access and not auto-renewing subscription UX.
 - Planned offer durations/prices: 3 months (499 TL), 6 months (699 TL), 9 months (899 TL), 12 months (1050 TL).
+- Stable internal plan IDs: `premium_3m`, `premium_6m`, `premium_9m`, `premium_12m` (documented in `docs/billing/PREMIUM_IAP_SETUP.md` and mirrored in the mobile app).
 - Entitlements remain server-authoritative and package-scoped through `package_access`, but can now carry `expires_at`; an entitlement grants access only when `status = ACTIVE` and `expires_at` is either null (legacy/admin/lifetime grant) or in the future.
 - Mobile UI may list these plans before store purchase wiring is complete, but the app must not create entitlements locally. Store receipt validation and entitlement creation remain server-side work.
 - In-app digital content purchases must use the platform store payment path on mobile. External payment buttons are not part of the mobile MVP.

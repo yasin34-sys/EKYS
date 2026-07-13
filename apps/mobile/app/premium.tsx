@@ -10,53 +10,19 @@ import {
   Card,
   PrimaryButton,
 } from '../src/components';
+import {
+  DEFAULT_PREMIUM_PLAN_ID,
+  PREMIUM_PLANS,
+  type PremiumPlan,
+  type PremiumPlanId,
+} from '../src/billing/premiumPlans';
 import { colors, radii, spacing } from '../src/theme';
-
-interface PremiumPlan {
-  id: '3m' | '6m' | '9m' | '12m';
-  title: string;
-  duration: string;
-  price: string;
-  note: string;
-  featured?: boolean;
-}
-
-const PREMIUM_PLANS: PremiumPlan[] = [
-  {
-    id: '3m',
-    title: '3 Ay Premium',
-    duration: 'Kısa dönem hazırlık',
-    price: '499 TL',
-    note: 'Premium konu paketleri ve ücretli denemeler açılır.',
-  },
-  {
-    id: '6m',
-    title: '6 Ay Premium',
-    duration: 'Düzenli çalışma dönemi',
-    price: '699 TL',
-    note: 'Yoğun hazırlık süreci için süreli erişim.',
-  },
-  {
-    id: '9m',
-    title: '9 Ay Premium',
-    duration: 'Uzun hazırlık takvimi',
-    price: '899 TL',
-    note: 'Sınava yayılan çalışma planları için.',
-  },
-  {
-    id: '12m',
-    title: '12 Ay Premium',
-    duration: 'En uzun erişim',
-    price: '1050 TL',
-    note: 'Bir yıl boyunca tüm premium içeriklere erişim.',
-    featured: true,
-  },
-];
 
 export default function PremiumScreen() {
   const { packageId } = useLocalSearchParams<{ packageId?: string; examId?: string }>();
   const { data: userProfile } = useCurrentUserProfile();
-  const [selectedPlanId, setSelectedPlanId] = useState<PremiumPlan['id']>('12m');
+  const [selectedPlanId, setSelectedPlanId] =
+    useState<PremiumPlanId>(DEFAULT_PREMIUM_PLAN_ID);
 
   const selectedPlan = useMemo(
     () => PREMIUM_PLANS.find((plan) => plan.id === selectedPlanId) ?? PREMIUM_PLANS[0],
