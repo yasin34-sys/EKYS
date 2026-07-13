@@ -17,6 +17,7 @@ export const useExamSessionRepository = () => useServices().examSessionRepositor
 export const useLearningMetricsRepository = () => useServices().learningMetricsRepository;
 export const useRepeatPoolRepository = () => useServices().repeatPoolRepository;
 export const useTrialAccessRepository = () => useServices().trialAccessRepository;
+export const usePurchaseService = () => useServices().purchaseService;
 
 // The current user profile is fetched with this exact query (same key,
 // same use case) from nearly every screen — centralized here instead of

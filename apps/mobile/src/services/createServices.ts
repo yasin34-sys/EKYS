@@ -17,6 +17,7 @@ import { SupabasePushSync } from '../sync/SupabasePushSync';
 import { SupabasePullSync } from '../sync/SupabasePullSync';
 import { DefaultSyncService } from '../sync/DefaultSyncService';
 import { TrialGrantSync } from '../sync/TrialGrantSync';
+import { NotConfiguredPurchaseService } from '../billing/NotConfiguredPurchaseService';
 
 export function createServices(db: DB, supabase: SupabaseClient | null): Services {
   const authService = new SupabaseAuthService(supabase);
@@ -37,6 +38,7 @@ export function createServices(db: DB, supabase: SupabaseClient | null): Service
     authService,
     syncService: new DefaultSyncService(pushSync, pullSync),
     trialGrantSync: new TrialGrantSync(supabase, db),
+    purchaseService: new NotConfiguredPurchaseService(),
     examRepository: new SqliteExamRepository(db),
     topicRepository: new SqliteTopicRepository(db),
     questionRepository: new SqliteQuestionRepository(db),

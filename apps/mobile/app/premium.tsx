@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { Alert, View, StyleSheet, Pressable } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useCurrentUserProfile } from '../src/services/hooks';
+import { useCurrentUserProfile, usePurchaseService } from '../src/services/hooks';
 import {
   ScreenContainer,
   AppText,
@@ -23,8 +23,11 @@ export default function PremiumScreen() {
   const { packageId } = useLocalSearchParams<{ packageId?: string; examId?: string }>();
   const { data: userProfile, isLoading: isUserProfileLoading } = useCurrentUserProfile();
   const isRegistered = userProfile?.accountStatus === 'REGISTERED';
+  const purchaseService = usePurchaseService();
+  const purchaseConfigured = purchaseService.isConfigured();
   const [selectedPlanId, setSelectedPlanId] =
     useState<PremiumPlanId>(DEFAULT_PREMIUM_PLAN_ID);
+  const [busyAction, setBusyAction] = useState<'purchase' | 'restore' | 'manage' | null>(null);
 
   const selectedPlan = useMemo(
     () => PREMIUM_PLANS.find((plan) => plan.id === selectedPlanId) ?? PREMIUM_PLANS[0],
@@ -35,6 +38,51 @@ export default function PremiumScreen() {
     isRegistered
       ? 'Satın alma bu hesaba bağlanacak.'
       : 'Satın alma açılmadan önce hesabını kaydetmen gerekecek.';
+
+  async function handlePurchase() {
+    if (!purchaseConfigured || busyAction) return;
+    setBusyAction('purchase');
+    try {
+      await purchaseService.purchase(selectedPlanId);
+    } catch (error) {
+      Alert.alert(
+        'Satın alma tamamlanamadı',
+        error instanceof Error ? error.message : 'Lütfen tekrar dene.',
+      );
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function handleRestore() {
+    if (!purchaseConfigured || busyAction) return;
+    setBusyAction('restore');
+    try {
+      await purchaseService.restorePurchases();
+    } catch (error) {
+      Alert.alert(
+        'Geri yükleme tamamlanamadı',
+        error instanceof Error ? error.message : 'Lütfen tekrar dene.',
+      );
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function handleManageSubscription() {
+    if (!purchaseConfigured || busyAction) return;
+    setBusyAction('manage');
+    try {
+      await purchaseService.openManageSubscription();
+    } catch (error) {
+      Alert.alert(
+        'Açılamadı',
+        error instanceof Error ? error.message : 'Lütfen tekrar dene.',
+      );
+    } finally {
+      setBusyAction(null);
+    }
+  }
 
   if (!isUserProfileLoading && !isRegistered) {
     return (
@@ -107,12 +155,64 @@ export default function PremiumScreen() {
             Satın alma tamamlandığında geldiğin sınav otomatik açılacak.
           </AppText>
         ) : null}
-        <PrimaryButton label="Satın alma yakında" disabled />
+        <PrimaryButton
+          label={busyAction === 'purchase' ? 'İşleniyor...' : 'Satın Al'}
+          onPress={handlePurchase}
+          disabled={!purchaseConfigured || busyAction !== null}
+        />
         <AppText variant="footnote" color="tertiary" style={styles.storeNote}>
-          Mobil satın alma App Store ve Google Play ödeme sistemiyle bağlanacak. Google Pay,
-          Android’de Play ödeme seçeneklerinden biri olarak görünebilir; ayrı bir dış ödeme
-          butonu eklenmeyecek.
+          {purchaseConfigured
+            ? 'Ödeme App Store / Google Play üzerinden güvenli şekilde tamamlanır.'
+            : 'Ödeme altyapısı yapılandırılınca aktif olacak. Satın alma App Store / Google Play üzerinden güvenli ödeme ile yapılacak.'}
         </AppText>
+      </Card>
+
+      <Card style={styles.checkoutCard}>
+        <Pressable
+          onPress={handleRestore}
+          disabled={!purchaseConfigured || busyAction !== null}
+          accessibilityRole="button"
+          accessibilityLabel="Satın alımları geri yükle"
+          style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
+        >
+          <View style={styles.linkRowLeft}>
+            <Ionicons name="refresh-outline" size={18} color={colors.accent} />
+            <AppText variant="body">Satın alımları geri yükle</AppText>
+          </View>
+          {!purchaseConfigured ? (
+            <View style={styles.comingSoonTag}>
+              <AppText variant="caption" color="tertiary">
+                Yakında
+              </AppText>
+            </View>
+          ) : (
+            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+          )}
+        </Pressable>
+
+        <View style={styles.linkRowDivider} />
+
+        <Pressable
+          onPress={handleManageSubscription}
+          disabled={!purchaseConfigured || busyAction !== null}
+          accessibilityRole="button"
+          accessibilityLabel="Aboneliği yönet"
+          style={({ pressed }) => [styles.linkRow, pressed && styles.pressed]}
+        >
+          <View style={styles.linkRowLeft}>
+            <Ionicons name="settings-outline" size={18} color={colors.accent} />
+            <AppText variant="body">Aboneliği yönet</AppText>
+          </View>
+          {!purchaseConfigured ? (
+            <View style={styles.comingSoonTag}>
+              <AppText variant="caption" color="tertiary">
+                Yakında
+              </AppText>
+            </View>
+          ) : (
+            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+          )}
+        </Pressable>
       </Card>
     </ScreenContainer>
   );
@@ -239,4 +339,21 @@ const styles = StyleSheet.create({
   checkoutCopy: { marginBottom: spacing.md },
   storeNote: { marginTop: spacing.md, textAlign: 'center' },
   pressed: { opacity: 0.75 },
+  linkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: spacing.sm,
+  },
+  linkRowLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  linkRowDivider: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
+  comingSoonTag: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+    borderRadius: radii.full,
+    backgroundColor: colors.surfaceSecondary,
+  },
 });

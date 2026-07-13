@@ -4,6 +4,7 @@
 // app/_layout.tsx when Platform.OS === 'web'.
 import type { Services } from '../types';
 import { InMemoryAuthService } from './InMemoryAuthService';
+import { NotConfiguredPurchaseService } from '../../billing/NotConfiguredPurchaseService';
 import {
   InMemoryExamRepository,
   InMemoryTopicRepository,
@@ -58,6 +59,7 @@ export function createWebPreviewServices(): Services {
     authService: new InMemoryAuthService(),
     syncService: new NoopSyncService(),
     trialGrantSync: new NoopTrialGrantSync(),
+    purchaseService: new NotConfiguredPurchaseService(),
     examRepository: new InMemoryExamRepository(),
     topicRepository: new InMemoryTopicRepository(),
     questionRepository: new InMemoryQuestionRepository(),

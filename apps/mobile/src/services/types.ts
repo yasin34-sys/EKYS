@@ -12,11 +12,13 @@ import type { TrialAccessRepository } from '../repositories/TrialAccessRepositor
 import type { AuthService } from '../auth/AuthService';
 import type { SyncService } from '../sync/SyncService';
 import type { TrialGrantSyncPort } from '../sync/types';
+import type { PurchaseService } from '../billing/PurchaseService';
 
 export interface Services {
   authService: AuthService;
   syncService: SyncService;
   trialGrantSync: TrialGrantSyncPort;
+  purchaseService: PurchaseService;
   examRepository: ExamRepository;
   topicRepository: TopicRepository;
   questionRepository: QuestionRepository;
