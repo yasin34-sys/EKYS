@@ -160,16 +160,6 @@ main {
   margin-top: 6px;
 }
 
-.placeholder {
-  display: inline-block;
-  background-color: var(--accent-muted);
-  color: var(--accent);
-  border-radius: var(--radius-sm);
-  padding: 1px 6px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 13px;
-}
-
 .landing-links {
   display: grid;
   gap: 16px;
