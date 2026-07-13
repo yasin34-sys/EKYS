@@ -7,9 +7,8 @@ export interface AuthSession {
   isAnonymous: boolean;
 }
 
-export interface UpgradeAnonymousAccountParams {
+export interface RequestEmailRegistrationParams {
   email: string;
-  password: string;
 }
 
 export interface AuthService {
@@ -20,10 +19,11 @@ export interface AuthService {
 
   getCurrentUserId(): Promise<string | null>;
 
-  // Placeholder: no login/register UI exists yet to drive this. Wired
-  // to the real Supabase anonymous-upgrade mechanism (preserves the
-  // same user id, per ADR-009) but untested against a live project.
-  upgradeAnonymousAccount(params: UpgradeAnonymousAccountParams): Promise<AuthSession>;
+  // Starts converting the anonymous session into a permanent email
+  // account. Supabase requires the email identity to be verified before
+  // a password can be attached, so this method deliberately does not
+  // pretend to create a password-based login in one step.
+  requestEmailRegistration(params: RequestEmailRegistrationParams): Promise<AuthSession>;
 
   // Ensures the current session's identity has a corresponding
   // server-side user_profiles row (public.user_profiles), which

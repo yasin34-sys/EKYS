@@ -3,6 +3,11 @@
 ## Status
 Accepted
 
+## Update 2026-07-13: Email Registration Step
+- The mobile app now exposes the first account-registration step from Profile: an anonymous user can request linking an email address to the current Supabase Auth user.
+- Per Supabase anonymous-auth behavior, the app does not pretend to create an email/password account in one local step. The email identity must be verified first; password creation/sign-in UI is a follow-up phase after verification/deep-link handling is wired.
+- The existing anonymous `user_id` is preserved. If Supabase reports the user as non-anonymous immediately, the local `user_profiles.account_status` is updated to `REGISTERED`; otherwise it remains `ANONYMOUS` until the verification flow is completed.
+
 ## Context
 - ADR-002: Supabase Auth, kimlik doğrulama sağlayıcısı olarak seçildi.
 - ADR-007: Entitlement, hesaba bağlıdır (cihaza değil) — bu, tutarlı bir kullanıcı kimliği kavramı gerektirir.

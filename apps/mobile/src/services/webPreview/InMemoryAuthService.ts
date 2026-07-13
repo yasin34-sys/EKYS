@@ -2,7 +2,7 @@
 // SupabaseAuthService — this exists solely because no Supabase project is
 // configured in this environment and BootstrapAppUseCase needs a session
 // immediately to unblock web-preview visual QA.
-import type { AuthService, AuthSession, UpgradeAnonymousAccountParams } from '../../auth/AuthService';
+import type { AuthService, AuthSession, RequestEmailRegistrationParams } from '../../auth/AuthService';
 import { SEED_USER_ID } from './seedData';
 
 export class InMemoryAuthService implements AuthService {
@@ -12,7 +12,7 @@ export class InMemoryAuthService implements AuthService {
   async getCurrentUserId(): Promise<string | null> {
     return SEED_USER_ID;
   }
-  async upgradeAnonymousAccount(_params: UpgradeAnonymousAccountParams): Promise<AuthSession> {
+  async requestEmailRegistration(_params: RequestEmailRegistrationParams): Promise<AuthSession> {
     return { userId: SEED_USER_ID, isAnonymous: false };
   }
   // No-op: the web-preview harness has no real Supabase project to

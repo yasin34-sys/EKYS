@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { AuthService, AuthSession, UpgradeAnonymousAccountParams } from './AuthService';
+import type { AuthService, AuthSession, RequestEmailRegistrationParams } from './AuthService';
 import { AuthNotConfiguredError, AuthSessionError } from './errors';
 
 // Bootstrap must never hang forever on a stalled/dropped connection —
@@ -78,21 +78,31 @@ export class SupabaseAuthService implements AuthService {
     return data.session?.user.id ?? null;
   }
 
-  async upgradeAnonymousAccount(params: UpgradeAnonymousAccountParams): Promise<AuthSession> {
+  async requestEmailRegistration(params: RequestEmailRegistrationParams): Promise<AuthSession> {
     const client = this.requireClient();
 
-    const { data, error } = await client.auth.updateUser({
-      email: params.email,
-      password: params.password,
-    });
+    await this.ensureServerUserProfile();
+
+    const { data, error } = await client.auth.updateUser({ email: params.email });
 
     if (error || !data.user) {
-      throw new AuthSessionError('Failed to upgrade anonymous account', error);
+      throw new AuthSessionError('Failed to start email registration', error);
+    }
+
+    if (data.user.is_anonymous === false) {
+      const { error: profileError } = await client
+        .from('user_profiles')
+        .update({ account_status: 'REGISTERED' })
+        .eq('id', data.user.id);
+
+      if (profileError) {
+        throw new AuthSessionError('Failed to mark user profile as registered', profileError);
+      }
     }
 
     return {
       userId: data.user.id,
-      isAnonymous: data.user.is_anonymous ?? false,
+      isAnonymous: data.user.is_anonymous ?? true,
     };
   }
 

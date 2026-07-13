@@ -142,6 +142,31 @@ export default function ProfileScreen() {
         </Card>
       ) : null}
 
+      {userProfile?.accountStatus === 'ANONYMOUS' ? (
+        <Pressable
+          onPress={() => router.push('/account-register')}
+          accessibilityRole="button"
+          accessibilityLabel="Hesabını kaydet"
+          style={({ pressed }) => pressed && styles.accountCardPressed}
+        >
+          <Card style={styles.accountCard}>
+            <View style={styles.accountCardLeft}>
+              <IconChip
+                icon={<Ionicons name="shield-checkmark-outline" size={20} color={colors.accent} />}
+                size={40}
+              />
+              <View style={styles.accountCardText}>
+                <AppText variant="headline">Hesabını Kaydet</AppText>
+                <AppText variant="footnote" color="secondary" style={styles.accountCardCopy}>
+                  Premium erişim ve ilerleme bu hesaba bağlanır.
+                </AppText>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+          </Card>
+        </Pressable>
+      ) : null}
+
       <AppText variant="footnote" color="tertiary" style={styles.sectionEyebrow}>
         UYGULAMA
       </AppText>
@@ -199,6 +224,17 @@ const styles = StyleSheet.create({
   progressCard: { alignItems: 'flex-start', marginBottom: spacing.xl },
   progressSkeletonLine: { marginBottom: spacing.sm },
   progressHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginBottom: spacing.sm },
+  accountCard: {
+    marginBottom: spacing.xl,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+  },
+  accountCardPressed: { opacity: 0.86 },
+  accountCardLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, flex: 1 },
+  accountCardText: { flex: 1 },
+  accountCardCopy: { marginTop: spacing.xs / 2 },
   sectionEyebrow: { marginBottom: spacing.sm, marginLeft: spacing.xs },
   navCard: { paddingVertical: spacing.xs },
   navRow: {
