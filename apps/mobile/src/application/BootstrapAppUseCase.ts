@@ -46,7 +46,7 @@ export class BootstrapAppUseCase {
       existing ??
       (await this.deps.userProfileRepository.create({
         id: session.userId,
-        accountStatus: 'ANONYMOUS',
+        accountStatus: session.isAnonymous ? 'ANONYMOUS' : 'REGISTERED',
       }));
 
     return { userProfile };

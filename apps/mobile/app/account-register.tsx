@@ -16,6 +16,7 @@ import {
   InfoState,
   PrimaryButton,
   ScreenContainer,
+  SecondaryButton,
 } from '../src/components';
 import { colors, radii, spacing } from '../src/theme';
 
@@ -127,8 +128,7 @@ export default function AccountRegisterScreen() {
             <View style={styles.noteBox}>
               <Ionicons name="information-circle-outline" size={18} color={colors.textSecondary} />
               <AppText variant="footnote" color="secondary" style={styles.noteText}>
-                Önce e-posta doğrulanır. Şifreyle giriş ve güvenli çıkış akışı tamamlanana kadar
-                sahte bir hesap işlemi yapılmaz.
+                Önce e-postan doğrulanır, ardından şifreni belirlersin.
               </AppText>
             </View>
 
@@ -139,6 +139,13 @@ export default function AccountRegisterScreen() {
             />
           </Card>
         )}
+
+        <View style={styles.signInLinkWrap}>
+          <SecondaryButton
+            label="Zaten hesabın var mı? Giriş Yap"
+            onPress={() => router.push('/account-signin')}
+          />
+        </View>
       </KeyboardAvoidingView>
     </ScreenContainer>
   );
@@ -178,4 +185,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceSecondary,
   },
   noteText: { flex: 1 },
+  signInLinkWrap: { marginTop: spacing.lg },
 });

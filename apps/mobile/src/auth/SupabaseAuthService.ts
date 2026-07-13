@@ -1,5 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { AuthService, AuthSession, RequestEmailRegistrationParams } from './AuthService';
+import type {
+  AuthService,
+  AuthSession,
+  RequestEmailRegistrationParams,
+  SignInWithPasswordParams,
+} from './AuthService';
 import { AuthNotConfiguredError, AuthSessionError } from './errors';
 
 // Bootstrap must never hang forever on a stalled/dropped connection —
@@ -89,15 +94,12 @@ export class SupabaseAuthService implements AuthService {
       throw new AuthSessionError('Failed to start email registration', error);
     }
 
+    // Already-verified-and-registered branch (e.g. re-entering this flow
+    // after email verification already completed): reuse the same
+    // ensure-registered logic as signInWithPassword rather than
+    // duplicating the raw upsert-then-update here.
     if (data.user.is_anonymous === false) {
-      const { error: profileError } = await client
-        .from('user_profiles')
-        .update({ account_status: 'REGISTERED' })
-        .eq('id', data.user.id);
-
-      if (profileError) {
-        throw new AuthSessionError('Failed to mark user profile as registered', profileError);
-      }
+      await this.ensureServerRegisteredUserProfile();
     }
 
     return {
@@ -134,6 +136,40 @@ export class SupabaseAuthService implements AuthService {
     }
   }
 
+  // For non-anonymous (password/verified-email) sessions only. Handles
+  // the case a dashboard-created REGISTERED auth user has no
+  // user_profiles row at all: user_profiles_insert_self only allows
+  // inserting with account_status = 'ANONYMOUS', so a direct REGISTERED
+  // insert would be rejected by RLS. Instead this reuses the existing
+  // anonymous-safe upsert to guarantee the row exists, then updates that
+  // same row to REGISTERED — two RLS-legal steps, anon/authenticated
+  // client only, no service_role/admin API.
+  async ensureServerRegisteredUserProfile(): Promise<void> {
+    const client = this.requireClient();
+
+    const { data, error } = await client.auth.getSession();
+    if (error) {
+      throw new AuthSessionError('Failed to read current auth session', error);
+    }
+    const user = data.session?.user;
+    if (!user || user.is_anonymous) {
+      throw new AuthSessionError(
+        'No registered session; cannot ensure registered server user profile',
+      );
+    }
+
+    await this.ensureServerUserProfile();
+
+    const { error: profileError } = await client
+      .from('user_profiles')
+      .update({ account_status: 'REGISTERED' })
+      .eq('id', user.id);
+
+    if (profileError) {
+      throw new AuthSessionError('Failed to mark user profile as registered', profileError);
+    }
+  }
+
   async signOut(): Promise<void> {
     const client = this.requireClient();
 
@@ -144,5 +180,26 @@ export class SupabaseAuthService implements AuthService {
     if (error) {
       throw new AuthSessionError('Failed to sign out', error);
     }
+  }
+
+  // Existing-user sign-in only — never creates an account. Demo/QA users
+  // are created out-of-band via the Supabase Dashboard, never from this
+  // app (no service_role key exists in the mobile bundle to do so).
+  async signInWithPassword(params: SignInWithPasswordParams): Promise<AuthSession> {
+    const client = this.requireClient();
+
+    const { data, error } = await client.auth.signInWithPassword({
+      email: params.email,
+      password: params.password,
+    });
+
+    if (error || !data.session) {
+      throw new AuthSessionError('Failed to sign in', error);
+    }
+
+    return {
+      userId: data.session.user.id,
+      isAnonymous: data.session.user.is_anonymous ?? false,
+    };
   }
 }
