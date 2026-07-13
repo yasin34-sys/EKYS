@@ -7,7 +7,6 @@ import {
   useTopicRepository,
   usePackageRepository,
   useEntitlementRepository,
-  useTrialAccessRepository,
   useLearningMetricsRepository,
   useCurrentUserProfile,
 } from '../../src/services/hooks';
@@ -24,8 +23,7 @@ import type { Topic } from '../../src/domain';
 // Detail:
 // - TopicList is driven by GetTopicsByExamUseCase.
 // - PackageList is driven by GetPackagesByExamUseCase, with
-//   packageRepository, entitlementRepository, and trialAccessRepository
-//   as its dependencies.
+//   packageRepository and entitlementRepository as its dependencies.
 // PackageList's result is filtered here to exclude ZORLAYICI_DENEME, so
 // Deneme packages are removed from Dersler and stay exclusively in the
 // Denemeler tab (packages.tsx applies the complementary filter, keeping
@@ -41,7 +39,6 @@ export default function LessonsScreen() {
   const topicRepository = useTopicRepository();
   const packageRepository = usePackageRepository();
   const entitlementRepository = useEntitlementRepository();
-  const trialAccessRepository = useTrialAccessRepository();
   const learningMetricsRepository = useLearningMetricsRepository();
 
   const { data: userProfile } = useCurrentUserProfile();
@@ -65,7 +62,6 @@ export default function LessonsScreen() {
       new GetPackagesByExamUseCase({
         packageRepository,
         entitlementRepository,
-        trialAccessRepository,
       }).execute(userProfile!.id, examId as string),
     enabled: Boolean(examId) && Boolean(userProfile),
   });

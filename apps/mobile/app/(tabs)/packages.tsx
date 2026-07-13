@@ -5,7 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import {
   usePackageRepository,
   useEntitlementRepository,
-  useTrialAccessRepository,
   useCurrentUserProfile,
 } from '../../src/services/hooks';
 import { GetAllPackagesUseCase } from '../../src/application/GetAllPackagesUseCase';
@@ -37,7 +36,6 @@ const difficultyLabel: Record<string, string> = {
 export default function PackagesScreen() {
   const packageRepository = usePackageRepository();
   const entitlementRepository = useEntitlementRepository();
-  const trialAccessRepository = useTrialAccessRepository();
 
   const { data: userProfile } = useCurrentUserProfile();
 
@@ -51,7 +49,6 @@ export default function PackagesScreen() {
       new GetAllPackagesUseCase({
         packageRepository,
         entitlementRepository,
-        trialAccessRepository,
       }).execute(userProfile!.id),
     enabled: Boolean(userProfile),
   });

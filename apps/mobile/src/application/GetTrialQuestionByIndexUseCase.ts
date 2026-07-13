@@ -44,8 +44,8 @@ export interface GetTrialQuestionByIndexParams {
   questionIndex: number; // zero-based
 }
 
-// Drives a TRIAL-status package's Question Screen, one question at a
-// time — deliberately not the eager whole-package fetch
+// Drives the legacy trial Question Screen, one question at a time —
+// deliberately not the eager whole-package fetch
 // GetQuestionsByPackageUseCase performs, since that would request (and
 // count against the cap) every question in the package regardless of
 // whether the user ever reaches them (Phase 2B.4B's design). Never

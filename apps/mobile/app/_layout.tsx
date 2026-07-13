@@ -277,6 +277,7 @@ export default function RootLayout() {
             <Stack.Screen name="exam/[id]" />
             <Stack.Screen name="package/[id]" />
             <Stack.Screen name="topic/[topicId]" />
+            <Stack.Screen name="premium" />
             <Stack.Screen name="exam-start/[packageId]" />
             <Stack.Screen name="question/[packageId]" />
             <Stack.Screen name="exam-session/[sessionId]" />

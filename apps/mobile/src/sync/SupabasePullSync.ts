@@ -309,13 +309,24 @@ export class SupabasePullSync implements PullSync {
     for (const row of data ?? []) {
       try {
         await this.db.execute(
-          `INSERT INTO entitlements (id, user_id, exam_id, status, source, granted_at, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          `INSERT INTO entitlements (id, user_id, exam_id, status, source, granted_at, expires_at, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
            ON CONFLICT (id) DO UPDATE SET
              status = excluded.status,
              source = excluded.source,
+             expires_at = excluded.expires_at,
              updated_at = excluded.updated_at;`,
-          [row.id, row.user_id, row.exam_id, row.status, row.source, row.granted_at, row.created_at, row.updated_at],
+          [
+            row.id,
+            row.user_id,
+            row.exam_id,
+            row.status,
+            row.source,
+            row.granted_at,
+            row.expires_at ?? null,
+            row.created_at,
+            row.updated_at,
+          ],
         );
         succeeded++;
       } catch (cause) {
@@ -668,6 +679,7 @@ export class SupabasePullSync implements PullSync {
     // locally from a possibly-earlier, now-stale pull. Trial-only access
     // does not appear here at all — trial_access has no bearing on this
     // EXISTS clause, fresh or not.
+    const now = new Date().toISOString();
     const localPackagesResult = await this.db.execute(
       `SELECT p.id, p.version, p.checksum
        FROM packages p
@@ -683,10 +695,11 @@ export class SupabasePullSync implements PullSync {
                WHERE pa.package_id = p.id
                  AND e.user_id = ?
                  AND e.status = 'ACTIVE'
+                 AND (e.expires_at IS NULL OR e.expires_at > ?)
              )
            )
          );`,
-      [accessMetadataFresh ? 1 : 0, userId],
+      [accessMetadataFresh ? 1 : 0, userId, now],
     );
     const localPackages = localPackagesResult.rows as unknown as Array<{
       id: string;

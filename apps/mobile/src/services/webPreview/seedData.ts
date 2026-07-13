@@ -433,6 +433,7 @@ export const seedEntitlements: Entitlement[] = [
     source: 'PROMOTION',
     packageIds: ['pkg-yogun-orta', 'pkg-deneme-orta'],
     grantedAt: now,
+    expiresAt: null,
     createdAt: now,
     updatedAt: now,
   },

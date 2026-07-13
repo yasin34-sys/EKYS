@@ -11,6 +11,7 @@ export interface Entitlement {
   source: EntitlementSource;
   packageIds: string[];
   grantedAt: string;
+  expiresAt: string | null;
   createdAt: string;
   updatedAt: string;
 }

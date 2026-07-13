@@ -9,6 +9,7 @@ interface EntitlementRow {
   status: EntitlementStatus;
   source: EntitlementSource;
   granted_at: string;
+  expires_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -27,6 +28,7 @@ function mapEntitlementRow(row: EntitlementRow, packageIds: string[]): Entitleme
     source: row.source,
     packageIds,
     grantedAt: row.granted_at,
+    expiresAt: row.expires_at ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -62,15 +64,21 @@ export class SqliteEntitlementRepository implements EntitlementRepository {
     return rows.map((row) => mapEntitlementRow(row, packageIdsByEntitlementId.get(row.id) ?? []));
   }
 
-  // Scoped to status = 'ACTIVE': only an active entitlement grants
-  // access. PENDING/REVOKED/EXPIRED/RESTORED do not.
+  // Scoped to current ACTIVE entitlements: PENDING/REVOKED/EXPIRED/
+  // RESTORED do not grant access, and a timed entitlement stops granting
+  // access once expires_at is in the past. Null expires_at is kept as the
+  // legacy/lifetime/admin entitlement shape.
   async hasAccess(userId: string, packageId: string): Promise<boolean> {
+    const now = new Date().toISOString();
     const result = await this.db.execute(
       `SELECT 1 FROM entitlements e
        INNER JOIN package_access pa ON pa.entitlement_id = e.id
-       WHERE e.user_id = ? AND pa.package_id = ? AND e.status = 'ACTIVE'
+       WHERE e.user_id = ?
+         AND pa.package_id = ?
+         AND e.status = 'ACTIVE'
+         AND (e.expires_at IS NULL OR e.expires_at > ?)
        LIMIT 1;`,
-      [userId, packageId],
+      [userId, packageId, now],
     );
     return result.rows.length > 0;
   }

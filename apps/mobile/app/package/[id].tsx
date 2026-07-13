@@ -6,7 +6,6 @@ import { Ionicons } from '@expo/vector-icons';
 import {
   usePackageRepository,
   useEntitlementRepository,
-  useTrialAccessRepository,
   useQuestionRepository,
   useTopicRepository,
   useCurrentUserProfile,
@@ -88,7 +87,6 @@ export default function PackageDetailScreen() {
 
   const packageRepository = usePackageRepository();
   const entitlementRepository = useEntitlementRepository();
-  const trialAccessRepository = useTrialAccessRepository();
   const questionRepository = useQuestionRepository();
   const topicRepository = useTopicRepository();
 
@@ -142,7 +140,6 @@ export default function PackageDetailScreen() {
       new GetPackagesByExamUseCase({
         packageRepository,
         entitlementRepository,
-        trialAccessRepository,
       }).execute(userProfile!.id, packageQuery.data!.examId),
     enabled: Boolean(packageQuery.data) && Boolean(userProfile),
   });
@@ -170,18 +167,12 @@ export default function PackageDetailScreen() {
     router.push(`/question/${pkg.id}`);
   }
 
-  // TRIAL is only ever reached for TEMEL_CALISMA/YOGUN_TEKRAR (Deneme
-  // packages are always FULL or LOCKED — see resolvePackageAccessStatus)
-  // so this always routes into the lazy Question Screen flow, never the
-  // Deneme session flow above. accessMode='trial' is what makes
-  // QuestionScreen use GetTrialQuestionByIndexUseCase instead of the
-  // eager GetQuestionsByPackageUseCase fetch.
-  function handleStartTrial() {
+  function handleOpenPremium() {
     if (!packageQuery.data) return;
     const pkg = packageQuery.data;
     router.push({
-      pathname: '/question/[packageId]',
-      params: { packageId: pkg.id, examId: pkg.examId, accessMode: 'trial' },
+      pathname: '/premium',
+      params: { packageId: pkg.id, examId: pkg.examId },
     });
   }
 
@@ -257,12 +248,15 @@ export default function PackageDetailScreen() {
               </AppText>
               <PrimaryButton label="Başla" onPress={handleStart} />
             </>
-          ) : accessStatus === 'TRIAL' ? (
+          ) : accessStatus === 'PREMIUM' ? (
             <>
               <AppText variant="subhead" color="secondary" style={styles.accessNote}>
-                Bu paketten ücretsiz birkaç soru deneyebilirsin
+                Bu paket Premium üyelikle açılır.
               </AppText>
-              <PrimaryButton label="Ücretsiz Dene" onPress={handleStartTrial} />
+              <PrimaryButton label="Premium’a Geç" onPress={handleOpenPremium} />
+              <AppText variant="footnote" color="tertiary" style={styles.premiumNote}>
+                3, 6, 9 ve 12 aylık süreli erişim seçenekleri.
+              </AppText>
             </>
           ) : (
             // No disabled-but-styled-as-tappable button here on purpose —
@@ -348,6 +342,7 @@ const styles = StyleSheet.create({
   metaLine: { marginTop: spacing.xs / 2 },
   narrative: { marginTop: spacing.md, marginBottom: spacing.lg },
   accessNote: { marginBottom: spacing.md },
+  premiumNote: { marginTop: spacing.sm, textAlign: 'center' },
   lockedNotice: { alignItems: 'center' },
   comingSoonTag: {
     paddingHorizontal: spacing.sm,

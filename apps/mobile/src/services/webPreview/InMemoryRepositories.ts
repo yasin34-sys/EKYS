@@ -140,8 +140,13 @@ export class InMemoryEntitlementRepository implements EntitlementRepository {
     return webPreviewStore.entitlements.filter((e) => e.userId === userId);
   }
   async hasAccess(userId: string, packageId: string): Promise<boolean> {
+    const now = new Date().toISOString();
     return webPreviewStore.entitlements.some(
-      (e) => e.userId === userId && e.status === 'ACTIVE' && e.packageIds.includes(packageId),
+      (e) =>
+        e.userId === userId &&
+        e.status === 'ACTIVE' &&
+        (e.expiresAt === null || e.expiresAt > now) &&
+        e.packageIds.includes(packageId),
     );
   }
 }

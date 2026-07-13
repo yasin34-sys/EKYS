@@ -6,7 +6,6 @@ import {
   useTopicRepository,
   usePackageRepository,
   useEntitlementRepository,
-  useTrialAccessRepository,
   useCurrentUserProfile,
 } from '../../src/services/hooks';
 import { GetExamByIdUseCase } from '../../src/application/GetExamByIdUseCase';
@@ -31,7 +30,6 @@ export default function ExamDetailScreen() {
   const topicRepository = useTopicRepository();
   const packageRepository = usePackageRepository();
   const entitlementRepository = useEntitlementRepository();
-  const trialAccessRepository = useTrialAccessRepository();
 
   const { data: userProfile } = useCurrentUserProfile();
 
@@ -53,7 +51,6 @@ export default function ExamDetailScreen() {
       new GetPackagesByExamUseCase({
         packageRepository,
         entitlementRepository,
-        trialAccessRepository,
       }).execute(userProfile!.id, id as string),
     enabled: Boolean(id) && Boolean(userProfile),
   });

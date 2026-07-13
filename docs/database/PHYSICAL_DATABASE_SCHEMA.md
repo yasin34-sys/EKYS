@@ -139,12 +139,15 @@ RLS: self-access-only. Sync: Server→Client, own profile only.
 | status | text | No | `'ACTIVE'` | CHECK: ACTIVE/PENDING/REVOKED/EXPIRED/RESTORED |
 | source | text | No | — | CHECK: APPLE/GOOGLE/ADMIN/PROMOTION |
 | granted_at | timestamptz | No | now() | |
+| expires_at | timestamptz | Yes | null | |
 | created_at / updated_at | timestamptz | No | now() | |
 
 RESTRICT is a deliberate architectural stance: identity deletion must not
 be possible while Entitlement records exist (durable purchase/legal
 record). REFUNDED represented as REVOKED; reason deferred to future
-audit/history mechanism. Indexes: `(user_id, exam_id)`; `exam_id`. RLS:
+audit/history mechanism. `expires_at = null` is reserved for legacy/admin/
+lifetime grants; timed Premium access must also satisfy `expires_at > now()`.
+Indexes: `(user_id, exam_id)`; `exam_id`; `(user_id, status, expires_at)`. RLS:
 read self-scoped; write server-only, no client path at all. Sync:
 Server→Client, High priority.
 

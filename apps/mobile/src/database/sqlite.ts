@@ -80,6 +80,20 @@ async function upgradePackagesTableColumns(database: DB): Promise<void> {
 }
 
 /**
+ * Additive local schema upgrade guard for entitlements.expires_at
+ * (Phase 8B.1). Existing installs created before timed premium access
+ * need this column before SupabasePullSync can write the server mirror.
+ */
+async function upgradeEntitlementsTableColumns(database: DB): Promise<void> {
+  const result = await database.execute('PRAGMA table_info(entitlements);');
+  const existingColumns = new Set((result.rows ?? []).map((row) => row.name as string));
+
+  if (!existingColumns.has('expires_at')) {
+    await database.execute('ALTER TABLE entitlements ADD COLUMN expires_at TEXT;');
+  }
+}
+
+/**
  * Opens the local database connection and applies the schema.
  *
  * Every statement in SQLITE_SCHEMA_SQL uses CREATE ... IF NOT EXISTS,
@@ -114,6 +128,7 @@ export async function initializeDatabase(): Promise<DB> {
   // Existing installs need new package columns before later schema
   // statements can reference them in indexes/triggers.
   await upgradePackagesTableColumns(db);
+  await upgradeEntitlementsTableColumns(db);
 
   for (const statement of nonTableStatements) {
     await db.execute(statement);

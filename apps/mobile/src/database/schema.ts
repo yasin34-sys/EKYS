@@ -244,6 +244,7 @@ CREATE TABLE IF NOT EXISTS entitlements (
     CHECK (status IN ('ACTIVE','PENDING','REVOKED','EXPIRED','RESTORED')),
   source TEXT NOT NULL CHECK (source IN ('APPLE','GOOGLE','ADMIN','PROMOTION')),
   granted_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  expires_at TEXT,
   created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
   updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
@@ -253,6 +254,7 @@ CREATE TABLE IF NOT EXISTS entitlements (
 
 CREATE INDEX IF NOT EXISTS idx_entitlements_user_exam ON entitlements(user_id, exam_id);
 CREATE INDEX IF NOT EXISTS idx_entitlements_exam_id ON entitlements(exam_id);
+CREATE INDEX IF NOT EXISTS idx_entitlements_user_status_expires ON entitlements(user_id, status, expires_at);
 
 CREATE TRIGGER IF NOT EXISTS trg_entitlements_set_updated_at
 AFTER UPDATE ON entitlements

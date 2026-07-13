@@ -15,9 +15,6 @@ const packageTypeLabel: Record<string, string> = {
   ZORLAYICI_DENEME: 'Zorlayıcı Deneme',
 };
 
-// Exported so package/[id].tsx can use the exact same icon mapping —
-// visual consistency between the list card and the detail screen it
-// leads to, without a second lookup table to keep in sync by hand.
 export const packageTypeIcon: Record<string, keyof typeof Ionicons.glyphMap> = {
   TEMEL_CALISMA: 'book-outline',
   YOGUN_TEKRAR: 'refresh-outline',
@@ -33,20 +30,10 @@ const difficultyLabel: Record<string, string> = {
 export interface PackageListProps {
   isLoading: boolean;
   packages: PackageWithAccess[] | undefined;
-  // Optional (Phase 8A.1): lets a caller with more specific context (e.g.
-  // Topic Detail, where "no packages" means "none reference this topic
-  // yet" rather than "nothing published anywhere") override the default
-  // empty-state copy. Omitted by every existing call site, which keeps
-  // the original wording unchanged.
   emptyTitle?: string;
   emptyMessage?: string;
 }
 
-// Extracted from Exam Detail — same loading/empty/loaded branching and
-// navigation behavior, unchanged, just moved into its own file.
-// Deliberately not shared with (tabs)/packages.tsx's own card, which
-// has slightly different context (cross-exam listing) — unifying them
-// wasn't part of this refactor's scope.
 export function PackageList({
   isLoading,
   packages,
@@ -77,8 +64,6 @@ export function PackageList({
 function PackageRow({ entry }: { entry: PackageWithAccess }) {
   const { package: pkg, accessStatus } = entry;
   const icon = packageTypeIcon[pkg.packageType] ?? 'albums-outline';
-  // Curated title (Phase 7A.3.2) takes priority; every existing package
-  // has title === null, so this falls back to the exact old label.
   const displayTitle = pkg.title ?? packageTypeLabel[pkg.packageType] ?? pkg.packageType;
 
   return (
@@ -109,13 +94,6 @@ function PackageRow({ entry }: { entry: PackageWithAccess }) {
   );
 }
 
-// Every tag here reads directly from already-computed access data
-// (Package.isFreeTier, PackageWithAccess.accessStatus) — never invented.
-// FULL (entitled, non-free) intentionally shows no tag: "you already
-// have this" doesn't need its own badge the way a genuinely different
-// access state does. Exported so (tabs)/packages.tsx's own Denemeler
-// card (deliberately a separate component, not this one — see its own
-// header comment) can reuse the same tag look without duplicating it.
 export function AccessTag({
   isFreeTier,
   accessStatus,
@@ -132,11 +110,12 @@ export function AccessTag({
       </View>
     );
   }
-  if (accessStatus === 'TRIAL') {
+  if (accessStatus === 'PREMIUM') {
     return (
-      <View style={[styles.tag, styles.trialTag]}>
-        <AppText variant="caption" style={styles.trialTagText}>
-          Ücretsiz Dene
+      <View style={[styles.tag, styles.premiumTag]}>
+        <Ionicons name="sparkles-outline" size={12} color={colors.gold} />
+        <AppText variant="caption" style={styles.premiumTagText}>
+          Premium
         </AppText>
       </View>
     );
@@ -175,8 +154,8 @@ const styles = StyleSheet.create({
     borderRadius: radii.full,
   },
   freeTag: { backgroundColor: colors.accentMuted },
-  trialTag: { backgroundColor: colors.goldMuted },
-  trialTagText: { color: colors.gold },
+  premiumTag: { backgroundColor: colors.goldMuted },
+  premiumTagText: { color: colors.gold },
   lockedTag: { backgroundColor: colors.surfaceSecondary },
   lockedTagText: { marginLeft: 0 },
   pressed: { opacity: 0.7 },

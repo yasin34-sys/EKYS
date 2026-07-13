@@ -7,7 +7,6 @@ import {
   useTopicRepository,
   usePackageRepository,
   useEntitlementRepository,
-  useTrialAccessRepository,
   useLearningMetricsRepository,
   useCurrentUserProfile,
 } from '../../src/services/hooks';
@@ -41,7 +40,6 @@ export default function TopicDetailScreen() {
   const topicRepository = useTopicRepository();
   const packageRepository = usePackageRepository();
   const entitlementRepository = useEntitlementRepository();
-  const trialAccessRepository = useTrialAccessRepository();
   const learningMetricsRepository = useLearningMetricsRepository();
 
   const { data: userProfile } = useCurrentUserProfile();
@@ -105,7 +103,6 @@ export default function TopicDetailScreen() {
       new GetPackagesByTopicUseCase({
         packageRepository,
         entitlementRepository,
-        trialAccessRepository,
       }).execute(userProfile!.id, topicIds),
     enabled: Boolean(userProfile) && Boolean(topicsQuery.data) && Boolean(topicId),
   });

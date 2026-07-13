@@ -56,10 +56,9 @@ export default function QuestionScreen() {
     accessMode?: string;
   }>();
   const isRepeatMode = packageId === REPEAT_POOL_SENTINEL;
-  // TRIAL is only ever reached via Package Detail's "Ücretsiz Dene" CTA
-  // (see app/package/[id].tsx), never for Repeat Pool — the `&&
-  // !isRepeatMode` guard is defensive, not load-bearing, since the two
-  // routes are already mutually exclusive by construction.
+  // Trial mode is a legacy/lazy route-param path, never for Repeat Pool.
+  // The current premium membership UX no longer routes package cards
+  // here; the `&& !isRepeatMode` guard remains defensive.
   const isTrialMode = accessMode === 'trial' && !isRepeatMode;
 
   const questionRepository = useQuestionRepository();
