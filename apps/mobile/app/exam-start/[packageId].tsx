@@ -39,12 +39,6 @@ const packageTypeLabel: Record<string, string> = {
   ZORLAYICI_DENEME: 'Zorlayıcı Deneme',
 };
 
-const difficultyLabel: Record<string, string> = {
-  KOLAY: 'Kolay',
-  ORTA: 'Orta',
-  ZOR: 'Zor',
-};
-
 // Real, verifiable behavior only — each line matches something
 // app/exam-session/[sessionId].tsx actually does today, not aspirational
 // copy. No timer-continues-in-background claim: the countdown is a
@@ -207,7 +201,7 @@ export default function ExamStartScreen() {
                   {packageQuery.data.title ?? packageTypeLabel[packageQuery.data.packageType] ?? packageQuery.data.packageType}
                 </AppText>
                 <AppText variant="subhead" color="secondary" style={styles.metaLine}>
-                  {difficultyLabel[packageQuery.data.difficultyLevel] ?? packageQuery.data.difficultyLevel}
+                  {questionCount} Soru
                 </AppText>
               </View>
             </View>
@@ -220,9 +214,9 @@ export default function ExamStartScreen() {
                 value={`${examQuery.data.durationMinutes} dk`}
               />
               <InfoStat
-                icon="bar-chart-outline"
-                label="Seviye"
-                value={difficultyLabel[packageQuery.data.difficultyLevel] ?? packageQuery.data.difficultyLevel}
+                icon="clipboard-outline"
+                label="Format"
+                value="Deneme"
               />
               <InfoStat
                 icon="ribbon-outline"

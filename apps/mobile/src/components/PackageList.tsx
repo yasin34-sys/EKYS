@@ -21,15 +21,10 @@ export const packageTypeIcon: Record<string, keyof typeof Ionicons.glyphMap> = {
   ZORLAYICI_DENEME: 'timer-outline',
 };
 
-const difficultyLabel: Record<string, string> = {
-  KOLAY: 'Kolay',
-  ORTA: 'Orta',
-  ZOR: 'Zor',
-};
-
 export interface PackageListProps {
   isLoading: boolean;
   packages: PackageWithAccess[] | undefined;
+  sectionTitle?: string;
   emptyTitle?: string;
   emptyMessage?: string;
 }
@@ -37,13 +32,14 @@ export interface PackageListProps {
 export function PackageList({
   isLoading,
   packages,
+  sectionTitle = 'Paketler',
   emptyTitle = 'Henüz paket yayınlanmadı',
   emptyMessage = 'Yayınlandığında burada görünecek.',
 }: PackageListProps) {
   return (
     <View style={styles.section}>
       <AppText variant="title3" style={styles.sectionTitle}>
-        Paketler
+        {sectionTitle}
       </AppText>
       {isLoading ? (
         <Card style={styles.packageCard}>
@@ -71,7 +67,7 @@ function PackageRow({ entry }: { entry: PackageWithAccess }) {
       onPress={() => router.push(`/package/${pkg.id}`)}
       style={({ pressed }) => pressed && styles.pressed}
       accessibilityRole="button"
-      accessibilityLabel={`${displayTitle}, ${difficultyLabel[pkg.difficultyLevel] ?? pkg.difficultyLevel}${pkg.isFreeTier ? ', ücretsiz' : ''}`}
+      accessibilityLabel={`${displayTitle}${pkg.isFreeTier ? ', ücretsiz' : accessStatus === 'PREMIUM' ? ', premium' : ''}`}
     >
       <Card style={styles.packageCard}>
         <View style={styles.row}>
@@ -84,7 +80,7 @@ function PackageRow({ entry }: { entry: PackageWithAccess }) {
               <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
             </View>
             <AppText variant="footnote" color="tertiary" style={styles.packageMeta}>
-              {difficultyLabel[pkg.difficultyLevel] ?? pkg.difficultyLevel}
+              {pkg.isFreeTier ? 'Ücretsiz konu sınavı' : accessStatus === 'FULL' ? 'Erişimin var' : 'Premium konu sınavı'}
             </AppText>
             <AccessTag isFreeTier={pkg.isFreeTier} accessStatus={accessStatus} />
           </View>

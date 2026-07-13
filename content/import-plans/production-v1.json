@@ -1,5 +1,5 @@
 {
-  "_notice": "PRODUCTION IMPORT PLAN (Phase 7A.4, checksums/status fixed in 7A.4.1, rebuilt as per-topic packages in Phase 8A.0, packages tagged with their own topic in Phase 8A.2) -- first real content import plan for the 26 validated draft JSON files under content/questions/draft/. Generates reviewable SQL only; see content/generated/production-v1-import.sql. Not applied to any database by this plan file alone -- applying it is a separate, explicit, future step. question_status forces every question PUBLISHED without editing source JSON; package checksums are auto-computed (see generate-question-import-sql.mjs). Phase 8A.0: each topic_pack source file is now its own package under its topic (24 packages total), replacing the earlier two broad \"Temel Çalışma\"/\"Yoğun Tekrar\" groupings -- the first file in each topic (by file number) is the free package, the rest are premium. Phase 8A.2: every topic_pack package now also sets \"topic\" (resolved to packages.topic_id), so Topic Detail can list a topic's locked premium packages directly instead of deriving them from package_questions/questions, which hid content the requesting user had no RLS visibility into yet. Deneme packages deliberately have no \"topic\" -- topic_id stays null.",
+  "_notice": "PRODUCTION IMPORT PLAN (Phase 7A.4, checksums/status fixed in 7A.4.1, rebuilt as per-topic packages in Phase 8A.0, packages tagged with their own topic in Phase 8A.2, user-facing topic package names simplified in Phase 8A.3) -- first real content import plan for the 26 validated draft JSON files under content/questions/draft/. Generates reviewable SQL only; see content/generated/production-v1-import.sql. Applying it is a separate explicit database operation. question_status forces every question PUBLISHED without editing source JSON; package checksums are auto-computed. Phase 8A.3: topic packages are presented to users as Konu Sınavı 1/2/3... inside their topic, and the free sample package in each topic is marked ORTA internally rather than KOLAY; difficulty labels remain operational metadata, not user-facing copy.",
   "exam": {
     "mode": "new",
     "key": "EKYS-SINAVI-V1",
@@ -44,13 +44,13 @@
     {
       "id": "85ec947e-69e9-446c-9bf1-29a034e3ef6d",
       "package_type": "TEMEL_CALISMA",
-      "difficulty_level": "KOLAY",
+      "difficulty_level": "ORTA",
       "is_free_tier": true,
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Türkiye Yüzyılı Maarif Modeli - Paket 1",
-      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 1",
+      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk konu sınavı.",
       "topic": "Türkiye Yüzyılı Maarif Modeli"
     },
     {
@@ -61,8 +61,8 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Türkiye Yüzyılı Maarif Modeli - Paket 2",
-      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 2",
+      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk konu sınavı.",
       "topic": "Türkiye Yüzyılı Maarif Modeli"
     },
     {
@@ -73,8 +73,8 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Türkiye Yüzyılı Maarif Modeli - Paket 3",
-      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 3",
+      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk konu sınavı.",
       "topic": "Türkiye Yüzyılı Maarif Modeli"
     },
     {
@@ -85,8 +85,8 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Türkiye Yüzyılı Maarif Modeli - Paket 4",
-      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 4",
+      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk konu sınavı.",
       "topic": "Türkiye Yüzyılı Maarif Modeli"
     },
     {
@@ -97,8 +97,8 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Türkiye Yüzyılı Maarif Modeli - Paket 5",
-      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 5",
+      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk konu sınavı.",
       "topic": "Türkiye Yüzyılı Maarif Modeli"
     },
     {
@@ -109,20 +109,20 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Türkiye Yüzyılı Maarif Modeli - Paket 6",
-      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 6",
+      "description": "Türkiye Yüzyılı Maarif Modeli konusuna ait 20 soruluk konu sınavı.",
       "topic": "Türkiye Yüzyılı Maarif Modeli"
     },
     {
       "id": "657611a2-59e3-47f0-82d5-c484afe560bd",
       "package_type": "TEMEL_CALISMA",
-      "difficulty_level": "KOLAY",
+      "difficulty_level": "ORTA",
       "is_free_tier": true,
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Genel Kültür - Paket 1",
-      "description": "Genel Kültür konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 1",
+      "description": "Genel Kültür konusuna ait 20 soruluk konu sınavı.",
       "topic": "Genel Kültür"
     },
     {
@@ -133,8 +133,8 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Genel Kültür - Paket 2",
-      "description": "Genel Kültür konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 2",
+      "description": "Genel Kültür konusuna ait 20 soruluk konu sınavı.",
       "topic": "Genel Kültür"
     },
     {
@@ -145,8 +145,8 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Genel Kültür - Paket 3",
-      "description": "Genel Kültür konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 3",
+      "description": "Genel Kültür konusuna ait 20 soruluk konu sınavı.",
       "topic": "Genel Kültür"
     },
     {
@@ -157,8 +157,8 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Genel Kültür - Paket 4",
-      "description": "Genel Kültür konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 4",
+      "description": "Genel Kültür konusuna ait 20 soruluk konu sınavı.",
       "topic": "Genel Kültür"
     },
     {
@@ -169,8 +169,8 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Genel Kültür - Paket 5",
-      "description": "Genel Kültür konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 5",
+      "description": "Genel Kültür konusuna ait 20 soruluk konu sınavı.",
       "topic": "Genel Kültür"
     },
     {
@@ -181,20 +181,20 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Genel Kültür - Paket 6",
-      "description": "Genel Kültür konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 6",
+      "description": "Genel Kültür konusuna ait 20 soruluk konu sınavı.",
       "topic": "Genel Kültür"
     },
     {
       "id": "1a37bb7c-0a10-4b32-a253-17293991a2de",
       "package_type": "TEMEL_CALISMA",
-      "difficulty_level": "KOLAY",
+      "difficulty_level": "ORTA",
       "is_free_tier": true,
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Mevzuat - Paket 1",
-      "description": "Mevzuat konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 1",
+      "description": "Mevzuat konusuna ait 20 soruluk konu sınavı.",
       "topic": "Mevzuat"
     },
     {
@@ -205,8 +205,8 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Mevzuat - Paket 2",
-      "description": "Mevzuat konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 2",
+      "description": "Mevzuat konusuna ait 20 soruluk konu sınavı.",
       "topic": "Mevzuat"
     },
     {
@@ -217,20 +217,20 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Mevzuat - Paket 3",
-      "description": "Mevzuat konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 3",
+      "description": "Mevzuat konusuna ait 20 soruluk konu sınavı.",
       "topic": "Mevzuat"
     },
     {
       "id": "4a7fb3a8-0aa2-48c4-8085-deb345bc54b5",
       "package_type": "TEMEL_CALISMA",
-      "difficulty_level": "KOLAY",
+      "difficulty_level": "ORTA",
       "is_free_tier": true,
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "T.C. İnkılap Tarihi ve Atatürkçülük - Paket 1",
-      "description": "T.C. İnkılap Tarihi ve Atatürkçülük konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 1",
+      "description": "T.C. İnkılap Tarihi ve Atatürkçülük konusuna ait 20 soruluk konu sınavı.",
       "topic": "T.C. İnkılap Tarihi ve Atatürkçülük"
     },
     {
@@ -241,8 +241,8 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "T.C. İnkılap Tarihi ve Atatürkçülük - Paket 2",
-      "description": "T.C. İnkılap Tarihi ve Atatürkçülük konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 2",
+      "description": "T.C. İnkılap Tarihi ve Atatürkçülük konusuna ait 20 soruluk konu sınavı.",
       "topic": "T.C. İnkılap Tarihi ve Atatürkçülük"
     },
     {
@@ -253,8 +253,8 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "T.C. İnkılap Tarihi ve Atatürkçülük - Paket 3",
-      "description": "T.C. İnkılap Tarihi ve Atatürkçülük konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 3",
+      "description": "T.C. İnkılap Tarihi ve Atatürkçülük konusuna ait 20 soruluk konu sınavı.",
       "topic": "T.C. İnkılap Tarihi ve Atatürkçülük"
     },
     {
@@ -265,20 +265,20 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "T.C. İnkılap Tarihi ve Atatürkçülük - Paket 4",
-      "description": "T.C. İnkılap Tarihi ve Atatürkçülük konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 4",
+      "description": "T.C. İnkılap Tarihi ve Atatürkçülük konusuna ait 20 soruluk konu sınavı.",
       "topic": "T.C. İnkılap Tarihi ve Atatürkçülük"
     },
     {
       "id": "f2e5870a-3481-4a82-99e0-48aee4e6834b",
       "package_type": "TEMEL_CALISMA",
-      "difficulty_level": "KOLAY",
+      "difficulty_level": "ORTA",
       "is_free_tier": true,
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Eğitim Bilimleri - Paket 1",
-      "description": "Eğitim Bilimleri konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 1",
+      "description": "Eğitim Bilimleri konusuna ait 20 soruluk konu sınavı.",
       "topic": "Eğitim Bilimleri"
     },
     {
@@ -289,8 +289,8 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Eğitim Bilimleri - Paket 2",
-      "description": "Eğitim Bilimleri konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 2",
+      "description": "Eğitim Bilimleri konusuna ait 20 soruluk konu sınavı.",
       "topic": "Eğitim Bilimleri"
     },
     {
@@ -301,8 +301,8 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Eğitim Bilimleri - Paket 3",
-      "description": "Eğitim Bilimleri konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 3",
+      "description": "Eğitim Bilimleri konusuna ait 20 soruluk konu sınavı.",
       "topic": "Eğitim Bilimleri"
     },
     {
@@ -313,8 +313,8 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Eğitim Bilimleri - Paket 4",
-      "description": "Eğitim Bilimleri konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 4",
+      "description": "Eğitim Bilimleri konusuna ait 20 soruluk konu sınavı.",
       "topic": "Eğitim Bilimleri"
     },
     {
@@ -325,8 +325,8 @@
       "version": 1,
       "checksum": "auto",
       "status": "PUBLISHED",
-      "title": "Eğitim Bilimleri - Paket 5",
-      "description": "Eğitim Bilimleri konusuna ait 20 soruluk çalışma paketi.",
+      "title": "Konu Sınavı 5",
+      "description": "Eğitim Bilimleri konusuna ait 20 soruluk konu sınavı.",
       "topic": "Eğitim Bilimleri"
     },
     {

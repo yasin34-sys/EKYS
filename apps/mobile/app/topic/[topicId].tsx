@@ -183,8 +183,9 @@ export default function TopicDetailScreen() {
             <PackageList
               isLoading={packagesQuery.isLoading || !userProfile}
               packages={studyPackages}
-              emptyTitle="Bu konuya bağlı paket yok"
-              emptyMessage="Bu konudan soru içeren bir paket yayınlandığında burada görünecek."
+              sectionTitle="Konu Sınavları"
+              emptyTitle="Bu konuya bağlı sınav yok"
+              emptyMessage="Bu konudan soru içeren bir konu sınavı yayınlandığında burada görünecek."
             />
           </View>
         </>

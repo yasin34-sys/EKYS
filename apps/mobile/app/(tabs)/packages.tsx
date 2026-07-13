@@ -27,12 +27,6 @@ const packageTypeLabel: Record<string, string> = {
   ZORLAYICI_DENEME: 'Zorlayıcı Deneme',
 };
 
-const difficultyLabel: Record<string, string> = {
-  KOLAY: 'Kolay',
-  ORTA: 'Orta',
-  ZOR: 'Zor',
-};
-
 export default function PackagesScreen() {
   const packageRepository = usePackageRepository();
   const entitlementRepository = useEntitlementRepository();
@@ -132,7 +126,7 @@ function PackageCard({ entry }: { entry: PackageWithAccess }) {
       onPress={() => router.push(`/package/${pkg.id}`)}
       style={({ pressed }) => pressed && styles.pressed}
       accessibilityRole="button"
-      accessibilityLabel={`${displayTitle}, ${difficultyLabel[pkg.difficultyLevel] ?? pkg.difficultyLevel}${pkg.isFreeTier ? ', ücretsiz' : ''}`}
+      accessibilityLabel={`${displayTitle}${pkg.isFreeTier ? ', ücretsiz' : accessStatus === 'PREMIUM' ? ', premium' : ''}`}
     >
       <Card style={styles.packageCard}>
         <View style={styles.row}>
@@ -145,7 +139,7 @@ function PackageCard({ entry }: { entry: PackageWithAccess }) {
               <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
             </View>
             <AppText variant="footnote" color="tertiary" style={styles.packageMeta}>
-              {difficultyLabel[pkg.difficultyLevel] ?? pkg.difficultyLevel}
+              {pkg.isFreeTier ? 'Ücretsiz deneme' : accessStatus === 'FULL' ? 'Erişimin var' : 'Premium deneme'}
             </AppText>
             <AccessTag isFreeTier={pkg.isFreeTier} accessStatus={accessStatus} />
           </View>

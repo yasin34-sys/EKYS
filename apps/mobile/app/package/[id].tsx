@@ -34,16 +34,10 @@ const packageTypeLabel: Record<string, string> = {
   ZORLAYICI_DENEME: 'Zorlayıcı Deneme',
 };
 
-const difficultyLabel: Record<string, string> = {
-  KOLAY: 'Kolay',
-  ORTA: 'Orta',
-  ZOR: 'Zor',
-};
-
 // Fallback narrative for packages with no curated description (Phase
 // 7A.3.2 added packages.title/description, but they're optional — most
-// packages still have none). package_type + difficulty_level already
-// determine a short, honest one-line framing, generated client-side the
+// packages still have none). package_type determines a short, honest
+// one-line framing, generated client-side the
 // same way Exam Detail's stats card narrative is generated rather than
 // stored.
 const packageTypeNarrative: Record<string, string> = {
@@ -214,10 +208,11 @@ export default function PackageDetailScreen() {
               <AppText variant="title2">
                 {packageQuery.data.title ?? packageTypeLabel[packageQuery.data.packageType] ?? packageQuery.data.packageType}
               </AppText>
-              <AppText variant="subhead" color="secondary" style={styles.metaLine}>
-                {difficultyLabel[packageQuery.data.difficultyLevel] ?? packageQuery.data.difficultyLevel}
-                {visibleQuestionCount ? ` · ${visibleQuestionCount} Soru` : ''}
-              </AppText>
+              {visibleQuestionCount ? (
+                <AppText variant="subhead" color="secondary" style={styles.metaLine}>
+                  {visibleQuestionCount} Soru
+                </AppText>
+              ) : null}
             </View>
           </View>
 
