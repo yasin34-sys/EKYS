@@ -290,6 +290,9 @@ export default function RootLayout() {
             <Stack.Screen name="settings-appearance" />
             <Stack.Screen name="settings-notifications" />
             <Stack.Screen name="account-management" />
+            <Stack.Screen name="account-password" />
+            <Stack.Screen name="account-name" />
+            <Stack.Screen name="account-delete-request" />
             <Stack.Screen name="about" />
           </Stack>
           <StatusBar style="dark" />

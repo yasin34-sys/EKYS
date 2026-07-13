@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
 import {
+  useAuthService,
   useCurrentUserProfile,
   useExamRepository,
   useLearningMetricsRepository,
@@ -47,12 +48,22 @@ const accountRows: NavRow[] = [
 // the same GetDashboardMetricsUseCase figure Statistics already shows,
 // not a new metric invented for this screen.
 export default function ProfileScreen() {
+  const authService = useAuthService();
   const examRepository = useExamRepository();
   const learningMetricsRepository = useLearningMetricsRepository();
 
   const { data: userProfile, isLoading } = useCurrentUserProfile();
   const isRegistered = userProfile?.accountStatus === 'REGISTERED';
   const version = Constants.expoConfig?.version ?? '—';
+
+  // Supabase auth user_metadata, not a user_profiles column — see
+  // AuthService.getDisplayName. Only fetched for REGISTERED users; an
+  // ANONYMOUS session never has a name to show.
+  const displayNameQuery = useQuery({
+    queryKey: ['authDisplayName', userProfile?.id],
+    queryFn: () => authService.getDisplayName(),
+    enabled: isRegistered,
+  });
 
   // Same real overall-accuracy figure Statistics already computes from
   // GetDashboardMetricsUseCase (TOPIC_ACCURACY average) — reused here,
@@ -120,12 +131,17 @@ export default function ProfileScreen() {
         {isLoading ? (
           <Skeleton width={90} height={22} borderRadius={radii.full} />
         ) : (
-          <View style={styles.statusPill}>
-            <Ionicons name="checkmark-circle" size={14} color={colors.textSecondary} />
-            <AppText variant="caption" color="secondary">
-              Kayıtlı
-            </AppText>
-          </View>
+          <>
+            {displayNameQuery.data ? (
+              <AppText variant="title3">{displayNameQuery.data}</AppText>
+            ) : null}
+            <View style={styles.statusPill}>
+              <Ionicons name="checkmark-circle" size={14} color={colors.textSecondary} />
+              <AppText variant="caption" color="secondary">
+                Kayıtlı
+              </AppText>
+            </View>
+          </>
         )}
       </View>
 

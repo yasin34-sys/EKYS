@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Linking, StyleSheet, View } from 'react-native';
+import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
@@ -31,35 +31,45 @@ function StatusTag({ label, tone = 'neutral' }: { label: string; tone?: 'neutral
   );
 }
 
-function ActionInfoCard({
+function ActionNavCard({
   icon,
   title,
   message,
   status,
   danger,
+  onPress,
 }: {
   icon: keyof typeof Ionicons.glyphMap;
   title: string;
   message: string;
-  status: string;
+  status?: string;
   danger?: boolean;
+  onPress: () => void;
 }) {
   return (
-    <Card style={styles.actionCard}>
-      <View style={styles.actionHeader}>
-        <IconChip
-          icon={<Ionicons name={icon} size={18} color={danger ? colors.danger : colors.accent} />}
-          size={36}
-        />
-        <View style={styles.actionText}>
-          <AppText variant="headline">{title}</AppText>
-          <AppText variant="footnote" color="secondary" style={styles.actionMessage}>
-            {message}
-          </AppText>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      style={({ pressed }) => [styles.actionCard, pressed && styles.actionCardPressed]}
+    >
+      <Card style={styles.actionCardInner}>
+        <View style={styles.actionHeader}>
+          <IconChip
+            icon={<Ionicons name={icon} size={18} color={danger ? colors.danger : colors.accent} />}
+            size={36}
+          />
+          <View style={styles.actionText}>
+            <AppText variant="headline">{title}</AppText>
+            <AppText variant="footnote" color="secondary" style={styles.actionMessage}>
+              {message}
+            </AppText>
+          </View>
+          {status ? <StatusTag label={status} tone={danger ? 'danger' : 'neutral'} /> : null}
+          <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
         </View>
-        <StatusTag label={status} tone={danger ? 'danger' : 'neutral'} />
-      </View>
-    </Card>
+      </Card>
+    </Pressable>
   );
 }
 
@@ -125,8 +135,8 @@ export default function AccountManagementScreen() {
           <View style={styles.heroText}>
             <AppText variant="title2">Hesap Yönetimi</AppText>
             <AppText variant="subhead" color="secondary" style={styles.heroCopy}>
-              Çıkış ve hesap silme akışları burada toplanacak. Şu an güvenli olmayan
-              yarım işlemler yerine durum açıkça gösteriliyor.
+              Hesabınla ilgili işlemler burada: giriş bilgilerin, adın ve
+              çıkış/silme akışların.
             </AppText>
           </View>
         </View>
@@ -139,36 +149,51 @@ export default function AccountManagementScreen() {
       </Card>
 
       {isRegistered ? (
-        <Card style={styles.actionCard}>
-          <View style={styles.actionHeader}>
-            <IconChip
-              icon={<Ionicons name="log-out-outline" size={18} color={colors.accent} />}
-              size={36}
-            />
-            <View style={styles.actionText}>
-              <AppText variant="headline">Çıkış Yap</AppText>
-              <AppText variant="footnote" color="secondary" style={styles.actionMessage}>
-                Bu cihazdaki oturumun kapatılır ve yerel ilerleme verilerin bu cihazdan silinir.
-                Hesabın ve sunucudaki verilerin korunur.
-              </AppText>
+        <>
+          <ActionNavCard
+            icon="person-outline"
+            title="Ad Soyad"
+            message="Profilinde görünecek adını belirle."
+            onPress={() => router.push('/account-name')}
+          />
+          <ActionNavCard
+            icon="lock-closed-outline"
+            title="Şifre Değiştir"
+            message="Hesabının şifresini güncelle."
+            onPress={() => router.push('/account-password')}
+          />
+
+          <Card style={styles.actionCard}>
+            <View style={styles.actionHeader}>
+              <IconChip
+                icon={<Ionicons name="log-out-outline" size={18} color={colors.accent} />}
+                size={36}
+              />
+              <View style={styles.actionText}>
+                <AppText variant="headline">Çıkış Yap</AppText>
+                <AppText variant="footnote" color="secondary" style={styles.actionMessage}>
+                  Bu cihazdaki oturumun kapatılır ve yerel ilerleme verilerin bu cihazdan silinir.
+                  Hesabın ve sunucudaki verilerin korunur.
+                </AppText>
+              </View>
             </View>
-          </View>
-          <View style={styles.actionButtonWrap}>
-            <SecondaryButton
-              label={loggingOut ? 'Çıkış yapılıyor...' : 'Çıkış Yap'}
-              onPress={handleLogoutPress}
-              disabled={loggingOut}
-            />
-          </View>
-        </Card>
+            <View style={styles.actionButtonWrap}>
+              <SecondaryButton
+                label={loggingOut ? 'Çıkış yapılıyor...' : 'Çıkış Yap'}
+                onPress={handleLogoutPress}
+                disabled={loggingOut}
+              />
+            </View>
+          </Card>
+        </>
       ) : null}
 
-      <ActionInfoCard
+      <ActionNavCard
         icon="trash-outline"
-        title="Hesabı Sil"
-        status="Mağaza için gerekli"
+        title="Hesabı Silme Talebi"
         danger
-        message="Hesap oluşturma yayına alınmadan önce, kullanıcı uygulama içinden hesap silmeyi başlatabilmeli. Google Play için ayrıca web üzerinden erişilebilir bir silme bağlantısı da gerekecek."
+        message="Hesabını ve verilerini silmek için destek üzerinden talep başlat."
+        onPress={() => router.push('/account-delete-request')}
       />
 
       <Card style={styles.supportCard}>
@@ -204,6 +229,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceSecondary,
   },
   actionCard: { marginBottom: spacing.md },
+  actionCardPressed: { opacity: 0.7 },
+  actionCardInner: {},
   actionHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
   actionText: { flex: 1 },
   actionMessage: { marginTop: spacing.xs },

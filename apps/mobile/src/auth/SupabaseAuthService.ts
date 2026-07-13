@@ -202,4 +202,35 @@ export class SupabaseAuthService implements AuthService {
       isAnonymous: data.session.user.is_anonymous ?? false,
     };
   }
+
+  // Current-user-only: supabase-js's updateUser() always targets the
+  // caller's own session, so there is no id parameter to mistarget.
+  async updatePassword(newPassword: string): Promise<void> {
+    const client = this.requireClient();
+
+    const { error } = await client.auth.updateUser({ password: newPassword });
+    if (error) {
+      throw new AuthSessionError(error.message, error);
+    }
+  }
+
+  async getDisplayName(): Promise<string | null> {
+    const client = this.requireClient();
+
+    const { data, error } = await client.auth.getSession();
+    if (error) {
+      throw new AuthSessionError('Failed to read current auth session', error);
+    }
+    const fullName = data.session?.user.user_metadata?.full_name;
+    return typeof fullName === 'string' && fullName.length > 0 ? fullName : null;
+  }
+
+  async updateDisplayName(fullName: string): Promise<void> {
+    const client = this.requireClient();
+
+    const { error } = await client.auth.updateUser({ data: { full_name: fullName } });
+    if (error) {
+      throw new AuthSessionError(error.message, error);
+    }
+  }
 }

@@ -11,6 +11,10 @@ import type {
 import { SEED_USER_ID } from './seedData';
 
 export class InMemoryAuthService implements AuthService {
+  // In-memory only, mirrors Supabase auth user_metadata for this
+  // harness — never persisted, reset on every reload.
+  private displayName: string | null = null;
+
   async getOrCreateAnonymousSession(): Promise<AuthSession> {
     return { userId: SEED_USER_ID, isAnonymous: true };
   }
@@ -35,5 +39,13 @@ export class InMemoryAuthService implements AuthService {
   // user, already registered. Not real auth — never wired to production.
   async signInWithPassword(_params: SignInWithPasswordParams): Promise<AuthSession> {
     return { userId: SEED_USER_ID, isAnonymous: false };
+  }
+  // No-op: no real Supabase password identity to change in this harness.
+  async updatePassword(_newPassword: string): Promise<void> {}
+  async getDisplayName(): Promise<string | null> {
+    return this.displayName;
+  }
+  async updateDisplayName(fullName: string): Promise<void> {
+    this.displayName = fullName;
   }
 }

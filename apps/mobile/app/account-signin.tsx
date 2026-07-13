@@ -103,6 +103,21 @@ export default function AccountSignInScreen() {
             onPress={handleSubmit}
             disabled={!canSubmit}
           />
+
+          {/* Honest "coming soon", not a broken flow: password-reset email
+              needs Supabase Auth's redirect URL allowlist configured for
+              this app's deep link, which hasn't been confirmed yet.
+              Same pattern as Settings/About's other not-yet-wired rows. */}
+          <View style={styles.forgotRow}>
+            <AppText variant="footnote" color="tertiary">
+              Şifremi Unuttum
+            </AppText>
+            <View style={styles.comingSoonTag}>
+              <AppText variant="caption" color="tertiary">
+                Yakında
+              </AppText>
+            </View>
+          </View>
         </Card>
       </KeyboardAvoidingView>
     </ScreenContainer>
@@ -133,5 +148,17 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     backgroundColor: colors.surface,
     fontSize: 16,
+  },
+  forgotRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: spacing.xs,
+  },
+  comingSoonTag: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+    borderRadius: radii.full,
+    backgroundColor: colors.surfaceSecondary,
   },
 });

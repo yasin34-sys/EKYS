@@ -18,13 +18,12 @@ interface SettingsRow {
 // have no flow yet) — routed to detail screens instead of pretending to
 // be working toggles.
 //
-// Store-readiness TODO: "Hesabı Sil" must become a real, working
-// in-app account-deletion flow before any account-creation feature ships
-// — Apple App Store Review Guideline 5.1.1(v) and Google Play's Account
-// Deletion policy both require this once accounts exist, not just a
-// support-ticket workaround. No action needed while the app stays
-// anonymous-only (current state), but this row shouldn't stay a
-// permanent "Yakında" once that changes.
+// "Hesabı Sil" routes to account-management's real deletion-request flow
+// (a prefilled support email, manually processed — see
+// account-delete-request.tsx). Not instant self-service deletion, but a
+// genuine, working request path, satisfying Apple App Store Review
+// Guideline 5.1.1(v) / Google Play's Account Deletion policy's
+// in-app-initiated requirement.
 const groups: { title: string; rows: SettingsRow[] }[] = [
   {
     title: 'Görünüm',
@@ -56,8 +55,8 @@ const groups: { title: string; rows: SettingsRow[] }[] = [
       {
         icon: 'trash-outline',
         label: 'Hesabı Sil',
-        detail: 'Mağaza yayını öncesi gerçek silme akışı gerekiyor.',
-        status: 'Gerekli',
+        detail: 'Hesap yönetimi ekranından silme talebi başlatabilirsin.',
+        status: 'Kullanılabilir',
         href: '/account-management',
       },
     ],

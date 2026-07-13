@@ -64,4 +64,22 @@ export interface AuthService {
   // potentially different identity than the device's current local user
   // must reconcile that separately (see SignInWithPasswordUseCase).
   signInWithPassword(params: SignInWithPasswordParams): Promise<AuthSession>;
+
+  // Changes the password of the current authenticated user only — never
+  // takes a target user id, so there is no way to use this to change
+  // another account's password. Requires a non-anonymous session. If the
+  // account has no password identity to change (e.g. OAuth-only, once
+  // that exists), Supabase's own error surfaces via AuthSessionError
+  // rather than this method pretending to succeed.
+  updatePassword(newPassword: string): Promise<void>;
+
+  // Reads the current user's display name from Supabase auth user
+  // metadata (`user_metadata.full_name`) — not a user_profiles column,
+  // so this needs no schema migration. Returns null if unset or session
+  // is missing.
+  getDisplayName(): Promise<string | null>;
+
+  // Writes the current user's display name to Supabase auth user
+  // metadata. Same non-migration rationale as getDisplayName.
+  updateDisplayName(fullName: string): Promise<void>;
 }
